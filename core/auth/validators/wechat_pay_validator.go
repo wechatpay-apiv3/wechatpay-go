@@ -43,7 +43,7 @@ func (validator *WechatPayValidator) Validate(ctx context.Context, response *htt
 	err = validator.Verifier.Verify(ctx, serialNumber, message, string(signature))
 	if err != nil {
 		return fmt.Errorf("validate verify fail serial=%s request-id=%s err=%s", serialNumber,
-			strings.TrimSpace(response.Header.Get(consts.WechatPaySerial)), err)
+			strings.TrimSpace(response.Header.Get(consts.RequestID)), err)
 	}
 	return nil
 }
