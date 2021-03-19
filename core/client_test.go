@@ -71,7 +71,6 @@ func TestGet(t *testing.T) {
 	body, err := ioutil.ReadAll(response.Body)
 	assert.Nil(t, err)
 	t.Log(string(body))
-	assert.Nil(t, CheckResponse(response))
 }
 
 type testData struct {
@@ -96,7 +95,6 @@ func TestPost(t *testing.T) {
 	}
 	response, err := client.Post(ctx, postURL, data)
 	assert.Nil(t, err)
-	assert.NotNil(t, CheckResponse(response))
 	body, err := ioutil.ReadAll(response.Body)
 	assert.Nil(t, err)
 	t.Log(string(body))
@@ -110,9 +108,11 @@ type meta struct {
 func TestClient_Upload(t *testing.T) {
 	// 如果你有自定义的Signer或者Verfifer
 	credential = &credentials.WechatPayCredentials{
-		Signer:              &signers.Sha256WithRSASigner{PrivateKey: privateKey},
-		MchID:               testMchID,
-		CertificateSerialNo: testCertificateSerialNumber,
+		Signer: &signers.Sha256WithRSASigner{
+			PrivateKey:             privateKey,
+			MchCertificateSerialNo: testCertificateSerialNumber,
+		},
+		MchID: testMchID,
 	}
 	validator = &validators.WechatPayValidator{
 		Verifier: &verifiers.WechatPayVerifier{

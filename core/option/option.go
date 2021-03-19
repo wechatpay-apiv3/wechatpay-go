@@ -22,17 +22,14 @@ type ClientOption interface {
 	Apply(settings *setting.DialSettings)
 }
 
-
 // WithMerchant 通过商户号、商户证书序列号、私钥构建一个默认的credential的ClientOption，用于生成http request header 中authorization信息
-func WithMerchant(mchID, certificateSerialNo string, privateKey *rsa.PrivateKey) ClientOption{
+func WithMerchant(mchID, certificateSerialNo string, privateKey *rsa.PrivateKey) ClientOption {
 	credential := &credentials.WechatPayCredentials{
-		Signer:              &signers.Sha256WithRSASigner{PrivateKey: privateKey},
-		MchID:               mchID,
-		CertificateSerialNo: certificateSerialNo,
+		Signer: &signers.Sha256WithRSASigner{PrivateKey: privateKey, MchCertificateSerialNo: certificateSerialNo},
+		MchID:  mchID,
 	}
 	return withCredential{credential: credential}
 }
-
 
 // WithCredential 返回一个指定credential的ClientOption，用于生成http request header 中authorization信息
 func WithCredential(credential auth.Credential) ClientOption {
@@ -47,7 +44,7 @@ func (w withCredential) Apply(o *setting.DialSettings) {
 }
 
 // WithWechatPay 设置微信支付平台证书信息，返回一个指定validator的ClientOption，用于校验http response header
-func WithWechatPay(certificateList []*x509.Certificate) ClientOption{
+func WithWechatPay(certificateList []*x509.Certificate) ClientOption {
 	certificates := map[string]*x509.Certificate{}
 	for _, certificate := range certificateList {
 		if serialNumberBigInt, ok := new(big.Int).SetString(certificate.SerialNumber.String(), 0); ok {
@@ -63,7 +60,7 @@ func WithWechatPay(certificateList []*x509.Certificate) ClientOption{
 	return withValidator{validator}
 }
 
-// WithCredential 返回一个指定validator的ClientOption，用于校验http response header
+// WithValidator 返回一个指定validator的ClientOption，用于校验http response header
 func WithValidator(validator auth.Validator) ClientOption {
 	return withValidator{validator}
 }
@@ -98,4 +95,16 @@ type withTimeout time.Duration
 // Apply 将配置添加到DialSettings中
 func (w withTimeout) Apply(o *setting.DialSettings) {
 	o.Timeout = time.Duration(w)
+}
+
+// WithoutValidator 返回一个指定validator的ClientOption，不进行验签 用于下载证书和下载账单等不需要进行验签的接口
+func WithoutValidator() ClientOption {
+	return withoutValidator{&validators.WechatPayNullValidator{}}
+}
+
+type withoutValidator struct{ Validator auth.Validator }
+
+// Apply 将配置添加到DialSettings中
+func (w withoutValidator) Apply(o *setting.DialSettings) {
+	o.Validator = w.Validator
 }

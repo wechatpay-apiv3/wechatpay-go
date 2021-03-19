@@ -8,7 +8,7 @@
 
 ## 项目状态
 
-当前版本为0.1.1为测试版本。请商户的专业技术人员在使用时注意系统和软件的正确性和兼容性，依旧带来的风险。
+当前版本为0.1.2为测试版本。请商户的专业技术人员在使用时注意系统和软件的正确性和兼容性，依旧带来的风险。
 
 ## 环境要求
 
@@ -68,15 +68,6 @@ if err != nil {
     log.Printf("weChatPayHttpClient Get:%s err:%s", getURL, err.Error())
     return
 }
-// 你还可以校验回包是否正常，如果有错可能是这样
-// wechat pay sdk: error HTTP response
-//        StatusCode: 400 
-//        Code: INVALID_REQUEST 
-//        Message: 商户号无效，请核实
-if err := core.CheckResponse(response); err != nil{
-    log.Printf("weChatPayHttpClient Get:%s Response Err:%s", getURL, err.Error())
-    return
-}
 if response.Body != nil {
     defer response.Body.Close()
 }
@@ -97,9 +88,9 @@ log.Printf("response body:%s", string(body))
 type CustomSigner struct{
 }
 
-func (customSigner *CustomSigner) Sign(ctx context.Context, message string) (string, error) {
+func (customSigner *CustomSigner) Sign(ctx context.Context, message string) (*auth.SignatureResult, error) {
     // 调用签名RPC服务，然后返回签名信息
-    return "", nil
+    return &auth.SignatureResult{MchCertificateSerialNo: "xxx", Signature: "xxxx"}, nil
 }
 
 // 校验器
@@ -215,13 +206,6 @@ if err != nil {
         uploadURL, reqBody.String(), err.Error())
     return
 }
-// 校验回包
-err = core.CheckResponse(response)
-if err != nil {
-    log.Printf("weChatPayHttpClient Upload uploadBody:%+v CheckResponse Err:%s", reqBody.String(),
-        err.Error())
-    return
-}
 if response.Body != nil {
     defer response.Body.Close()
 }
@@ -239,14 +223,9 @@ log.Printf("upload success response body:%s", string(body))
 使用`core.NewClient(ctx, opts...)`需要通过设置`Validator
 `属性添加微信支付平台证书来对回包进行验证，而平台证书又只能通过调用获取平台证书接口下载。为了解开"死循环"，你可以在第一次下载平台证书时，按照下述方法临时"跳过”应答签名的验证。
 ```golang
-//初始化的时候使用不校验回包的verifier
-validator := &validators.WechatPayValidator{
-    Verifier: &verifiers.WechatPayDefaultVerifier{},
-}
-
 opts := []option.ClientOption{
     option.WithMerchant(mchID, mchCertificateSerialNumber, privateKey),
-    option.WithValidator(validator),
+    option.WithoutValidator(),
 }
 
 client, err := core.NewClient(ctx, opts...)
@@ -255,7 +234,21 @@ client, err := core.NewClient(ctx, opts...)
 **注意**：业务请求请使用标准的初始化流程，务必验证应答签名。
 
 
+### 如何下载账单
+
+因为下载的账单文件可能会很大，为了平衡系统性能和签名验签的实现成本，[账单下载API](https://pay.weixin.qq.com/wiki/doc/apiv3/wxpay/pay/bill/chapter3_3.shtml)
+被分成了两个步骤：
+
+1. `/v3/bill/tradebill` 获取账单下载链接和账单摘要
+2. `/v3/billdownload/file` 账单文件下载，请求需签名但应答不签名
+
+因为第二步不包含应答签名，我们可以参考上一个问题下载平台证书的方法，使用`WithoutValidator()`“跳过”应答的签名校验。
+
+**注意**：开发者在下载文件之后，应使用第一步获取的账单摘要校验文件的完整性。
+**注意**：业务请求请使用标准的初始化流程，务必验证应答签名。
+
 ### 如何查看http请求的request信息
+
 ```golang
 // 你可以直接调用来获取request信息，便于调试
 request := client.RequestInfo() 

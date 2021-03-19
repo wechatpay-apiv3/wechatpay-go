@@ -22,6 +22,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"strings"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
@@ -170,7 +171,7 @@ func (client *Client) doRequest(ctx context.Context,
 	var err error
 	var authorization string
 	if client.request, err = http.NewRequestWithContext(ctx, method, requestURL,
-		bytes.NewBufferString(reqBody)); err != nil {
+		strings.NewReader(reqBody)); err != nil {
 		return nil, err
 	}
 	client.request.Header.Set(consts.Accept, "*/*")
@@ -183,10 +184,13 @@ func (client *Client) doRequest(ctx context.Context,
 	client.request.Header.Set(consts.Authorization, authorization)
 	response, err := client.hc.Do(client.request)
 	if err != nil {
-		return nil, err
+		return response, err
 	}
-	if err = client.validator.Validate(ctx, response);err != nil{
-		return nil, err
+	if err = CheckResponse(response); err != nil {
+		return response, err
+	}
+	if err = client.validator.Validate(ctx, response); err != nil {
+		return response, err
 	}
 	return response, nil
 }
