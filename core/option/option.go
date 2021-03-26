@@ -108,3 +108,15 @@ type withoutValidator struct{ Validator auth.Validator }
 func (w withoutValidator) Apply(o *setting.DialSettings) {
 	o.Validator = w.Validator
 }
+
+// WithHeader 返回一个为http client设置额外header信息的ClientOption
+func WithHeader(header *http.Header) ClientOption {
+	return withHeader{header: header}
+}
+
+type withHeader struct{ header *http.Header }
+
+// Apply 将配置添加到DialSettings中
+func (w withHeader) Apply(o *setting.DialSettings) {
+	o.Header = w.header
+}

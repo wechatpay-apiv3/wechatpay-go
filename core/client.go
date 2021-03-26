@@ -35,6 +35,7 @@ import (
 type Client struct {
 	hc         *http.Client
 	request    *http.Request
+	header     *http.Header
 	credential auth.Credential
 	validator  auth.Validator
 }
@@ -63,6 +64,7 @@ func NewClient(ctx context.Context, opts ...option.ClientOption) (client *Client
 		validator:  settings.Validator,
 		credential: settings.Credential,
 		hc:         settings.HTTPClient,
+		header:     settings.Header,
 	}
 	return client, nil
 }
@@ -77,6 +79,9 @@ func initSettings(opts []option.ClientOption) (*setting.DialSettings, error) {
 	}
 	if o.HTTPClient == nil {
 		o.HTTPClient = &http.Client{}
+	}
+	if o.Header == nil {
+		o.Header = &http.Header{}
 	}
 	if o.Timeout != 0 {
 		o.HTTPClient.Timeout = o.Timeout
@@ -182,6 +187,9 @@ func (client *Client) doRequest(ctx context.Context,
 		return nil, fmt.Errorf("generate authorization err:%s", err.Error())
 	}
 	client.request.Header.Set(consts.Authorization, authorization)
+	for key, value := range *client.header {
+		client.request.Header.Set(key, value[0])
+	}
 	response, err := client.hc.Do(client.request)
 	if err != nil {
 		return response, err
