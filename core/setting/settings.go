@@ -13,6 +13,7 @@ import (
 type DialSettings struct {
 	HTTPClient *http.Client
 	Request    *http.Request
+	Header     *http.Header
 	UserAgent  string
 	Credential auth.Credential // authorization生成器
 	Validator  auth.Validator  // 校验器

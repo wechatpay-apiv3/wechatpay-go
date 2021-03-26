@@ -50,6 +50,7 @@ func main() {
         option.WithWechatPay(wechatPayCertificateList),  // 设置微信支付平台证书信息，对回包进行校验
         option.WithHTTPClient(&http.Client{}),  // 可以不设置
         option.WithTimeout(2 * time.Second),    // 自行进行超时时间配置
+        option.WithHeader(&http.Header{}),      // 可以自行设置Header
     }
     client, err := core.NewClient(ctx, opts...)
     if err != nil {
@@ -259,6 +260,15 @@ request := client.RequestInfo()
 
 ### 示例demo
 可以查看`github.com/wechatpay-apiv3/wechatpay-go/core/client_test.go`里面的demo。
+
+### 生成签名
+如果使用`rsa`算法生成签名,可以参考以下代码
+```
+import (
+    "github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
+)
+signature, err := signers.Sha256WithRsa(sourceMessage, privateKey)
+```
 
 ### 工具包
 我们提供了一些常用的方法来加载你的私钥和证书,这些都在`utils`工具包中,具体包括以下常用方法
