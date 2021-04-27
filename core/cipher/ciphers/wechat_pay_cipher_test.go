@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"git.code.oa.com/emmetzhang/codegen-go-sdk/core"
-	"git.code.oa.com/emmetzhang/codegen-go-sdk/core/auth/decryptors"
-	"git.code.oa.com/emmetzhang/codegen-go-sdk/core/auth/encryptors"
+	"git.code.oa.com/emmetzhang/codegen-go-sdk/core/cipher/decryptors"
+	"git.code.oa.com/emmetzhang/codegen-go-sdk/core/cipher/encryptors"
 	"github.com/stretchr/testify/assert"
 )
 
