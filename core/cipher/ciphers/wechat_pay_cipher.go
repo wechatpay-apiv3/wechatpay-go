@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher"
 )
 
 type cipherType string
@@ -27,8 +27,8 @@ const (
 //  2. 微信支付对下行的敏感信息字段进行加密
 // 详见：https://wechatpay-api.gitbook.io/wechatpay-api-v3/qian-ming-zhi-nan-1/min-gan-xin-xi-jia-mi
 type WechatPayCipher struct {
-	Encryptor auth.Encryptor
-	Decryptor auth.Decryptor
+	Encryptor cipher.Encryptor
+	Decryptor cipher.Decryptor
 }
 
 func (c *WechatPayCipher) Encrypt(ctx context.Context, in interface{}) (string, error) {

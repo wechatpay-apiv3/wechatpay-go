@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/decryptors"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/encryptors"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/decryptors"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/encryptors"
 	"github.com/stretchr/testify/assert"
 )
 
