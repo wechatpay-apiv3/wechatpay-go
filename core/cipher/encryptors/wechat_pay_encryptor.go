@@ -62,6 +62,11 @@ func (e *WechatPayEncryptor) Encrypt(ctx context.Context, serial, plaintext stri
 		return plaintext, fmt.Errorf("cert for EncryptSerial not found")
 	}
 
+	// 不需要对空串进行加密
+	if plaintext == "" {
+		return "", nil
+	}
+
 	return utils.EncryptOAEPWithCertificate(plaintext, cert)
 }
 

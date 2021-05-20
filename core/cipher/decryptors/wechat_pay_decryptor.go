@@ -13,5 +13,8 @@ type WechatPayDecryptor struct {
 }
 
 func (d *WechatPayDecryptor) Decrypt(ctx context.Context, ciphertext string) (plaintext string, err error) {
+	if ciphertext == "" {
+		return "", nil
+	}
 	return utils.DecryptOAEP(ciphertext, d.PrivateKey)
 }
