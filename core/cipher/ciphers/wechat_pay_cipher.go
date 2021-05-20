@@ -81,6 +81,11 @@ func (c *WechatPayCipher) cipher(ctx context.Context, ty cipherType, v reflect.V
 		fieldType := field.Type
 		fieldValue := v.Field(i)
 
+		if !fieldValue.CanInterface() {
+			// ignore unexported fields
+			return nil
+		}
+
 		if fieldType.Kind() == reflect.Ptr {
 			if fieldValue.IsNil() {
 				continue
