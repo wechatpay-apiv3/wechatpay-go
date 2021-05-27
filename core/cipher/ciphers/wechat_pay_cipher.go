@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"git.code.oa.com/emmetzhang/codegen-go-sdk/core/cipher"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher"
 )
 
 type cipherType string
@@ -31,6 +31,7 @@ type WechatPayCipher struct {
 	Decryptor cipher.Decryptor
 }
 
+// Encrypt 对结构中的敏感字段进行加密
 func (c *WechatPayCipher) Encrypt(ctx context.Context, in interface{}) (string, error) {
 	serial, err := c.Encryptor.SelectCertificate(ctx)
 	if err != nil {
@@ -45,6 +46,7 @@ func (c *WechatPayCipher) Encrypt(ctx context.Context, in interface{}) (string, 
 	}
 }
 
+// Decrypt 对结构中的敏感字段进行解密
 func (c *WechatPayCipher) Decrypt(ctx context.Context, in interface{}) error {
 	if v, ok := in.(reflect.Value); ok {
 		return c.cipher(ctx, cipherTypeDecrypt, v)
