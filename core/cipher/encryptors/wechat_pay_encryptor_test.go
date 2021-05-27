@@ -5,8 +5,8 @@ import (
 	"crypto/x509"
 	"testing"
 
-	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 	"github.com/stretchr/testify/assert"
+	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
 var testCertStrList = [2]string{

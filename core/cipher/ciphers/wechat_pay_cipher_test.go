@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/decryptors"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/encryptors"
-	"github.com/stretchr/testify/assert"
 )
 
 type Student struct {

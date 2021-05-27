@@ -7,11 +7,13 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
+// WechatPayDecryptor 微信支付字符串解密器
 type WechatPayDecryptor struct {
 	// 商户私钥
 	PrivateKey *rsa.PrivateKey
 }
 
+// Decrypt 使用商户私钥对字符串进行解密
 func (d *WechatPayDecryptor) Decrypt(ctx context.Context, ciphertext string) (plaintext string, err error) {
 	if ciphertext == "" {
 		return "", nil

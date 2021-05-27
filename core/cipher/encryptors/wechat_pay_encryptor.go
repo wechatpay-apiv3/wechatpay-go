@@ -10,6 +10,7 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
+// WechatPayEncryptor 微信支付字符串加密器
 type WechatPayEncryptor struct {
 	// 微信支付平台证书 证书序列号 -> 证书
 	certificates map[string]*x509.Certificate
@@ -20,8 +21,6 @@ type WechatPayEncryptor struct {
 }
 
 // NewWechatPayEncryptor 新建一个 WechatPayEncryptor
-//
-// 如果需要在并发环境（GoRoutine）中共享使用它，请使用 NewConcurrentSafeWechatPayEncryptor 生成并发安全版本
 func NewWechatPayEncryptor(certificates []*x509.Certificate) *WechatPayEncryptor {
 	e := WechatPayEncryptor{}
 	e.SetCertificates(certificates)

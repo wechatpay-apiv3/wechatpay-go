@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 	"github.com/stretchr/testify/assert"
+	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
 func TestWechatPayDecryptor_Decrypt(t *testing.T) {
