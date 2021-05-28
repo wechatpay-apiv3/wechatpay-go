@@ -10,7 +10,7 @@ import (
 
 // VideoUploadResponse 视频上传API返回结果
 type VideoUploadResponse struct {
-	MediaId string `json:"media_id"`
+	MediaId *string `json:"media_id"`
 }
 
 // VideoUploader 视频上传API
