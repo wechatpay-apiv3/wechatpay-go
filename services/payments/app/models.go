@@ -81,8 +81,8 @@ type Detail struct {
 	// 1.商户侧一张小票订单可能被分多次支付，订单原价用于记录整张小票的交易金额。 2.当订单原价与支付金额不相等，则不享受优惠。 3.该字段主要用于防止同一张小票分多次支付，以享受多次优惠的情况，正常支付订单不必上传此参数。
 	CostPrice *int32 `json:"cost_price,omitempty"`
 	// 商家小票ID。
-	InvoiceId   *string        `json:"invoice_id,omitempty"`
-	GoodsDetail *[]GoodsDetail `json:"goods_detail,omitempty"`
+	InvoiceId   *string       `json:"invoice_id,omitempty"`
+	GoodsDetail []GoodsDetail `json:"goods_detail,omitempty"`
 }
 
 func (o Detail) MarshalJSON() ([]byte, error) {
@@ -163,7 +163,7 @@ type PrepayRequest struct {
 	// 商品标记，代金券或立减优惠功能的参数。
 	GoodsTag *string `json:"goods_tag,omitempty"`
 	// 指定支付方式
-	LimitPay *[]string `json:"limit_pay,omitempty"`
+	LimitPay []string `json:"limit_pay,omitempty"`
 	// 传入true时，支付成功消息和支付详情页将出现开票入口。需要在微信支付商户平台或微信公众平台开通电子发票功能，传此字段才可生效。
 	SupportFapiao *bool       `json:"support_fapiao,omitempty"`
 	Amount        *Amount     `json:"amount"`

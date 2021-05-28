@@ -108,7 +108,7 @@ func main() {
 			Attach:        core.String("自定义数据说明"),
 			NotifyUrl:     core.String("https://www.weixin.qq.com/wxpay/pay.php"),
 			GoodsTag:      core.String("WXG"),
-			LimitPay:      &[]string{"LimitPay_example"},
+			LimitPay:      []string{"LimitPay_example"},
 			SupportFapiao: core.Bool(false),
 			Amount: &h5.Amount{
 				Currency: core.String("CNY"),
@@ -116,7 +116,7 @@ func main() {
 			},
 			Detail: &h5.Detail{
 				CostPrice: core.Int32(608800),
-				GoodsDetail: &[]h5.GoodsDetail{h5.GoodsDetail{
+				GoodsDetail: []h5.GoodsDetail{h5.GoodsDetail{
 					GoodsName:        core.String("iPhoneX 256G"),
 					MerchantGoodsId:  core.String("ABC"),
 					Quantity:         core.Int32(1),
