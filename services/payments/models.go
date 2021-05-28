@@ -36,8 +36,8 @@ type PromotionDetail struct {
 	// 单位为分
 	OtherContribute *int32 `json:"other_contribute,omitempty"`
 	// CNY：人民币，境内商户号仅支持人民币。
-	Currency    *string                 `json:"currency,omitempty"`
-	GoodsDetail *[]PromotionGoodsDetail `json:"goods_detail,omitempty"`
+	Currency    *string                `json:"currency,omitempty"`
+	GoodsDetail []PromotionGoodsDetail `json:"goods_detail,omitempty"`
 }
 
 func (o PromotionDetail) MarshalJSON() ([]byte, error) {
@@ -141,7 +141,7 @@ type Transaction struct {
 	Mchid           *string            `json:"mchid,omitempty"`
 	OutTradeNo      *string            `json:"out_trade_no,omitempty"`
 	Payer           *TransactionPayer  `json:"payer,omitempty"`
-	PromotionDetail *[]PromotionDetail `json:"promotion_detail,omitempty"`
+	PromotionDetail []PromotionDetail  `json:"promotion_detail,omitempty"`
 	SuccessTime     *string            `json:"success_time,omitempty"`
 	TradeState      *string            `json:"trade_state,omitempty"`
 	TradeStateDesc  *string            `json:"trade_state_desc,omitempty"`
