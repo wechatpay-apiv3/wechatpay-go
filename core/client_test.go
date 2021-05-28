@@ -1,4 +1,4 @@
-package core
+package core_test
 
 import (
 	"bytes"
@@ -9,15 +9,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
+	"net/http"
 	"testing"
+	"time"
 
+	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/credentials"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 
 	"github.com/stretchr/testify/assert"
@@ -34,7 +38,7 @@ const (
 	filePath  = ""
 	fileName  = "picture.jpeg"
 	postURL   = "https://api.mch.weixin.qq.com/v3/marketing/favor/users/oHkLxt_htg84TUEbzvlMwQzVDBqo/coupons"
-	GetURL    = "https://api.mch.weixin.qq.com/v3/certificates"
+	getURL    = "https://api.mch.weixin.qq.com/v3/certificates"
 	uploadURL = "https://api.mch.weixin.qq.com/v3/merchant/media/upload"
 )
 
@@ -60,15 +64,15 @@ func init() {
 }
 
 func TestGet(t *testing.T) {
-	opts := []option.ClientOption{
-		option.WithMerchant(testMchID, testCertificateSerialNumber, privateKey),
-		option.WithWechatPay([]*x509.Certificate{wechatPayCertificate}),
+	opts := []core.ClientOption{
+		core.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
+		core.WithWechatPayValidator([]*x509.Certificate{wechatPayCertificate}),
 	}
-	client, err := NewClient(ctx, opts...)
+	client, err := core.NewClient(ctx, opts...)
 	assert.Nil(t, err)
-	response, err := client.Get(ctx, GetURL)
+	result, err := client.Get(ctx, getURL)
 	assert.Nil(t, err)
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := ioutil.ReadAll(result.Response.Body)
 	assert.Nil(t, err)
 	t.Log(string(body))
 }
@@ -81,11 +85,11 @@ type testData struct {
 }
 
 func TestPost(t *testing.T) {
-	opts := []option.ClientOption{
-		option.WithMerchant(testMchID, testCertificateSerialNumber, privateKey),
-		option.WithWechatPay([]*x509.Certificate{wechatPayCertificate}),
+	opts := []core.ClientOption{
+		core.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
+		core.WithWechatPayValidator([]*x509.Certificate{wechatPayCertificate}),
 	}
-	client, err := NewClient(ctx, opts...)
+	client, err := core.NewClient(ctx, opts...)
 	assert.Nil(t, err)
 	data := &testData{
 		StockID:           "xxx",
@@ -93,9 +97,9 @@ func TestPost(t *testing.T) {
 		OutRequestNo:      "xxx",
 		AppID:             "xxx",
 	}
-	response, err := client.Post(ctx, postURL, data)
+	result, err := client.Post(ctx, postURL, data)
 	assert.Nil(t, err)
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := ioutil.ReadAll(result.Response.Body)
 	assert.Nil(t, err)
 	t.Log(string(body))
 }
@@ -106,22 +110,22 @@ type meta struct {
 }
 
 func TestClient_Upload(t *testing.T) {
-	// 如果你有自定义的Signer或者Verfifer
+	// 如果你有自定义的Signer或者Verifier
 	credential = &credentials.WechatPayCredentials{
-		Signer: &signers.Sha256WithRSASigner{
-			PrivateKey:             privateKey,
-			MchCertificateSerialNo: testCertificateSerialNumber,
+		Signer: &signers.SHA256WithRSASigner{
+			PrivateKey:          privateKey,
+			CertificateSerialNo: testCertificateSerialNumber,
 		},
 		MchID: testMchID,
 	}
 	validator = &validators.WechatPayValidator{
-		Verifier: &verifiers.WechatPayVerifier{
+		Verifier: &verifiers.SHA256WithRSAVerifier{
 			Certificates: map[string]*x509.Certificate{
 				testWechatCertSerialNumber: wechatPayCertificate,
 			},
 		},
 	}
-	client, err := NewClient(ctx, option.WithCredential(credential), option.WithValidator(validator))
+	client, err := core.NewClient(ctx, core.WithCredential(credential), core.WithValidator(validator))
 	assert.Nil(t, err)
 	pictureByes, err := ioutil.ReadFile(filePath)
 	assert.Nil(t, err)
@@ -136,18 +140,75 @@ func TestClient_Upload(t *testing.T) {
 	metaByte, _ := json.Marshal(metaObject)
 	reqBody := &bytes.Buffer{}
 	writer := multipart.NewWriter(reqBody)
-	err = CreateFormField(writer, "meta", "application/json", metaByte)
+	err = core.CreateFormField(writer, "meta", "application/json", metaByte)
 	assert.Nil(t, err)
-	err = CreateFormFile(writer, fileName, "image/jpg", pictureByes)
+	err = core.CreateFormFile(writer, fileName, "image/jpg", pictureByes)
 	assert.Nil(t, err)
 	err = writer.Close()
 	assert.Nil(t, err)
-	response, err := client.Upload(ctx, uploadURL, string(metaByte), reqBody.String(), writer.FormDataContentType())
+	result, err := client.Upload(ctx, uploadURL, string(metaByte), reqBody.String(), writer.FormDataContentType())
 	assert.Nil(t, err)
-	if response.Body != nil {
-		defer response.Body.Close()
+	if result.Response.Body != nil {
+		defer result.Response.Body.Close()
 	}
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := ioutil.ReadAll(result.Response.Body)
 	assert.Nil(t, err)
 	t.Log(string(body))
+}
+
+func ExampleNewClient_default() {
+	// 示例参数，实际使用时请自行初始化
+	var (
+		mchID                      string
+		mchCertificateSerialNumber string
+		mchPrivateKey              *rsa.PrivateKey
+		wechatPayCertList          []*x509.Certificate
+		customHTTPClient           *http.Client
+	)
+
+	ctx := context.Background()
+	opts := []core.ClientOption{
+		core.WithMerchantCredential(mchID, mchCertificateSerialNumber, mchPrivateKey), // 使用商户信息生成默认 WechatPayCredential
+		core.WithWechatPayValidator(wechatPayCertList),                                // 使用微信支付平台证书列表生成默认 SHA256WithRSAVerifier
+		core.WithHTTPClient(customHTTPClient),                                         // 设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
+		core.WithTimeout(2 * time.Second),                                             // 设置自定义超时时间，不设置时使用 http.Client{} 默认超时
+	}
+	client, err := core.NewClient(ctx, opts...)
+	if err != nil {
+		log.Printf("new wechat pay client err:%s", err.Error())
+		return
+	}
+	// 接下来使用 client 进行请求发送
+	_ = client
+}
+
+func ExampleCreateFormField() {
+	var w multipart.Writer
+
+	meta := map[string]string{
+		"filename": "sample.jpg",
+		"sha256":   "5944758444f0af3bc843e39b611a6b0c8c38cca44af653cd461b5765b71dc3f8",
+	}
+
+	metaBytes, err := json.Marshal(meta)
+	if err != nil {
+		// TODO: 处理错误
+		return
+	}
+
+	err = core.CreateFormField(&w, "meta", consts.ApplicationJSON, metaBytes)
+	if err != nil {
+		// TODO: 处理错误
+	}
+}
+
+func ExampleCreateFormFile() {
+	var w multipart.Writer
+
+	var fileContent []byte
+
+	err := core.CreateFormFile(&w, "sample.jpg", consts.ImageJPG, fileContent)
+	if err != nil {
+		// TODO: 处理错误
+	}
 }

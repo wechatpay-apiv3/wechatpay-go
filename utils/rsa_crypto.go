@@ -9,7 +9,7 @@ import (
 	"fmt"
 )
 
-// EncryptOAEPWithPublicKey  直接使用公钥进行加密
+// EncryptOAEPWithPublicKey 使用公钥进行加密
 func EncryptOAEPWithPublicKey(message string, publicKey *rsa.PublicKey) (ciphertext string, err error) {
 	if publicKey == nil {
 		return "", fmt.Errorf("you should input *rsa.PublicKey")

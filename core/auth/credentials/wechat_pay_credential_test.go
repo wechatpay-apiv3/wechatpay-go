@@ -23,9 +23,9 @@ func TestWechatPayCredentials_GenerateAuthorizationHeader(t *testing.T) {
 		{Values: gomonkey.Params{"123", nil}, Times: 2},
 		{Values: gomonkey.Params{"", fmt.Errorf("generate nonce str err")}, Times: 1},
 	}
-	c := &WechatPayCredentials{Signer: &signers.Sha256WithRSASigner{}}
+	c := &WechatPayCredentials{Signer: &signers.SHA256WithRSASigner{}}
 	patches.ApplyMethodSeq(reflect.TypeOf(c.Signer), "Sign", signOutputs)
-	patches.ApplyFuncSeq(generateNonceStr, generateNonceStrOutputs)
+	patches.ApplyFuncSeq(generateNonce, generateNonceStrOutputs)
 	type fields struct {
 		Signer auth.Signer
 	}
@@ -78,7 +78,7 @@ func TestGenerateNonceStr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := generateNonceStr()
+			_, err := generateNonce()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GenerateNonceStr() error = %v, wantErr %v", err, tt.wantErr)
 				return
