@@ -10,7 +10,7 @@ import (
 
 // MchBizUploadResponse 商户上传反馈图片API返回结果
 type MchBizUploadResponse struct {
-	MediaId string `json:"media_id"`
+	MediaId *string `json:"media_id"`
 }
 
 // MchBizUploader 商户上传反馈图片API
