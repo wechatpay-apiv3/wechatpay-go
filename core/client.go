@@ -1,76 +1,74 @@
-// Copyright 2020 Tencent Inc.  All rights reserved.
+// Copyright 2021 Tencent Inc.  All rights reserved.
 
-// Package core 微信支付api v3 go http-client 基础库，你可以使用它来创建一个client，并向微信支付发送http请求
+// Package core 微信支付 API v3 Go SDK HTTPClient 基础库，你可以使用它来创建一个 Client，并向微信支付发送 HTTP 请求
 //
-// 只需要你在初始化客户端的时候，传递credential以及validator
-//
-// credential用来生成http header中的authorization信息
-//
-// validator则用来校验回包是否被篡改
-//
-// 如果http请求返回的err为nil，一般response.Body 都不为空，你可以尝试对其进行序列化
-//
-// 请注意及时关闭response.Body
+// 初始化 Client 时，你需要指定以下参数：
+//  - Credential 用于生成 HTTP Header 中的 Authorization 信息，微信支付 API v3依赖该值来保证请求的真实性和数据的完整性
+//  - Validator 用于对微信支付的应答进行校验，避免被恶意攻击
 package core
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"net/url"
+	"os"
+	"reflect"
+	"regexp"
 	"strings"
+	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/errors"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/setting"
 )
 
-// Client 微信支付apiv3 基础client
-type Client struct {
-	hc         *http.Client
-	request    *http.Request
-	header     *http.Header
-	credential auth.Credential
-	validator  auth.Validator
+var (
+	regJSONTypeCheck = regexp.MustCompile(`(?i:(?:application|text)/(?:vnd\.[^;]+\+)?json)`)
+	regXMLTypeCheck  = regexp.MustCompile(`(?i:(?:application|text)/xml)`)
+)
+
+// APIResult 微信支付API v3 请求结果
+type APIResult struct {
+	// 本次请求所使用的 HTTPRequest
+	Request *http.Request
+	// 本次请求所获得的 HTTPResponse
+	Response *http.Response
 }
 
-//NewClient 初始化一个微信支付apiv3 http client
+// Client 微信支付API v3 基础 Client
+type Client struct {
+	httpClient    *http.Client
+	defaultHeader http.Header
+	credential    auth.Credential
+	validator     auth.Validator
+}
+
+// NewClient 初始化一个微信支付API v3 HTTPClient
 //
-// 初始化的时候你可以传递多个配置信息, 比如
-//	ctx := context.Background()
-//	opts := []option.ClientOption{
-//		option.WithMerchant(mchID, mchCertificateSerialNumber, privateKey), // 设置商户信息，用于生成签名信息
-//		option.WithWechatPay(wechatPayCertificateList),  // 设置微信支付平台证书信息，对回包进行校验
-//		option.WithHTTPClient(&http.Client{}), // 可以不设置
-//		option.WithTimeout(2 * time.Second),   // 自行进行超时时间配置
-//	}
-//	client, err := core.NewClient(ctx, opts...)
-//	if err != nil {
-//		log.Printf("new wechat pay client err:%s", err.Error())
-//		return
-//	}
-func NewClient(ctx context.Context, opts ...option.ClientOption) (client *Client, err error) {
+// 初始化的时候你可以传递多个配置信息
+func NewClient(ctx context.Context, opts ...ClientOption) (client *Client, err error) {
 	settings, err := initSettings(opts)
 	if err != nil {
 		return nil, fmt.Errorf("init client setting err:%v", err)
 	}
 	client = &Client{
-		validator:  settings.Validator,
-		credential: settings.Credential,
-		hc:         settings.HTTPClient,
-		header:     settings.Header,
+		validator:     settings.Validator,
+		credential:    settings.Credential,
+		httpClient:    settings.HTTPClient,
+		defaultHeader: settings.Header,
 	}
 	return client, nil
 }
 
-func initSettings(opts []option.ClientOption) (*setting.DialSettings, error) {
-	var o setting.DialSettings
+func initSettings(opts []ClientOption) (*dialSettings, error) {
+	var o dialSettings
 	for _, opt := range opts {
 		opt.Apply(&o)
 	}
@@ -80,161 +78,215 @@ func initSettings(opts []option.ClientOption) (*setting.DialSettings, error) {
 	if o.HTTPClient == nil {
 		o.HTTPClient = &http.Client{}
 	}
-	if o.Header == nil {
-		o.Header = &http.Header{}
-	}
 	if o.Timeout != 0 {
 		o.HTTPClient.Timeout = o.Timeout
 	}
 	return &o, nil
 }
 
-// Get 向微信支付发送一个http get请求
-func (client *Client) Get(ctx context.Context, requestURL string) (*http.Response, error) {
-	return client.doRequest(ctx, http.MethodGet, requestURL, consts.ApplicationJSON, "", "")
+// Get 向微信支付发送一个 HTTP Get 请求
+func (client *Client) Get(ctx context.Context, requestURL string) (*APIResult, error) {
+	return client.doRequest(ctx, http.MethodGet, requestURL, nil, consts.ApplicationJSON, nil, "")
 }
 
-// Post 向微信支付发送一个http post请求
-func (client *Client) Post(ctx context.Context, requestURL string, requestBody interface{}) (*http.Response, error) {
-	return client.do(ctx, http.MethodPost, requestURL, requestBody)
+// Post 向微信支付发送一个 HTTP Post 请求
+func (client *Client) Post(ctx context.Context, requestURL string, requestBody interface{}) (*APIResult, error) {
+	return client.requestWithJSONBody(ctx, http.MethodPost, requestURL, requestBody)
 }
 
-// Patch 向微信支付发送一个http patch请求
-func (client *Client) Patch(ctx context.Context, requestURL string, requestBody interface{}) (*http.Response, error) {
-	return client.do(ctx, http.MethodPatch, requestURL, requestBody)
+// Patch 向微信支付发送一个 HTTP Patch 请求
+func (client *Client) Patch(ctx context.Context, requestURL string, requestBody interface{}) (*APIResult, error) {
+	return client.requestWithJSONBody(ctx, http.MethodPatch, requestURL, requestBody)
 }
 
-// Put 向微信支付发送一个http put请求
-func (client *Client) Put(ctx context.Context, requestURL string, requestBody interface{}) (*http.Response, error) {
-	return client.do(ctx, http.MethodPut, requestURL, requestBody)
+// Put 向微信支付发送一个 HTTP Put 请求
+func (client *Client) Put(ctx context.Context, requestURL string, requestBody interface{}) (*APIResult, error) {
+	return client.requestWithJSONBody(ctx, http.MethodPut, requestURL, requestBody)
 }
 
-// Delete 向微信支付发送一个http delete请求
-func (client *Client) Delete(ctx context.Context, requestURL string, requestBody interface{}) (*http.Response, error) {
-	return client.do(ctx, http.MethodDelete, requestURL, requestBody)
+// Delete 向微信支付发送一个 Http Delete 请求
+func (client *Client) Delete(ctx context.Context, requestURL string, requestBody interface{}) (*APIResult, error) {
+	return client.requestWithJSONBody(ctx, http.MethodDelete, requestURL, requestBody)
 }
 
-// Upload 向微信支付发送上传图片或视频文件请求
-//
-// 上传接口文档https://pay.weixin.qq.com/wiki/doc/apiv3/wxpay/tool/chapter3_1.shtml
-//
-// 你需要传入上传接口的url、文件名、文件流以及meta部分，
-//
-// 当前meta部分需要你自己定义一个结构体，后续我们会将上传接口以api的形式提供，直接封装好
-//
-//	pictureByes, err := ioutil.ReadFile(filePath)
-//	if err != nil {
-//		return err
-//	}
-//	// 计算文件序列化后的sha256
-//	h := sha256.New()
-//	if _, err = h.Write(pictureByes); err != nil {
-//		return err
-//	}
-//	type Meta struct {
-//		FileName string `json:"filename" binding:"required"` // 商户上传的媒体图片的名称，商户自定义，必须以JPG、BMP、PNG为后缀。
-//		Sha256   string `json:"sha256" binding:"required"`   // 图片文件的文件摘要，即对图片文件的二进制内容进行sha256计算得到的值。
-//	}
-//	meta := &Meta{}
-//	pictureSha256 := h.Sum(nil)
-//	meta.FileName = fileName
-//	meta.Sha256 = fmt.Sprintf("%x", string(pictureSha256))
-//	metaByte, _ := json.Marshal(meta)
-//	requestBody := &bytes.Buffer{}
-//	writer := multipart.NewWriter(requestBody)
-//	if err = CreateFormField(writer, "meta", "application/json", metaByte); err != nil {
-//		return err
-//	}
-//	if err = CreateFormFile(writer, fileName, "image/jpg", pictureByes); err != nil {
-//		return err
-//	}
-//	if err = writer.Close(); err != nil {
-//		return err
-//	}
-//	response, err := client.Upload(ctx, uploadURL, string(metaByte), requestBody.String(), writer.FormDataContentType())
-func (client *Client) Upload(ctx context.Context, requestURL, meta, reqBody, formContentType string) (*http.Response,
-	error) {
-	return client.doRequest(ctx, http.MethodPost, requestURL, formContentType, reqBody, meta)
+// Upload 向微信支付发送上传文件
+func (client *Client) Upload(ctx context.Context, requestURL, meta, reqBody, formContentType string) (*APIResult, error) {
+	return client.doRequest(ctx, http.MethodPost, requestURL, nil, formContentType, strings.NewReader(reqBody), meta)
 }
 
-// RequestInfo 返回client请求里的http request信息
-func (client *Client) RequestInfo() *http.Request {
-	return client.request
-}
-
-func (client *Client) do(ctx context.Context, method, requestURL string, body interface{}) (*http.Response, error) {
-	var reqBody string
-	var err error
-	if reqBody, err = marshalReqBody(body); err != nil {
+func (client *Client) requestWithJSONBody(ctx context.Context, method, requestURL string, body interface{}) (*APIResult, error) {
+	reqBody, err := setBody(body, consts.ApplicationJSON)
+	if err != nil {
 		return nil, err
 	}
-	return client.doRequest(ctx, method, requestURL, consts.ApplicationJSON, reqBody, reqBody)
+
+	return client.doRequest(ctx, method, requestURL, nil, consts.ApplicationJSON, reqBody, reqBody.String())
 }
 
-func (client *Client) doRequest(ctx context.Context,
-	method, requestURL, contentType, reqBody, signBody string) (*http.Response, error) {
-	var err error
-	var authorization string
-	if client.request, err = http.NewRequestWithContext(ctx, method, requestURL,
-		strings.NewReader(reqBody)); err != nil {
+func (client *Client) doRequest(
+	ctx context.Context,
+	method string,
+	requestURL string,
+	header http.Header,
+	contentType string,
+	reqBody io.Reader,
+	signBody string) (*APIResult, error) {
+
+	var (
+		err           error
+		authorization string
+		request       *http.Request
+	)
+
+	// Construct Request
+	if request, err = http.NewRequestWithContext(ctx, method, requestURL, reqBody); err != nil {
 		return nil, err
 	}
-	client.request.Header.Set(consts.Accept, "*/*")
-	client.request.Header.Set(consts.ContentType, contentType)
-	client.request.Header.Set(consts.UserAgent, consts.UserAgentContent)
-	if authorization, err = client.credential.GenerateAuthorizationHeader(ctx, method, client.request.URL.RequestURI(),
+
+	// Header Setting Priority:
+	// Fixed Headers > Per-Request Header Parameters > Client Default Headers
+
+	// Add Client Default Headers
+	for key, values := range client.defaultHeader {
+		for _, v := range values {
+			request.Header.Add(key, v)
+		}
+	}
+
+	// Add Request Header Parameters
+	if header != nil {
+		for key, values := range header {
+			for _, v := range values {
+				request.Header.Add(key, v)
+			}
+		}
+	}
+
+	// Set Fixed Headers
+	request.Header.Set(consts.Accept, "*/*")
+	request.Header.Set(consts.ContentType, contentType)
+	request.Header.Set(consts.UserAgent, consts.UserAgentContent)
+
+	// Set Authentication
+	if authorization, err = client.credential.GenerateAuthorizationHeader(ctx, method, request.URL.RequestURI(),
 		signBody); err != nil {
 		return nil, fmt.Errorf("generate authorization err:%s", err.Error())
 	}
-	client.request.Header.Set(consts.Authorization, authorization)
-	for key, value := range *client.header {
-		client.request.Header.Set(key, value[0])
-	}
-	response, err := client.hc.Do(client.request)
+	request.Header.Set(consts.Authorization, authorization)
+
+	// Send HTTP Request
+	result, err := client.doHTTP(request)
 	if err != nil {
-		return response, err
+		return result, err
 	}
-	if err = CheckResponse(response); err != nil {
-		return response, err
+	// Check if Success
+	if err = CheckResponse(result.Response); err != nil {
+		return result, err
 	}
-	if err = client.validator.Validate(ctx, response); err != nil {
-		return response, err
+	// Validate WechatPay Signature
+	if err = client.validator.Validate(ctx, result.Response); err != nil {
+		return result, err
 	}
-	return response, nil
+	return result, nil
 }
 
-func marshalReqBody(body interface{}) (string, error) {
-	if body == nil {
-		return "", nil
-	}
-	bodyBytes, err := json.Marshal(body)
-	if err != nil {
-		return "", fmt.Errorf("json marshal body err:%v", err)
-	}
-	return string(bodyBytes), nil
-}
-
-// CheckResponse 校验回包是否有错误
+// Request 向微信支付发送请求
 //
-// 当http回包的状态码的范围不是200-299之间的时候，会返回相应的错误信息，主要包括http状态码、回包错误码、回包错误信息提示
-func CheckResponse(res *http.Response) error {
-	if res.StatusCode >= 200 && res.StatusCode <= 299 {
-		return nil
+// 相比于 Get / Post / Put / Patch / Delete 方法，本方法可以设置更多内容
+func (client *Client) Request(
+	ctx context.Context,
+	method, requestPath string,
+	headerParams http.Header,
+	queryParams url.Values,
+	postBody interface{},
+	contentType string) (result *APIResult, err error) {
+
+	// Setup path and query parameters
+	varURL, err := url.Parse(requestPath)
+	if err != nil {
+		return nil, err
 	}
-	slurp, err := ioutil.ReadAll(res.Body)
-	if err == nil {
-		res.Body = ioutil.NopCloser(bytes.NewBuffer(slurp))
-		jerr := &errors.Error{StatusCode: res.StatusCode}
-		err = json.Unmarshal(slurp, jerr)
-		if err == nil {
-			return jerr
+
+	// Adding Query Param
+	query := varURL.Query()
+	for k, values := range queryParams {
+		for _, v := range values {
+			query.Add(k, v)
 		}
 	}
-	return &errors.Error{
-		StatusCode: res.StatusCode,
-		Body:       string(slurp),
-		Header:     res.Header,
+
+	// Encode the parameters.
+	varURL.RawQuery = query.Encode()
+
+	if postBody == nil {
+		return client.doRequest(ctx, method, varURL.String(), headerParams, contentType, nil, "")
 	}
+
+	// Detect postBody type and set body content
+	if contentType == "" {
+		contentType = consts.ApplicationJSON
+	}
+	var body *bytes.Buffer
+	body, err = setBody(postBody, contentType)
+	if err != nil {
+		return nil, err
+	}
+	return client.doRequest(ctx, method, varURL.String(), headerParams, contentType, body, body.String())
+}
+
+func (client *Client) doHTTP(req *http.Request) (result *APIResult, err error) {
+	result = &APIResult{
+		Request: req,
+	}
+
+	result.Response, err = client.httpClient.Do(req)
+	return result, err
+}
+
+// CheckResponse 校验请求是否成功
+//
+// 当http回包的状态码的范围不是200-299之间的时候，会返回相应的错误信息，主要包括http状态码、回包错误码、回包错误信息提示
+func CheckResponse(resp *http.Response) error {
+	if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
+		return nil
+	}
+	slurp, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err == nil {
+		resp.Body = ioutil.NopCloser(bytes.NewBuffer(slurp))
+		apiError := &APIError{
+			StatusCode: resp.StatusCode,
+			Header:     resp.Header,
+			Body:       string(slurp),
+		}
+		err = json.Unmarshal(slurp, apiError)
+		if err == nil {
+			return apiError
+		}
+	}
+	return &APIError{
+		StatusCode: resp.StatusCode,
+		Body:       string(slurp),
+		Header:     resp.Header,
+	}
+}
+
+// UnMarshalResponse 将回包组织成结构化数据
+func UnMarshalResponse(httpResp *http.Response, resp interface{}) error {
+	body, err := ioutil.ReadAll(httpResp.Body)
+	httpResp.Body.Close()
+
+	if err != nil {
+		return err
+	}
+
+	httpResp.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	err = json.Unmarshal(body, resp)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // CreateFormField 设置form-data 中的普通属性
@@ -278,4 +330,89 @@ func CreateFormFile(w *multipart.Writer, filename, contentType string, file []by
 	}
 	_, err = part.Write(file)
 	return err
+}
+
+// Set Request body from an interface
+func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err error) {
+	bodyBuf = &bytes.Buffer{}
+
+	if reader, ok := body.(io.Reader); ok {
+		_, err = bodyBuf.ReadFrom(reader)
+	} else if fp, ok := body.(**os.File); ok {
+		_, err = bodyBuf.ReadFrom(*fp)
+	} else if b, ok := body.([]byte); ok {
+		_, err = bodyBuf.Write(b)
+	} else if s, ok := body.(string); ok {
+		_, err = bodyBuf.WriteString(s)
+	} else if s, ok := body.(*string); ok {
+		_, err = bodyBuf.WriteString(*s)
+	} else if regJSONTypeCheck.MatchString(contentType) {
+		err = json.NewEncoder(bodyBuf).Encode(body)
+	} else if regXMLTypeCheck.MatchString(contentType) {
+		err = xml.NewEncoder(bodyBuf).Encode(body)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	if bodyBuf.Len() == 0 {
+		err = fmt.Errorf("invalid body type %s", contentType)
+		return nil, err
+	}
+	return bodyBuf, nil
+}
+
+// contains is a case insensitive match, finding needle in a haystack
+func contains(haystack []string, needle string) bool {
+	for _, a := range haystack {
+		if strings.ToLower(a) == strings.ToLower(needle) {
+			return true
+		}
+	}
+	return false
+}
+
+// SelectHeaderContentType select a content type from the available list.
+func SelectHeaderContentType(contentTypes []string) string {
+	if len(contentTypes) == 0 {
+		return consts.ApplicationJSON
+	}
+	if contains(contentTypes, consts.ApplicationJSON) {
+		return consts.ApplicationJSON
+	}
+	return contentTypes[0] // use the first content type specified in 'consumes'
+}
+
+// ParameterToString 将参数转换为字符串，并使用指定分隔符分隔列表参数
+func ParameterToString(obj interface{}, collectionFormat string) string {
+	var delimiter string
+
+	switch collectionFormat {
+	case "pipes":
+		delimiter = "|"
+	case "ssv":
+		delimiter = " "
+	case "tsv":
+		delimiter = "\t"
+	case "csv":
+		delimiter = ","
+	}
+
+	if reflect.TypeOf(obj).Kind() == reflect.Slice {
+		return strings.Trim(strings.Replace(fmt.Sprint(obj), " ", delimiter, -1), "[]")
+	} else if t, ok := obj.(time.Time); ok {
+		return t.Format(time.RFC3339)
+	}
+
+	return fmt.Sprintf("%v", obj)
+}
+
+// ParameterToJSON 将参数转换为 Json 字符串
+func ParameterToJSON(obj interface{}) (string, error) {
+	jsonBuf, err := json.Marshal(obj)
+	if err != nil {
+		return "", err
+	}
+	return string(jsonBuf), err
 }

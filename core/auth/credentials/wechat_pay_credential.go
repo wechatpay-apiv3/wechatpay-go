@@ -1,4 +1,4 @@
-//Package credentials 微信支付api v3 go http-client authorization生成器
+// Package credentials 微信支付 API v3 Go SDK 请求报文头 Authorization 信息生成器
 package credentials
 
 import (
@@ -11,42 +11,43 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 )
 
-// WechatPayCredentials authorization生成器
+// WechatPayCredentials 微信支付请求报文头 Authorization 信息生成器
 type WechatPayCredentials struct {
-	Signer auth.Signer // 签名器
+	Signer auth.Signer // 数字签名生成器
 	MchID  string      // 商户号
 }
 
-// GenerateAuthorizationHeader  生成http request header 中的authorization信息
+// GenerateAuthorizationHeader 生成请求报文头中的 Authorization 信息，详见：
+// https://wechatpay-api.gitbook.io/wechatpay-api-v3/qian-ming-zhi-nan-1/qian-ming-sheng-cheng
 func (c *WechatPayCredentials) GenerateAuthorizationHeader(ctx context.Context,
 	method, canonicalURL, signBody string) (authorization string, err error) {
 	if c.Signer == nil {
 		return "", fmt.Errorf("you must init WechatPayCredentials with signer")
 	}
-	nonce, err := generateNonceStr()
+	nonce, err := generateNonce()
 	if err != nil {
 		return "", err
 	}
 	timestamp := time.Now().Unix()
-	message := fmt.Sprintf(consts.FormatMessage, method, canonicalURL, timestamp, nonce, signBody)
+	message := fmt.Sprintf(consts.SignatureMessageFormat, method, canonicalURL, timestamp, nonce, signBody)
 	signatureResult, err := c.Signer.Sign(ctx, message)
 	if err != nil {
 		return "", err
 	}
-	authorization = fmt.Sprintf(consts.HeaderAuthorization, c.MchID, nonce, timestamp,
-		signatureResult.MchCertificateSerialNo, signatureResult.Signature)
+	authorization = fmt.Sprintf(consts.HeaderAuthorizationFormat, c.MchID, nonce, timestamp,
+		signatureResult.CertificateSerialNo, signatureResult.Signature)
 	return authorization, nil
 }
 
-func generateNonceStr() (string, error) {
+func generateNonce() (string, error) {
 	bytes := make([]byte, consts.NonceLength)
 	_, err := rand.Read(bytes)
 	if err != nil {
 		return "", err
 	}
-	symbolsByteLength := byte(len(consts.Symbols))
+	symbolsByteLength := byte(len(consts.NonceSymbols))
 	for i, b := range bytes {
-		bytes[i] = consts.Symbols[b%symbolsByteLength]
+		bytes[i] = consts.NonceSymbols[b%symbolsByteLength]
 	}
 	return string(bytes), nil
 }

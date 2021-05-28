@@ -1,0 +1,12 @@
+# Editors
+.idea
+.vscode
+*.swp
+.history
+
+# Test files
+*.test
+
+# Other
+.openapi-generator
+.DS_Store

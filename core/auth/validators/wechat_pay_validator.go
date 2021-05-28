@@ -1,4 +1,4 @@
-//Package validators 微信支付api v3 go http-client 回包校验器
+// Package validators 微信支付 API v3 Go SDK 应答报文验证器
 package validators
 
 import (
@@ -17,12 +17,12 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 )
 
-// WechatPayValidator 回包校验器
+// WechatPayValidator 微信支付 API v3 默认应答报文验证器
 type WechatPayValidator struct {
-	Verifier auth.Verifier // 验证器
+	Verifier auth.Verifier // 数字签名验证器
 }
 
-// Validate 使用验证器对回包进行校验
+// Validate 使用验证器对微信支付应答报文进行验证
 func (validator *WechatPayValidator) Validate(ctx context.Context, response *http.Response) error {
 	if validator.Verifier == nil {
 		return fmt.Errorf("you must init WechatPayValidator with auth.Verifier")

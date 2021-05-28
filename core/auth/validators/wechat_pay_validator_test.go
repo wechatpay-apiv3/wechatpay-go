@@ -32,7 +32,7 @@ func TestWechatPayValidator_Validate(t *testing.T) {
 		{Values: gomonkey.Params{fmt.Errorf("verift err")}, Times: 1},
 	}
 
-	validator := &WechatPayValidator{Verifier: &verifiers.WechatPayVerifier{}}
+	validator := &WechatPayValidator{Verifier: &verifiers.SHA256WithRSAVerifier{}}
 	validHeader := map[string][]string{
 		consts.WechatPaySignature: {base64.StdEncoding.EncodeToString([]byte("1"))},
 		consts.WechatPaySerial:    {"1"},
