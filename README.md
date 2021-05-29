@@ -294,7 +294,7 @@ func NewCustomClient(ctx context.Context, mchID string) (*core.Client, error) {
 可以使用如下方法**临时**跳过应答签名验证：
 ```go
 opts := []core.ClientOption{
-	core.WithMerchant(mchID, mchCertificateSerialNumber, privateKey),
+	core.WithMerchantCredential(mchID, mchCertificateSerialNumber, privateKey),
 	core.WithoutValidator(),
 }
 
