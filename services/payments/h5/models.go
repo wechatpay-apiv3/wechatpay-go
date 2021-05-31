@@ -19,7 +19,7 @@ import (
 // Amount
 type Amount struct {
 	// 订单总金额，单位为分
-	Total *int32 `json:"total,omitempty"`
+	Total *int32 `json:"total"`
 	// CNY：人民币，境内商户号仅支持人民币。
 	Currency *string `json:"currency,omitempty"`
 }
@@ -27,9 +27,10 @@ type Amount struct {
 func (o Amount) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 
-	if o.Total != nil {
-		toSerialize["total"] = o.Total
+	if o.Total == nil {
+		return nil, fmt.Errorf("field `Total` is required and must be specified in Amount")
 	}
+	toSerialize["total"] = o.Total
 
 	if o.Currency != nil {
 		toSerialize["currency"] = o.Currency
