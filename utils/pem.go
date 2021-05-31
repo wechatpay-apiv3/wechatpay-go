@@ -7,15 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-
-	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
+	"time"
 )
 
 // LoadCertificate 通过证书的文本内容加载证书
 func LoadCertificate(certificateStr string) (certificate *x509.Certificate, err error) {
 	block, _ := pem.Decode([]byte(certificateStr))
-	if block == nil || block.Type != consts.CERTIFICATE {
-		return nil, fmt.Errorf("解码证书失败！")
+	if block == nil {
+		return nil, fmt.Errorf("decode certificate err")
 	}
 	certificate, err = x509.ParseCertificate(block.Bytes)
 	if err != nil {
@@ -83,4 +82,19 @@ func LoadPublicKeyWithPath(path string) (publicKey *rsa.PublicKey, err error) {
 		return nil, fmt.Errorf("read certificate pem file err:%s", err.Error())
 	}
 	return LoadPublicKey(string(publicKeyBytes))
+}
+
+// GetCertificateSerialNumber 从证书中获取证书序列号
+func GetCertificateSerialNumber(certificate x509.Certificate) string {
+	return fmt.Sprintf("%X", certificate.SerialNumber)
+}
+
+// IsCertExpired 判定证书在特定时间是否过期
+func IsCertExpired(certificate x509.Certificate, now time.Time) bool {
+	return now.After(certificate.NotAfter)
+}
+
+// IsCertValid 判定证书在特定时间是否有效
+func IsCertValid(certificate x509.Certificate, now time.Time) bool {
+	return now.After(certificate.NotBefore) && now.Before(certificate.NotAfter)
 }

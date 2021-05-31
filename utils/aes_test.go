@@ -9,7 +9,7 @@ const (
 	testAESUtilAssociatedData = ""
 )
 
-func TestDecryptToString(t *testing.T) {
+func TestDecryptAes256Gcm(t *testing.T) {
 	type args struct {
 		apiv3Key       string
 		associatedData string
@@ -34,13 +34,13 @@ func TestDecryptToString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotCertificate, err := DecryptToString(tt.args.apiv3Key, tt.args.associatedData, tt.args.nonce, tt.args.ciphertext)
+			gotCertificate, err := DecryptAES256GCM(tt.args.apiv3Key, tt.args.associatedData, tt.args.nonce, tt.args.ciphertext)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DecryptToString() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("DecryptAES256GCM() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if gotCertificate != tt.wantCertificate {
-				t.Errorf("DecryptToString() gotCertificate = %v, want %v", gotCertificate, tt.wantCertificate)
+				t.Errorf("DecryptAES256GCM() gotCertificate = %v, want %v", gotCertificate, tt.wantCertificate)
 			}
 		})
 	}

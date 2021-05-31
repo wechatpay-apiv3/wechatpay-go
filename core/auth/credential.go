@@ -1,10 +1,9 @@
-//Package auth 微信支付api v3 go http-client 签名校验相关接口
+// Package auth 微信支付 API v3 Go SDK 安全验证相关接口
 package auth
 
 import "context"
 
-// Credential Authorization信息生成器
+// Credential 请求报文头 Authorization 信息生成器
 type Credential interface {
-	GenerateAuthorizationHeader(ctx context.Context, method, canonicalURL,
-		signBody string) (authorization string, err error)
+	GenerateAuthorizationHeader(ctx context.Context, method, canonicalURL, signBody string) (authorization string, err error)
 }
