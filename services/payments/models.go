@@ -89,6 +89,73 @@ func (o PromotionDetail) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+func (o PromotionDetail) String() string {
+	var ret string
+	if o.CouponId == nil {
+		ret += "CouponId:<nil>, "
+	} else {
+		ret += fmt.Sprintf("CouponId:%v, ", *o.CouponId)
+	}
+
+	if o.Name == nil {
+		ret += "Name:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Name:%v, ", *o.Name)
+	}
+
+	if o.Scope == nil {
+		ret += "Scope:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Scope:%v, ", *o.Scope)
+	}
+
+	if o.Type == nil {
+		ret += "Type:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Type:%v, ", *o.Type)
+	}
+
+	if o.Amount == nil {
+		ret += "Amount:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Amount:%v, ", *o.Amount)
+	}
+
+	if o.StockId == nil {
+		ret += "StockId:<nil>, "
+	} else {
+		ret += fmt.Sprintf("StockId:%v, ", *o.StockId)
+	}
+
+	if o.WechatpayContribute == nil {
+		ret += "WechatpayContribute:<nil>, "
+	} else {
+		ret += fmt.Sprintf("WechatpayContribute:%v, ", *o.WechatpayContribute)
+	}
+
+	if o.MerchantContribute == nil {
+		ret += "MerchantContribute:<nil>, "
+	} else {
+		ret += fmt.Sprintf("MerchantContribute:%v, ", *o.MerchantContribute)
+	}
+
+	if o.OtherContribute == nil {
+		ret += "OtherContribute:<nil>, "
+	} else {
+		ret += fmt.Sprintf("OtherContribute:%v, ", *o.OtherContribute)
+	}
+
+	if o.Currency == nil {
+		ret += "Currency:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Currency:%v, ", *o.Currency)
+	}
+
+	ret += fmt.Sprintf("GoodsDetail:%v", o.GoodsDetail)
+
+	return fmt.Sprintf("PromotionDetail{%s}", ret)
+}
+
 // PromotionGoodsDetail
 type PromotionGoodsDetail struct {
 	// 商品编码
@@ -130,6 +197,41 @@ func (o PromotionGoodsDetail) MarshalJSON() ([]byte, error) {
 		toSerialize["goods_remark"] = o.GoodsRemark
 	}
 	return json.Marshal(toSerialize)
+}
+
+func (o PromotionGoodsDetail) String() string {
+	var ret string
+	if o.GoodsId == nil {
+		ret += "GoodsId:<nil>, "
+	} else {
+		ret += fmt.Sprintf("GoodsId:%v, ", *o.GoodsId)
+	}
+
+	if o.Quantity == nil {
+		ret += "Quantity:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Quantity:%v, ", *o.Quantity)
+	}
+
+	if o.UnitPrice == nil {
+		ret += "UnitPrice:<nil>, "
+	} else {
+		ret += fmt.Sprintf("UnitPrice:%v, ", *o.UnitPrice)
+	}
+
+	if o.DiscountAmount == nil {
+		ret += "DiscountAmount:<nil>, "
+	} else {
+		ret += fmt.Sprintf("DiscountAmount:%v, ", *o.DiscountAmount)
+	}
+
+	if o.GoodsRemark == nil {
+		ret += "GoodsRemark:<nil>"
+	} else {
+		ret += fmt.Sprintf("GoodsRemark:%v", *o.GoodsRemark)
+	}
+
+	return fmt.Sprintf("PromotionGoodsDetail{%s}", ret)
 }
 
 // Transaction
@@ -206,6 +308,77 @@ func (o Transaction) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+func (o Transaction) String() string {
+	var ret string
+	ret += fmt.Sprintf("Amount:%v, ", o.Amount)
+
+	if o.Appid == nil {
+		ret += "Appid:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Appid:%v, ", *o.Appid)
+	}
+
+	if o.Attach == nil {
+		ret += "Attach:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Attach:%v, ", *o.Attach)
+	}
+
+	if o.BankType == nil {
+		ret += "BankType:<nil>, "
+	} else {
+		ret += fmt.Sprintf("BankType:%v, ", *o.BankType)
+	}
+
+	if o.Mchid == nil {
+		ret += "Mchid:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Mchid:%v, ", *o.Mchid)
+	}
+
+	if o.OutTradeNo == nil {
+		ret += "OutTradeNo:<nil>, "
+	} else {
+		ret += fmt.Sprintf("OutTradeNo:%v, ", *o.OutTradeNo)
+	}
+
+	ret += fmt.Sprintf("Payer:%v, ", o.Payer)
+
+	ret += fmt.Sprintf("PromotionDetail:%v, ", o.PromotionDetail)
+
+	if o.SuccessTime == nil {
+		ret += "SuccessTime:<nil>, "
+	} else {
+		ret += fmt.Sprintf("SuccessTime:%v, ", *o.SuccessTime)
+	}
+
+	if o.TradeState == nil {
+		ret += "TradeState:<nil>, "
+	} else {
+		ret += fmt.Sprintf("TradeState:%v, ", *o.TradeState)
+	}
+
+	if o.TradeStateDesc == nil {
+		ret += "TradeStateDesc:<nil>, "
+	} else {
+		ret += fmt.Sprintf("TradeStateDesc:%v, ", *o.TradeStateDesc)
+	}
+
+	if o.TradeType == nil {
+		ret += "TradeType:<nil>, "
+	} else {
+		ret += fmt.Sprintf("TradeType:%v, ", *o.TradeType)
+	}
+
+	if o.TransactionId == nil {
+		ret += "TransactionId:<nil>"
+	} else {
+		ret += fmt.Sprintf("TransactionId:%v", *o.TransactionId)
+	}
+
+	return fmt.Sprintf("Transaction{%s}", ret)
+}
+
 // TransactionAmount
 type TransactionAmount struct {
 	Currency      *string `json:"currency,omitempty"`
@@ -235,6 +408,35 @@ func (o TransactionAmount) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+func (o TransactionAmount) String() string {
+	var ret string
+	if o.Currency == nil {
+		ret += "Currency:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Currency:%v, ", *o.Currency)
+	}
+
+	if o.PayerCurrency == nil {
+		ret += "PayerCurrency:<nil>, "
+	} else {
+		ret += fmt.Sprintf("PayerCurrency:%v, ", *o.PayerCurrency)
+	}
+
+	if o.PayerTotal == nil {
+		ret += "PayerTotal:<nil>, "
+	} else {
+		ret += fmt.Sprintf("PayerTotal:%v, ", *o.PayerTotal)
+	}
+
+	if o.Total == nil {
+		ret += "Total:<nil>"
+	} else {
+		ret += fmt.Sprintf("Total:%v", *o.Total)
+	}
+
+	return fmt.Sprintf("TransactionAmount{%s}", ret)
+}
+
 // TransactionPayer
 type TransactionPayer struct {
 	Openid *string `json:"openid,omitempty"`
@@ -247,4 +449,15 @@ func (o TransactionPayer) MarshalJSON() ([]byte, error) {
 		toSerialize["openid"] = o.Openid
 	}
 	return json.Marshal(toSerialize)
+}
+
+func (o TransactionPayer) String() string {
+	var ret string
+	if o.Openid == nil {
+		ret += "Openid:<nil>"
+	} else {
+		ret += fmt.Sprintf("Openid:%v", *o.Openid)
+	}
+
+	return fmt.Sprintf("TransactionPayer{%s}", ret)
 }
