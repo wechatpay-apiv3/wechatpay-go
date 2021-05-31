@@ -136,9 +136,9 @@ func JsapiPrepay() error {
 	)
 	
 	if err == nil {
-		log.Printf("resp:%+v", resp)
+		log.Println(resp)
 	} else {
-		log.Printf("err:%s", err)
+		log.Println(err)
 		return err
 	}
 }
@@ -165,9 +165,9 @@ func QueryOrder() error {
 	)
 	
 	if err == nil {
-		log.Printf("resp:%+v", resp)
+		log.Println(resp)
 	} else {
-		log.Printf("err:%s", err)
+		log.Println(err)
 		return err
 	}
 }
