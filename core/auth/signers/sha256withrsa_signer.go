@@ -1,4 +1,4 @@
-//Package signers 微信支付api v3 go http-client 签名生成器
+// Package signers 微信支付 API v3 Go SDK 数字签名生成器
 package signers
 
 import (
@@ -8,40 +8,26 @@ import (
 	"strings"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
+	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
-// Sha256WithRSASigner Sha256WithRSA 签名器
-type Sha256WithRSASigner struct {
-	MchCertificateSerialNo string          // 商户证书序列号
-	PrivateKey             *rsa.PrivateKey // 商户私钥
+// SHA256WithRSASigner Sha256WithRSA 数字签名生成器
+type SHA256WithRSASigner struct {
+	CertificateSerialNo string          // 商户证书序列号
+	PrivateKey          *rsa.PrivateKey // 商户私钥
 }
 
-// GetName 获取签名器的名称
-func (s *Sha256WithRSASigner) GetName() string {
-	return "SHA256withRSA"
-}
-
-// 获取签名器的类型
-func (s *Sha256WithRSASigner) GetType() string {
-	return "PRIVATEKEY"
-}
-
-// 获取签名器的版本
-func (s *Sha256WithRSASigner) GetVersion() string {
-	return "1.0"
-}
-
-// 对信息使用Sha256WithRsa的方式进行签名
-func (s *Sha256WithRSASigner) Sign(ctx context.Context, message string) (*auth.SignatureResult, error) {
+// Sign 对信息使用 SHA256WithRSA 算法进行签名
+func (s *SHA256WithRSASigner) Sign(ctx context.Context, message string) (*auth.SignatureResult, error) {
 	if s.PrivateKey == nil {
-		return nil, fmt.Errorf("you must set privatekey to use Sha256WithRSASigner")
+		return nil, fmt.Errorf("you must set privatekey to use SHA256WithRSASigner")
 	}
-	if strings.TrimSpace(s.MchCertificateSerialNo) == "" {
-		return nil, fmt.Errorf("you must set mch certificate serial no to use Sha256WithRSASigner")
+	if strings.TrimSpace(s.CertificateSerialNo) == "" {
+		return nil, fmt.Errorf("you must set mch certificate serial no to use SHA256WithRSASigner")
 	}
-	signature, err := Sha256WithRsa(message, s.PrivateKey)
+	signature, err := utils.SignSHA256WithRSA(message, s.PrivateKey)
 	if err != nil {
 		return nil, err
 	}
-	return &auth.SignatureResult{MchCertificateSerialNo: s.MchCertificateSerialNo, Signature: signature}, nil
+	return &auth.SignatureResult{CertificateSerialNo: s.CertificateSerialNo, Signature: signature}, nil
 }
