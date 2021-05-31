@@ -38,6 +38,23 @@ func (o Amount) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+func (o Amount) String() string {
+	var ret string
+	if o.Total == nil {
+		ret += "Total:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Total:%v, ", *o.Total)
+	}
+
+	if o.Currency == nil {
+		ret += "Currency:<nil>"
+	} else {
+		ret += fmt.Sprintf("Currency:%v", *o.Currency)
+	}
+
+	return fmt.Sprintf("Amount{%s}", ret)
+}
+
 // CloseOrderRequest
 type CloseOrderRequest struct {
 	OutTradeNo *string `json:"out_trade_no"`
@@ -60,6 +77,23 @@ func (o CloseOrderRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+func (o CloseOrderRequest) String() string {
+	var ret string
+	if o.OutTradeNo == nil {
+		ret += "OutTradeNo:<nil>, "
+	} else {
+		ret += fmt.Sprintf("OutTradeNo:%v, ", *o.OutTradeNo)
+	}
+
+	if o.Mchid == nil {
+		ret += "Mchid:<nil>"
+	} else {
+		ret += fmt.Sprintf("Mchid:%v", *o.Mchid)
+	}
+
+	return fmt.Sprintf("CloseOrderRequest{%s}", ret)
+}
+
 // CloseRequest
 type CloseRequest struct {
 	// 直连商户号
@@ -74,6 +108,17 @@ func (o CloseRequest) MarshalJSON() ([]byte, error) {
 	}
 	toSerialize["mchid"] = o.Mchid
 	return json.Marshal(toSerialize)
+}
+
+func (o CloseRequest) String() string {
+	var ret string
+	if o.Mchid == nil {
+		ret += "Mchid:<nil>"
+	} else {
+		ret += fmt.Sprintf("Mchid:%v", *o.Mchid)
+	}
+
+	return fmt.Sprintf("CloseRequest{%s}", ret)
 }
 
 // Detail 优惠功能
@@ -100,6 +145,25 @@ func (o Detail) MarshalJSON() ([]byte, error) {
 		toSerialize["goods_detail"] = o.GoodsDetail
 	}
 	return json.Marshal(toSerialize)
+}
+
+func (o Detail) String() string {
+	var ret string
+	if o.CostPrice == nil {
+		ret += "CostPrice:<nil>, "
+	} else {
+		ret += fmt.Sprintf("CostPrice:%v, ", *o.CostPrice)
+	}
+
+	if o.InvoiceId == nil {
+		ret += "InvoiceId:<nil>, "
+	} else {
+		ret += fmt.Sprintf("InvoiceId:%v, ", *o.InvoiceId)
+	}
+
+	ret += fmt.Sprintf("GoodsDetail:%v", o.GoodsDetail)
+
+	return fmt.Sprintf("Detail{%s}", ret)
 }
 
 // GoodsDetail
@@ -144,6 +208,41 @@ func (o GoodsDetail) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+func (o GoodsDetail) String() string {
+	var ret string
+	if o.MerchantGoodsId == nil {
+		ret += "MerchantGoodsId:<nil>, "
+	} else {
+		ret += fmt.Sprintf("MerchantGoodsId:%v, ", *o.MerchantGoodsId)
+	}
+
+	if o.WechatpayGoodsId == nil {
+		ret += "WechatpayGoodsId:<nil>, "
+	} else {
+		ret += fmt.Sprintf("WechatpayGoodsId:%v, ", *o.WechatpayGoodsId)
+	}
+
+	if o.GoodsName == nil {
+		ret += "GoodsName:<nil>, "
+	} else {
+		ret += fmt.Sprintf("GoodsName:%v, ", *o.GoodsName)
+	}
+
+	if o.Quantity == nil {
+		ret += "Quantity:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Quantity:%v, ", *o.Quantity)
+	}
+
+	if o.UnitPrice == nil {
+		ret += "UnitPrice:<nil>"
+	} else {
+		ret += fmt.Sprintf("UnitPrice:%v", *o.UnitPrice)
+	}
+
+	return fmt.Sprintf("GoodsDetail{%s}", ret)
+}
+
 // Payer
 type Payer struct {
 	// 用户在商户appid下的唯一标识。
@@ -157,6 +256,17 @@ func (o Payer) MarshalJSON() ([]byte, error) {
 		toSerialize["openid"] = o.Openid
 	}
 	return json.Marshal(toSerialize)
+}
+
+func (o Payer) String() string {
+	var ret string
+	if o.Openid == nil {
+		ret += "Openid:<nil>"
+	} else {
+		ret += fmt.Sprintf("Openid:%v", *o.Openid)
+	}
+
+	return fmt.Sprintf("Payer{%s}", ret)
 }
 
 // PrepayRequest
@@ -260,6 +370,77 @@ func (o PrepayRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+func (o PrepayRequest) String() string {
+	var ret string
+	if o.Appid == nil {
+		ret += "Appid:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Appid:%v, ", *o.Appid)
+	}
+
+	if o.Mchid == nil {
+		ret += "Mchid:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Mchid:%v, ", *o.Mchid)
+	}
+
+	if o.Description == nil {
+		ret += "Description:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Description:%v, ", *o.Description)
+	}
+
+	if o.OutTradeNo == nil {
+		ret += "OutTradeNo:<nil>, "
+	} else {
+		ret += fmt.Sprintf("OutTradeNo:%v, ", *o.OutTradeNo)
+	}
+
+	if o.TimeExpire == nil {
+		ret += "TimeExpire:<nil>, "
+	} else {
+		ret += fmt.Sprintf("TimeExpire:%v, ", *o.TimeExpire)
+	}
+
+	if o.Attach == nil {
+		ret += "Attach:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Attach:%v, ", *o.Attach)
+	}
+
+	if o.NotifyUrl == nil {
+		ret += "NotifyUrl:<nil>, "
+	} else {
+		ret += fmt.Sprintf("NotifyUrl:%v, ", *o.NotifyUrl)
+	}
+
+	if o.GoodsTag == nil {
+		ret += "GoodsTag:<nil>, "
+	} else {
+		ret += fmt.Sprintf("GoodsTag:%v, ", *o.GoodsTag)
+	}
+
+	ret += fmt.Sprintf("LimitPay:%v, ", o.LimitPay)
+
+	if o.SupportFapiao == nil {
+		ret += "SupportFapiao:<nil>, "
+	} else {
+		ret += fmt.Sprintf("SupportFapiao:%v, ", *o.SupportFapiao)
+	}
+
+	ret += fmt.Sprintf("Amount:%v, ", o.Amount)
+
+	ret += fmt.Sprintf("Payer:%v, ", o.Payer)
+
+	ret += fmt.Sprintf("Detail:%v, ", o.Detail)
+
+	ret += fmt.Sprintf("SceneInfo:%v, ", o.SceneInfo)
+
+	ret += fmt.Sprintf("SettleInfo:%v", o.SettleInfo)
+
+	return fmt.Sprintf("PrepayRequest{%s}", ret)
+}
+
 // PrepayResponse
 type PrepayResponse struct {
 	// 预支付交易会话标识
@@ -274,6 +455,17 @@ func (o PrepayResponse) MarshalJSON() ([]byte, error) {
 	}
 	toSerialize["prepay_id"] = o.PrepayId
 	return json.Marshal(toSerialize)
+}
+
+func (o PrepayResponse) String() string {
+	var ret string
+	if o.PrepayId == nil {
+		ret += "PrepayId:<nil>"
+	} else {
+		ret += fmt.Sprintf("PrepayId:%v", *o.PrepayId)
+	}
+
+	return fmt.Sprintf("PrepayResponse{%s}", ret)
 }
 
 // QueryOrderByIdRequest
@@ -298,6 +490,23 @@ func (o QueryOrderByIdRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+func (o QueryOrderByIdRequest) String() string {
+	var ret string
+	if o.TransactionId == nil {
+		ret += "TransactionId:<nil>, "
+	} else {
+		ret += fmt.Sprintf("TransactionId:%v, ", *o.TransactionId)
+	}
+
+	if o.Mchid == nil {
+		ret += "Mchid:<nil>"
+	} else {
+		ret += fmt.Sprintf("Mchid:%v", *o.Mchid)
+	}
+
+	return fmt.Sprintf("QueryOrderByIdRequest{%s}", ret)
+}
+
 // QueryOrderByOutTradeNoRequest
 type QueryOrderByOutTradeNoRequest struct {
 	OutTradeNo *string `json:"out_trade_no"`
@@ -318,6 +527,23 @@ func (o QueryOrderByOutTradeNoRequest) MarshalJSON() ([]byte, error) {
 	}
 	toSerialize["mchid"] = o.Mchid
 	return json.Marshal(toSerialize)
+}
+
+func (o QueryOrderByOutTradeNoRequest) String() string {
+	var ret string
+	if o.OutTradeNo == nil {
+		ret += "OutTradeNo:<nil>, "
+	} else {
+		ret += fmt.Sprintf("OutTradeNo:%v, ", *o.OutTradeNo)
+	}
+
+	if o.Mchid == nil {
+		ret += "Mchid:<nil>"
+	} else {
+		ret += fmt.Sprintf("Mchid:%v", *o.Mchid)
+	}
+
+	return fmt.Sprintf("QueryOrderByOutTradeNoRequest{%s}", ret)
 }
 
 // SceneInfo 支付场景描述
@@ -347,6 +573,25 @@ func (o SceneInfo) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+func (o SceneInfo) String() string {
+	var ret string
+	if o.PayerClientIp == nil {
+		ret += "PayerClientIp:<nil>, "
+	} else {
+		ret += fmt.Sprintf("PayerClientIp:%v, ", *o.PayerClientIp)
+	}
+
+	if o.DeviceId == nil {
+		ret += "DeviceId:<nil>, "
+	} else {
+		ret += fmt.Sprintf("DeviceId:%v, ", *o.DeviceId)
+	}
+
+	ret += fmt.Sprintf("StoreInfo:%v", o.StoreInfo)
+
+	return fmt.Sprintf("SceneInfo{%s}", ret)
+}
+
 // SettleInfo
 type SettleInfo struct {
 	// 是否指定分账
@@ -360,6 +605,17 @@ func (o SettleInfo) MarshalJSON() ([]byte, error) {
 		toSerialize["profit_sharing"] = o.ProfitSharing
 	}
 	return json.Marshal(toSerialize)
+}
+
+func (o SettleInfo) String() string {
+	var ret string
+	if o.ProfitSharing == nil {
+		ret += "ProfitSharing:<nil>"
+	} else {
+		ret += fmt.Sprintf("ProfitSharing:%v", *o.ProfitSharing)
+	}
+
+	return fmt.Sprintf("SettleInfo{%s}", ret)
 }
 
 // StoreInfo 商户门店信息
@@ -394,4 +650,33 @@ func (o StoreInfo) MarshalJSON() ([]byte, error) {
 		toSerialize["address"] = o.Address
 	}
 	return json.Marshal(toSerialize)
+}
+
+func (o StoreInfo) String() string {
+	var ret string
+	if o.Id == nil {
+		ret += "Id:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Id:%v, ", *o.Id)
+	}
+
+	if o.Name == nil {
+		ret += "Name:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Name:%v, ", *o.Name)
+	}
+
+	if o.AreaCode == nil {
+		ret += "AreaCode:<nil>, "
+	} else {
+		ret += fmt.Sprintf("AreaCode:%v, ", *o.AreaCode)
+	}
+
+	if o.Address == nil {
+		ret += "Address:<nil>"
+	} else {
+		ret += fmt.Sprintf("Address:%v", *o.Address)
+	}
+
+	return fmt.Sprintf("StoreInfo{%s}", ret)
 }
