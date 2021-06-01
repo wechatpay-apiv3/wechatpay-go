@@ -9,19 +9,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"mime/multipart"
-	"net/http"
 	"testing"
-	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/credentials"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 
 	"github.com/stretchr/testify/assert"
@@ -45,8 +40,8 @@ const (
 var (
 	privateKey           *rsa.PrivateKey
 	wechatPayCertificate *x509.Certificate
-	credential           auth.Credential
-	validator            auth.Validator
+	signer               auth.Signer
+	verifier             auth.Verifier
 	ctx                  context.Context
 	err                  error
 )
@@ -65,8 +60,8 @@ func init() {
 
 func TestGet(t *testing.T) {
 	opts := []core.ClientOption{
-		core.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
-		core.WithWechatPayValidator([]*x509.Certificate{wechatPayCertificate}),
+		option.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
+		option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 	}
 	client, err := core.NewClient(ctx, opts...)
 	assert.Nil(t, err)
@@ -86,8 +81,8 @@ type testData struct {
 
 func TestPost(t *testing.T) {
 	opts := []core.ClientOption{
-		core.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
-		core.WithWechatPayValidator([]*x509.Certificate{wechatPayCertificate}),
+		option.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
+		option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 	}
 	client, err := core.NewClient(ctx, opts...)
 	assert.Nil(t, err)
@@ -111,21 +106,19 @@ type meta struct {
 
 func TestClient_Upload(t *testing.T) {
 	// 如果你有自定义的Signer或者Verifier
-	credential = &credentials.WechatPayCredentials{
-		Signer: &signers.SHA256WithRSASigner{
-			PrivateKey:          privateKey,
-			CertificateSerialNo: testCertificateSerialNumber,
-		},
-		MchID: testMchID,
+	signer = &signers.SHA256WithRSASigner{
+		MchID:               testMchID,
+		PrivateKey:          privateKey,
+		CertificateSerialNo: testCertificateSerialNumber,
 	}
-	validator = &validators.WechatPayValidator{
-		Verifier: &verifiers.SHA256WithRSAVerifier{
-			Certificates: map[string]*x509.Certificate{
-				testWechatCertSerialNumber: wechatPayCertificate,
-			},
-		},
-	}
-	client, err := core.NewClient(ctx, core.WithCredential(credential), core.WithValidator(validator))
+
+	verifier = verifiers.NewSHA256WithRSAVerifier(
+		core.NewCertificateMap(
+			map[string]*x509.Certificate{testWechatCertSerialNumber: wechatPayCertificate},
+		),
+	)
+
+	client, err := core.NewClient(ctx, option.WithSigner(signer), option.WithVerifier(verifier))
 	assert.Nil(t, err)
 	pictureByes, err := ioutil.ReadFile(filePath)
 	assert.Nil(t, err)
@@ -154,61 +147,4 @@ func TestClient_Upload(t *testing.T) {
 	body, err := ioutil.ReadAll(result.Response.Body)
 	assert.Nil(t, err)
 	t.Log(string(body))
-}
-
-func ExampleNewClient_default() {
-	// 示例参数，实际使用时请自行初始化
-	var (
-		mchID                      string
-		mchCertificateSerialNumber string
-		mchPrivateKey              *rsa.PrivateKey
-		wechatPayCertList          []*x509.Certificate
-		customHTTPClient           *http.Client
-	)
-
-	ctx := context.Background()
-	opts := []core.ClientOption{
-		core.WithMerchantCredential(mchID, mchCertificateSerialNumber, mchPrivateKey), // 使用商户信息生成默认 WechatPayCredential
-		core.WithWechatPayValidator(wechatPayCertList),                                // 使用微信支付平台证书列表生成默认 SHA256WithRSAVerifier
-		core.WithHTTPClient(customHTTPClient),                                         // 设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
-		core.WithTimeout(2 * time.Second),                                             // 设置自定义超时时间，不设置时使用 http.Client{} 默认超时
-	}
-	client, err := core.NewClient(ctx, opts...)
-	if err != nil {
-		log.Printf("new wechat pay client err:%s", err.Error())
-		return
-	}
-	// 接下来使用 client 进行请求发送
-	_ = client
-}
-
-func ExampleCreateFormField() {
-	var w multipart.Writer
-
-	meta := map[string]string{
-		"filename": "sample.jpg",
-		"sha256":   "5944758444f0af3bc843e39b611a6b0c8c38cca44af653cd461b5765b71dc3f8",
-	}
-
-	metaBytes, err := json.Marshal(meta)
-	if err != nil {
-		// TODO: 处理错误
-		return
-	}
-
-	err = core.CreateFormField(&w, "meta", consts.ApplicationJSON, metaBytes)
-	if err != nil {
-		// TODO: 处理错误
-	}
-}
-
-func ExampleCreateFormFile() {
-	var w multipart.Writer
-
-	var fileContent []byte
-
-	err := core.CreateFormFile(&w, "sample.jpg", consts.ImageJPG, fileContent)
-	if err != nil {
-		// TODO: 处理错误
-	}
 }

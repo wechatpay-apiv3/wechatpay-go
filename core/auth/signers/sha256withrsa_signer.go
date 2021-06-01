@@ -13,12 +13,13 @@ import (
 
 // SHA256WithRSASigner Sha256WithRSA 数字签名生成器
 type SHA256WithRSASigner struct {
+	MchID               string          // 商户号
 	CertificateSerialNo string          // 商户证书序列号
 	PrivateKey          *rsa.PrivateKey // 商户私钥
 }
 
 // Sign 对信息使用 SHA256WithRSA 算法进行签名
-func (s *SHA256WithRSASigner) Sign(ctx context.Context, message string) (*auth.SignatureResult, error) {
+func (s *SHA256WithRSASigner) Sign(_ context.Context, message string) (*auth.SignatureResult, error) {
 	if s.PrivateKey == nil {
 		return nil, fmt.Errorf("you must set privatekey to use SHA256WithRSASigner")
 	}
@@ -29,5 +30,9 @@ func (s *SHA256WithRSASigner) Sign(ctx context.Context, message string) (*auth.S
 	if err != nil {
 		return nil, err
 	}
-	return &auth.SignatureResult{CertificateSerialNo: s.CertificateSerialNo, Signature: signature}, nil
+	return &auth.SignatureResult{ MchID: s.MchID, CertificateSerialNo: s.CertificateSerialNo, Signature: signature}, nil
+}
+
+func (s *SHA256WithRSASigner) Algorithm() string {
+	return "SHA256-RSA2048"
 }

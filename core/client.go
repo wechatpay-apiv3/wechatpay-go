@@ -26,6 +26,8 @@ import (
 	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/credentials"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 )
 
@@ -42,44 +44,89 @@ type APIResult struct {
 	Response *http.Response
 }
 
+// ClientOption 微信支付 API v3 HTTPClient core.Client 初始化参数
+type ClientOption interface {
+	Apply(settings *DialSettings) error
+}
+
+// ErrorOption 错误初始化参数，用于返回错误
+type ErrorOption struct{ Error error }
+
+// Apply 返回初始化错误
+func (w ErrorOption) Apply(o *DialSettings) error {
+	return w.Error
+}
+
 // Client 微信支付API v3 基础 Client
 type Client struct {
-	httpClient    *http.Client
-	defaultHeader http.Header
-	credential    auth.Credential
-	validator     auth.Validator
+	httpClient *http.Client
+	credential auth.Credential
+	validator  auth.Validator
+	signer     auth.Signer
+	cipher     cipher.Cipher
 }
 
 // NewClient 初始化一个微信支付API v3 HTTPClient
 //
 // 初始化的时候你可以传递多个配置信息
-func NewClient(ctx context.Context, opts ...ClientOption) (client *Client, err error) {
+func NewClient(ctx context.Context, opts ...ClientOption) (*Client, error) {
 	settings, err := initSettings(opts)
 	if err != nil {
 		return nil, fmt.Errorf("init client setting err:%v", err)
 	}
-	client = &Client{
-		validator:     settings.Validator,
-		credential:    settings.Credential,
-		httpClient:    settings.HTTPClient,
-		defaultHeader: settings.Header,
-	}
+
+	client := initClientWithSettings(ctx, settings)
 	return client, nil
 }
 
-func initSettings(opts []ClientOption) (*dialSettings, error) {
-	var o dialSettings
+func NewClientWithDialSettings(ctx context.Context, settings *DialSettings) (*Client, error) {
+	if err := settings.Validate(); err != nil {
+		return nil, err
+	}
+
+	client := initClientWithSettings(ctx, settings)
+	return client, nil
+}
+
+// NewClientWithValidator 使用原 Client 复制一个新的 Client，并设置新 Client 的 validator。
+// 原 Client 不受任何影响
+func NewClientWithValidator(client *Client, validator auth.Validator) *Client {
+	return &Client{
+		httpClient: client.httpClient,
+		credential: client.credential,
+		signer:     client.signer,
+		validator:  validator,
+		cipher:     client.cipher,
+	}
+}
+
+func initClientWithSettings(_ context.Context, settings *DialSettings) *Client {
+	client := &Client{
+		signer:     settings.Signer,
+		validator:  settings.Validator,
+		credential: &credentials.WechatPayCredentials{Signer: settings.Signer},
+		httpClient: settings.HTTPClient,
+		cipher:     settings.Cipher,
+	}
+
+	if client.httpClient == nil {
+		client.httpClient = &http.Client{}
+	}
+	return client
+}
+
+func initSettings(opts []ClientOption) (*DialSettings, error) {
+	var (
+		o   DialSettings
+		err error
+	)
 	for _, opt := range opts {
-		opt.Apply(&o)
+		if err = opt.Apply(&o); err != nil {
+			return nil, err
+		}
 	}
 	if err := o.Validate(); err != nil {
 		return nil, err
-	}
-	if o.HTTPClient == nil {
-		o.HTTPClient = &http.Client{}
-	}
-	if o.Timeout != 0 {
-		o.HTTPClient.Timeout = o.Timeout
 	}
 	return &o, nil
 }
@@ -104,12 +151,13 @@ func (client *Client) Put(ctx context.Context, requestURL string, requestBody in
 	return client.requestWithJSONBody(ctx, http.MethodPut, requestURL, requestBody)
 }
 
-// Delete 向微信支付发送一个 Http Delete 请求
+// Delete 向微信支付发送一个 HTTP Delete 请求
 func (client *Client) Delete(ctx context.Context, requestURL string, requestBody interface{}) (*APIResult, error) {
 	return client.requestWithJSONBody(ctx, http.MethodDelete, requestURL, requestBody)
 }
 
 // Upload 向微信支付发送上传文件
+// 推荐使用 services/fileuploader 中各上传接口的实现
 func (client *Client) Upload(ctx context.Context, requestURL, meta, reqBody, formContentType string) (*APIResult, error) {
 	return client.doRequest(ctx, http.MethodPost, requestURL, nil, formContentType, strings.NewReader(reqBody), meta)
 }
@@ -144,14 +192,7 @@ func (client *Client) doRequest(
 	}
 
 	// Header Setting Priority:
-	// Fixed Headers > Per-Request Header Parameters > Client Default Headers
-
-	// Add Client Default Headers
-	for key, values := range client.defaultHeader {
-		for _, v := range values {
-			request.Header.Add(key, v)
-		}
-	}
+	// Fixed Headers > Per-Request Header Parameters
 
 	// Add Request Header Parameters
 	if header != nil {
@@ -193,6 +234,7 @@ func (client *Client) doRequest(
 // Request 向微信支付发送请求
 //
 // 相比于 Get / Post / Put / Patch / Delete 方法，本方法可以设置更多内容
+// 特别地，如果需要为当前请求设置 Header，可以使用本方法
 func (client *Client) Request(
 	ctx context.Context,
 	method, requestPath string,
@@ -243,6 +285,24 @@ func (client *Client) doHTTP(req *http.Request) (result *APIResult, err error) {
 	return result, err
 }
 
+func (client *Client) EncryptRequest(ctx context.Context, req interface{}) (string, error) {
+	if client.cipher == nil {
+		return "", nil
+	}
+	return client.cipher.Encrypt(ctx, req)
+}
+
+func (client *Client) DecryptRequest(ctx context.Context, resp interface{}) error {
+	if client.cipher == nil {
+		return nil
+	}
+	return client.cipher.Decrypt(ctx, resp)
+}
+
+func (client *Client) Sign(ctx context.Context, message string) (result *auth.SignatureResult, err error) {
+	return client.signer.Sign(ctx, message)
+}
+
 // CheckResponse 校验请求是否成功
 //
 // 当http回包的状态码的范围不是200-299之间的时候，会返回相应的错误信息，主要包括http状态码、回包错误码、回包错误信息提示
@@ -251,7 +311,7 @@ func CheckResponse(resp *http.Response) error {
 		return nil
 	}
 	slurp, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	if err == nil {
 		resp.Body = ioutil.NopCloser(bytes.NewBuffer(slurp))
 		apiError := &APIError{
@@ -274,7 +334,7 @@ func CheckResponse(resp *http.Response) error {
 // UnMarshalResponse 将回包组织成结构化数据
 func UnMarshalResponse(httpResp *http.Response, resp interface{}) error {
 	body, err := ioutil.ReadAll(httpResp.Body)
-	httpResp.Body.Close()
+	_ = httpResp.Body.Close()
 
 	if err != nil {
 		return err
