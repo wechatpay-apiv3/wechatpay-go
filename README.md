@@ -168,6 +168,8 @@ func QueryOrder() error {
 	
 	if err == nil {
 		log.Println(resp)
+		return nil
+
 	} else {
 		log.Println(err)
 		return err
