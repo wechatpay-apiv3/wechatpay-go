@@ -67,6 +67,15 @@ func NewClient(ctx context.Context, opts ...ClientOption) (client *Client, err e
 	return client, nil
 }
 
+func NewClientWithValidator(client *Client, validator auth.Validator) *Client {
+	return &Client{
+		httpClient : client.httpClient,
+		defaultHeader : client.defaultHeader,
+		credential : client.credential,
+		validator: validator,
+	}
+}
+
 func initSettings(opts []ClientOption) (*dialSettings, error) {
 	var o dialSettings
 	for _, opt := range opts {
