@@ -83,7 +83,7 @@ func (o *CertificateDownloader) updateCertificates(certificates map[string]*x509
 	o.certificates = certificates
 	o.apiSvc.Client = core.NewClientWithValidator(o.apiSvc.Client,
 		&validators.WechatPayValidator{
-			Verifier: &verifiers.SHA256WithRSAVerifier{Certificates: o.certificates},
+			Verifier: verifiers.NewSHA256WithRSAVerifier(o),
 		},
 	)
 }
@@ -125,7 +125,7 @@ func NewCertificateDownloader(ctx context.Context, mchID string, privateKey *rsa
 
 func NewCertificateDownloaderWithClient(client *core.Client, mchAPIv3Key string) (*CertificateDownloader, error) {
 	downloader := CertificateDownloader{
-		apiSvc: &certificates.CertificatesApiService{Client: client},
+		apiSvc:      &certificates.CertificatesApiService{Client: client},
 		mchAPIv3Key: mchAPIv3Key,
 	}
 

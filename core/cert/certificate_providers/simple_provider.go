@@ -13,3 +13,7 @@ func (p SimpleCertificateProvider) GetCertificate(serialNo string) (*x509.Certif
 func (p SimpleCertificateProvider) GetCertificateMap() map[string]*x509.Certificate {
 	return p
 }
+
+func NewSimpleCertificateProvider(m map[string]*x509.Certificate) SimpleCertificateProvider {
+	return m
+}
