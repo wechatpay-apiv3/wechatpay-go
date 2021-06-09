@@ -63,10 +63,10 @@ func TestWechatPayCipher_Encrypt_Decrypt(t *testing.T) {
 	}
 
 	c := WechatPayCipher{
-		Encryptor: &encryptors.MockEncryptor{
+		encryptor: &encryptors.MockEncryptor{
 			Serial: "Mock Serial",
 		},
-		Decryptor: &decryptors.MockDecryptor{},
+		decryptor: &decryptors.MockDecryptor{},
 	}
 
 	serial, err := c.Encrypt(context.Background(), &s)
@@ -112,10 +112,10 @@ func TestWechatPayCipher_CipherValue(t *testing.T) {
 	}
 
 	c := WechatPayCipher{
-		Encryptor: &encryptors.MockEncryptor{
+		encryptor: &encryptors.MockEncryptor{
 			Serial: "Mock Serial",
 		},
-		Decryptor: &decryptors.MockDecryptor{},
+		decryptor: &decryptors.MockDecryptor{},
 	}
 
 	serial, err := c.Encrypt(context.Background(), s)
