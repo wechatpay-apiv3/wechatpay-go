@@ -11,6 +11,7 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/certificate_map"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/certificates"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -37,7 +38,7 @@ func isSameCertificateMap(l, r map[string]*x509.Certificate) bool {
 
 type CertificateDownloader struct {
 	certContents map[string]string                    // 证书文本内容，用于导出
-	certificates map[string]*x509.Certificate         // 证书实例
+	certificates certificate_map.CertificateMap       // 证书实例
 	apiSvc       *certificates.CertificatesApiService // 平台证书下载API
 	mchAPIv3Key  string                               // 商户APIv3密钥
 	lock         sync.RWMutex
@@ -47,20 +48,21 @@ func (o *CertificateDownloader) Get(serialNo string) (*x509.Certificate, bool) {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
 
-	cert, ok := o.certificates[serialNo]
-	return cert, ok
+	return o.certificates.Get(serialNo)
 }
 
 func (o *CertificateDownloader) GetAll() map[string]*x509.Certificate {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
 
-	ret := make(map[string]*x509.Certificate)
-	for serialNo, certificate := range o.certificates {
-		ret[serialNo] = certificate
-	}
+	return o.certificates.GetAll()
+}
 
-	return ret
+func (o *CertificateDownloader) GetNewestSerial() string {
+	o.lock.RLock()
+	defer o.lock.RUnlock()
+
+	return o.certificates.GetNewestSerial()
 }
 
 func (o *CertificateDownloader) Export(serialNo string) (string, bool) {
@@ -102,12 +104,12 @@ func (o *CertificateDownloader) updateCertificates(
 ) {
 	o.lock.Lock()
 	defer o.lock.Unlock()
-	if isSameCertificateMap(o.certificates, certificates) {
+	if isSameCertificateMap(o.certificates.GetAll(), certificates) {
 		return
 	}
 
 	o.certContents = certContents
-	o.certificates = certificates
+	o.certificates.Reset(certificates)
 	o.apiSvc.Client = core.NewClientWithValidator(
 		o.apiSvc.Client,
 		&validators.WechatPayValidator{

@@ -10,6 +10,8 @@ type CertificateGetter interface {
 	Get(serialNo string) (*x509.Certificate, bool)
 	// GetAll 获取平台证书Map
 	GetAll() map[string]*x509.Certificate
+	// GetNewestSerial 获取最新的平台证书的证书序列号
+	GetNewestSerial() string
 }
 
 // CertificateExporter 平台证书导出器，可获取平台证书内容，

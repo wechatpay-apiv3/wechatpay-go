@@ -6,20 +6,14 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/certificate_visitors"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/certificate_map"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/downloader"
-	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
 // BuildWechatPayValidator 使用 平台证书列表 初始化 WechatPayValidator
 func BuildWechatPayValidator(certificateList []*x509.Certificate) *validators.WechatPayValidator {
-	certificates := map[string]*x509.Certificate{}
-	for _, certificate := range certificateList {
-		serialNo := utils.GetCertificateSerialNumber(*certificate)
-		certificates[serialNo] = certificate
-	}
 	validator := &validators.WechatPayValidator{
-		Verifier: verifiers.NewSHA256WithRSAVerifier(certificate_visitors.NewSimpleGetter(certificates)),
+		Verifier: verifiers.NewSHA256WithRSAVerifier(certificate_map.NewCertificateMapWithList(certificateList)),
 	}
 	return validator
 }

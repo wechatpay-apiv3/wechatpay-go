@@ -31,6 +31,10 @@ func (o *pseudoCertificateDownloader) Get(serialNo string) (*x509.Certificate, b
 	return o.mgr.GetCertificate(o.mchID, serialNo)
 }
 
+func (o *pseudoCertificateDownloader) GetNewestSerial() string {
+	return o.mgr.GetNewestCertificateSerial(o.mchID)
+}
+
 func (o *pseudoCertificateDownloader) ExportAll() map[string]string {
 	return o.mgr.ExportCertificateMap(o.mchID)
 }
@@ -77,6 +81,17 @@ func (o *CertificateDownloaderMgr) GetCertificateMap(mchID string) map[string]*x
 		return nil
 	}
 	return downloader.GetAll()
+}
+
+func (o *CertificateDownloaderMgr) GetNewestCertificateSerial(mchID string) string {
+	o.lock.Lock()
+	downloader, ok := o.downloaderMap[mchID]
+	o.lock.Unlock()
+
+	if !ok {
+		return ""
+	}
+	return downloader.GetNewestSerial()
 }
 
 func (o *CertificateDownloaderMgr) ExportCertificate(mchID, serialNo string) (string, bool) {
