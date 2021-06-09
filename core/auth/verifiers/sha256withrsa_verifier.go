@@ -16,10 +16,10 @@ import (
 // SHA256WithRSAVerifier SHA256WithRSA 数字签名验证器
 type SHA256WithRSAVerifier struct {
 	// Certificates 微信支付平台证书Map，key: 平台证书序列号， value: 微信支付平台证书
-	certProvider cert.CertificateProvider
+	certProvider cert.CertificateGetter
 }
 
-func (verifier *SHA256WithRSAVerifier) CertificateProvider() cert.CertificateProvider {
+func (verifier *SHA256WithRSAVerifier) CertificateProvider() cert.CertificateGetter {
 	return verifier.certProvider
 }
 
@@ -64,6 +64,6 @@ func checkParameter(ctx context.Context, serialNumber, message, signature string
 	return nil
 }
 
-func NewSHA256WithRSAVerifier(provider cert.CertificateProvider) *SHA256WithRSAVerifier {
+func NewSHA256WithRSAVerifier(provider cert.CertificateGetter) *SHA256WithRSAVerifier {
 	return &SHA256WithRSAVerifier{certProvider: provider}
 }

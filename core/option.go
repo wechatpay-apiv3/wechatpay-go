@@ -10,7 +10,7 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/certificate_providers"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/certificate_visitors"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
@@ -62,7 +62,7 @@ func WithWechatPayValidator(certificateList []*x509.Certificate) ClientOption {
 		certificates[serialNo] = certificate
 	}
 	validator := &validators.WechatPayValidator{
-		Verifier: verifiers.NewSHA256WithRSAVerifier(certificate_providers.NewSimpleCertificateProvider(certificates)),
+		Verifier: verifiers.NewSHA256WithRSAVerifier(certificate_visitors.NewSimpleGetter(certificates)),
 	}
 	return withValidatorOption{validator}
 }

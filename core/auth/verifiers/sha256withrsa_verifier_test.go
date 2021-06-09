@@ -5,7 +5,7 @@ import (
 	"crypto/x509"
 	"testing"
 
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/certificate_providers"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/certificate_visitors"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
@@ -93,7 +93,7 @@ func TestWechatPayVerifier_Verify(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			verifier := NewSHA256WithRSAVerifier(certificate_providers.NewSimpleCertificateProvider(tt.fields.Certificates))
+			verifier := NewSHA256WithRSAVerifier(certificate_visitors.NewSimpleGetter(tt.fields.Certificates))
 			if err := verifier.Verify(tt.args.ctx, tt.args.serialNumber, tt.args.message,
 				tt.args.signature); (err != nil) != tt.wantErr {
 				t.Errorf("Verify() error = %v, wantErr %v", err, tt.wantErr)

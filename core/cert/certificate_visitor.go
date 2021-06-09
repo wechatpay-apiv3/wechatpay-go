@@ -4,8 +4,8 @@ import (
 	"crypto/x509"
 )
 
-// CertificateProvider 平台证书提供器
-type CertificateProvider interface {
+// CertificateGetter 平台证书提供器
+type CertificateGetter interface {
 	// Get 获取证书序列号对应的平台证书
 	Get(serialNo string) (*x509.Certificate, bool)
 	// GetAll 获取平台证书Map
@@ -21,6 +21,6 @@ type CertificateExporter interface {
 }
 
 type CertificateVisitor interface {
-	CertificateProvider
+	CertificateGetter
 	CertificateExporter
 }
