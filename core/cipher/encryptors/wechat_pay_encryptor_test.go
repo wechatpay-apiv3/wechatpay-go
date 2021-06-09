@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/certificate_map"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
@@ -93,7 +94,7 @@ func initWechatPayEncryptor() (*WechatPayEncryptor, error) {
 		l = append(l, cert)
 	}
 
-	return NewWechatPayEncryptor(l), nil
+	return NewWechatPayEncryptor(certificate_map.NewCertificateMapWithList(l)), nil
 }
 
 func TestWechatPayEncryptor_SelectCertificate(t *testing.T) {
@@ -120,20 +121,4 @@ func TestWechatPayEncryptor_Encrypt(t *testing.T) {
 	newPlainText, err := utils.DecryptOAEP(ciphertext, privateKey)
 	assert.Nil(t, err)
 	assert.Equal(t, newPlainText, plaintext)
-}
-
-func BenchmarkWechatPayEncryptor_AddCertificate(b *testing.B) {
-	l := make([]*x509.Certificate, 1)
-	cert, _ := utils.LoadCertificate(testCertStrList[0])
-	l[0] = cert
-
-	e := NewWechatPayEncryptor(l)
-
-	cert1, _ := utils.LoadCertificate(testCertStrList[1])
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		e.AddCertificate(cert1)
-		e.RemoveCertificate(utils.GetCertificateSerialNumber(*cert1))
-	}
 }

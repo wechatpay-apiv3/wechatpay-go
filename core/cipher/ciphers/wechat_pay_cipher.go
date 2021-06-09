@@ -27,13 +27,13 @@ const (
 //  2. 微信支付对下行的敏感信息字段进行加密
 // 详见：https://wechatpay-api.gitbook.io/wechatpay-api-v3/qian-ming-zhi-nan-1/min-gan-xin-xi-jia-mi
 type WechatPayCipher struct {
-	Encryptor cipher.Encryptor
-	Decryptor cipher.Decryptor
+	encryptor cipher.Encryptor
+	decryptor cipher.Decryptor
 }
 
 // Encrypt 对结构中的敏感字段进行加密
 func (c *WechatPayCipher) Encrypt(ctx context.Context, in interface{}) (string, error) {
-	serial, err := c.Encryptor.SelectCertificate(ctx)
+	serial, err := c.encryptor.SelectCertificate(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -134,9 +134,9 @@ func (c *WechatPayCipher) cipherField(ctx context.Context, ty cipherType, f refl
 			if !ok {
 				return fmt.Errorf("`getEncryptSerial` not provided in ctx")
 			}
-			cipherText, err = c.Encryptor.Encrypt(ctx, serial, v.Interface().(string))
+			cipherText, err = c.encryptor.Encrypt(ctx, serial, v.Interface().(string))
 		case cipherTypeDecrypt:
-			cipherText, err = c.Decryptor.Decrypt(ctx, v.Interface().(string))
+			cipherText, err = c.decryptor.Decrypt(ctx, v.Interface().(string))
 		default:
 			return fmt.Errorf("invalid cipher type:%v", ty)
 		}
@@ -161,4 +161,8 @@ func (c *WechatPayCipher) isFieldRequireCipher(f reflect.StructField, t reflect.
 	}
 
 	return false
+}
+
+func NewWechatPayCipher(encryptor cipher.Encryptor, decryptor cipher.Decryptor) *WechatPayCipher {
+	return &WechatPayCipher{encryptor: encryptor, decryptor: decryptor}
 }
