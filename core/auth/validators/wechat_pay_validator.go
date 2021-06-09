@@ -4,7 +4,6 @@ package validators
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -36,11 +35,8 @@ func (validator *WechatPayValidator) Validate(ctx context.Context, response *htt
 		return err
 	}
 	serialNumber := strings.TrimSpace(response.Header.Get(consts.WechatPaySerial))
-	signature, err := base64.StdEncoding.DecodeString(strings.TrimSpace(response.Header.Get(consts.WechatPaySignature)))
-	if err != nil {
-		return fmt.Errorf("base64 decode string wechat pay signature err:%s", err.Error())
-	}
-	err = validator.Verifier.Verify(ctx, serialNumber, message, string(signature))
+	signature := response.Header.Get(consts.WechatPaySignature)
+	err = validator.Verifier.Verify(ctx, serialNumber, message, signature)
 	if err != nil {
 		return fmt.Errorf("validate verify fail serial=%s request-id=%s err=%s", serialNumber,
 			strings.TrimSpace(response.Header.Get(consts.RequestID)), err)

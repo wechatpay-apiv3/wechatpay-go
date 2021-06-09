@@ -6,6 +6,7 @@ import (
 	"crypto"
 	"crypto/rsa"
 	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"strings"
 
@@ -31,12 +32,16 @@ func (verifier *SHA256WithRSAVerifier) Verify(ctx context.Context, serialNumber,
 	if verifier.certProvider == nil {
 		return fmt.Errorf("verifier has no validator")
 	}
+	sigBytes, err := base64.StdEncoding.DecodeString(signature)
+	if err != nil {
+		return fmt.Errorf("verify failed: signature not base64 encoded")
+	}
 	certificate, ok := verifier.certProvider.GetCertificate(serialNumber)
 	if !ok {
 		return fmt.Errorf("certificate[%s] not found in verifier", serialNumber)
 	}
 	hashed := sha256.Sum256([]byte(message))
-	err = rsa.VerifyPKCS1v15(certificate.PublicKey.(*rsa.PublicKey), crypto.SHA256, hashed[:], []byte(signature))
+	err = rsa.VerifyPKCS1v15(certificate.PublicKey.(*rsa.PublicKey), crypto.SHA256, hashed[:], sigBytes)
 	if err != nil {
 		return fmt.Errorf("verifty signature with public key err:%s", err.Error())
 	}
