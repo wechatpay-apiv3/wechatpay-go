@@ -36,7 +36,7 @@ func (verifier *SHA256WithRSAVerifier) Verify(ctx context.Context, serialNumber,
 	if err != nil {
 		return fmt.Errorf("verify failed: signature not base64 encoded")
 	}
-	certificate, ok := verifier.certProvider.GetCertificate(serialNumber)
+	certificate, ok := verifier.certProvider.Get(serialNumber)
 	if !ok {
 		return fmt.Errorf("certificate[%s] not found in verifier", serialNumber)
 	}

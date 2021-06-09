@@ -37,5 +37,5 @@ func BuildWechatPayValidatorWithCertificateDownloaderMgr(
 	mgr *downloader.CertificateDownloaderMgr,
 	mchID string,
 ) *validators.WechatPayValidator {
-	return BuildWechatPayValidatorWithCertProvider(mgr.GetCertificateProvider(mchID))
+	return BuildWechatPayValidatorWithCertProvider(mgr.GetCertificateVisitor(mchID))
 }

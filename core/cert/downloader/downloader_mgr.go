@@ -18,17 +18,25 @@ const (
 	DefaultDownloadInterval = 24 * time.Hour
 )
 
-type pseudoCertificateProvider struct {
+type pseudoCertificateDownloader struct {
 	mgr   *CertificateDownloaderMgr
 	mchID string
 }
 
-func (o *pseudoCertificateProvider) GetCertificateMap() map[string]*x509.Certificate {
+func (o *pseudoCertificateDownloader) GetAll() map[string]*x509.Certificate {
 	return o.mgr.GetCertificateMap(o.mchID)
 }
 
-func (o *pseudoCertificateProvider) GetCertificate(serialNo string) (*x509.Certificate, bool) {
+func (o *pseudoCertificateDownloader) Get(serialNo string) (*x509.Certificate, bool) {
 	return o.mgr.GetCertificate(o.mchID, serialNo)
+}
+
+func (o *pseudoCertificateDownloader) ExportAll() map[string]string {
+	return o.mgr.ExportCertificateMap(o.mchID)
+}
+
+func (o *pseudoCertificateDownloader) Export(serialNo string) (string, bool) {
+	return o.mgr.ExportCertificate(o.mchID, serialNo)
 }
 
 // CertificateDownloaderMgr 证书下载器管理器
@@ -57,7 +65,7 @@ func (o *CertificateDownloaderMgr) GetCertificate(mchID, serialNo string) (*x509
 		return nil, false
 	}
 
-	return downloader.GetCertificate(serialNo)
+	return downloader.Get(serialNo)
 }
 
 func (o *CertificateDownloaderMgr) GetCertificateMap(mchID string) map[string]*x509.Certificate {
@@ -68,11 +76,34 @@ func (o *CertificateDownloaderMgr) GetCertificateMap(mchID string) map[string]*x
 	if !ok {
 		return nil
 	}
-	return downloader.GetCertificateMap()
+	return downloader.GetAll()
 }
 
-func (o *CertificateDownloaderMgr) GetCertificateProvider(mchID string) cert.CertificateProvider {
-	return &pseudoCertificateProvider{mgr: o, mchID: mchID}
+func (o *CertificateDownloaderMgr) ExportCertificate(mchID, serialNo string) (string, bool) {
+	o.lock.Lock()
+	downloader, ok := o.downloaderMap[mchID]
+	o.lock.Unlock()
+
+	if !ok {
+		return "", false
+	}
+
+	return downloader.Export(serialNo)
+}
+
+func (o *CertificateDownloaderMgr) ExportCertificateMap(mchID string) map[string]string {
+	o.lock.Lock()
+	downloader, ok := o.downloaderMap[mchID]
+	o.lock.Unlock()
+
+	if !ok {
+		return nil
+	}
+	return downloader.ExportAll()
+}
+
+func (o *CertificateDownloaderMgr) GetCertificateVisitor(mchID string) cert.CertificateVisitor {
+	return &pseudoCertificateDownloader{mgr: o, mchID: mchID}
 }
 
 func (o *CertificateDownloaderMgr) getTickHandler() func(time.Time) {

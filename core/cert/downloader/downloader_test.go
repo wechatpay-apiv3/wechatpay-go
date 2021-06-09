@@ -28,8 +28,8 @@ func TestCertificateDownloader(t *testing.T) {
 	d, err := downloader.NewCertificateDownloaderWithClient(client, consts.MchAPIv3Key)
 	require.NoError(t, err)
 
-	assert.NotEmpty(t, d.GetCertificateMap())
-	for serialNo, cert := range d.GetCertificateMap() {
+	assert.NotEmpty(t, d.GetAll())
+	for serialNo, cert := range d.GetAll() {
 		assert.Equal(t, serialNo, utils.GetCertificateSerialNumber(*cert))
 	}
 }
