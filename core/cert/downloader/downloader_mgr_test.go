@@ -33,7 +33,7 @@ func TestAutoCertificateDownloader(t *testing.T) {
 	err = mgr.RegisterDownloaderWithClient(client, consts.MchID, consts.MchAPIv3Key)
 	require.NoError(t, err)
 
-	provider := mgr.BuildPseudoCertificateProvider(consts.MchID)
+	provider := mgr.GetCertificateProvider(consts.MchID)
 
 	assert.NotEmpty(t, provider.GetCertificateMap())
 	for serialNo, cert := range provider.GetCertificateMap() {

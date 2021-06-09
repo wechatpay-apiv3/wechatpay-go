@@ -9,6 +9,7 @@ import (
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils/task"
 )
 
@@ -70,7 +71,7 @@ func (o *CertificateDownloaderMgr) GetCertificateMap(mchID string) map[string]*x
 	return downloader.GetCertificateMap()
 }
 
-func (o *CertificateDownloaderMgr) BuildPseudoCertificateProvider(mchID string) *pseudoCertificateProvider {
+func (o *CertificateDownloaderMgr) GetCertificateProvider(mchID string) cert.CertificateProvider {
 	return &pseudoCertificateProvider{mgr: o, mchID: mchID}
 }
 

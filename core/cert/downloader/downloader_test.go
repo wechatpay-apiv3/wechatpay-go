@@ -31,6 +31,5 @@ func TestCertificateDownloader(t *testing.T) {
 	assert.NotEmpty(t, d.GetCertificateMap())
 	for serialNo, cert := range d.GetCertificateMap() {
 		assert.Equal(t, serialNo, utils.GetCertificateSerialNumber(*cert))
-		t.Log(cert.Raw)
 	}
 }
