@@ -36,7 +36,7 @@ const (
 	NonceLength            = 32                                                               // 随机字符串的长度
 	SignatureMessageFormat = "%s\n%s\n%d\n%s\n%s\n"                                           // 数字签名原文格式
 	// HeaderAuthorizationFormat 请求头中的 Authorization 拼接格式
-	HeaderAuthorizationFormat = "WECHATPAY2-SHA256-RSA2048 mchid=\"%s\",nonce_str=\"%s\",timestamp=\"%d\",serial_no=\"%s\",signature=\"%s\""
+	HeaderAuthorizationFormat = "%s mchid=\"%s\",nonce_str=\"%s\",timestamp=\"%d\",serial_no=\"%s\",signature=\"%s\""
 )
 
 // HTTP 应答报文 Header 相关常量

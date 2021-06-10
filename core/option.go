@@ -31,13 +31,43 @@ func WithCredential(credential auth.Credential) ClientOption {
 	return withCredentialOption{credential: credential}
 }
 
-// WithMerchantCredential 通过商户号、商户证书序列号、商户私钥构建一个默认的 Credential，用于生成请求头中的 Authorization 信息
+type withSignerOption struct{
+	signer auth.Signer
+}
+
+func (w withSignerOption) Apply(o *dialSettings) {
+	o.Signer = w.signer
+}
+
+// WithSigner 返回一个指定signer的ClientOption
+func WithSigner(signer auth.Signer) ClientOption {
+	return withSignerOption{signer}
+}
+
+type withCredentialAndSignerOption struct {
+	credential auth.Credential
+	signer auth.Signer
+}
+
+func (w withCredentialAndSignerOption) Apply(o *dialSettings) {
+	o.Signer = w.signer
+	o.Credential = w.credential
+}
+
+// WithSignerAndWechatPayCredential 通过 signer 构建一对 Credential/Signer，用于生成请求头中的 Authorization 信息
+func WithSignerAndWechatPayCredential(signer auth.Signer) ClientOption {
+	credential := &credentials.WechatPayCredentials{Signer: signer}
+	return withCredentialAndSignerOption{credential: credential, signer: signer}
+}
+
+// WithMerchantCredential 通过商户号、商户证书序列号、商户私钥构建一对 Credential/Signer，用于生成请求头中的 Authorization 信息
 func WithMerchantCredential(mchID, certificateSerialNo string, privateKey *rsa.PrivateKey) ClientOption {
-	credential := &credentials.WechatPayCredentials{
-		Signer: &signers.SHA256WithRSASigner{PrivateKey: privateKey, CertificateSerialNo: certificateSerialNo},
-		MchID:  mchID,
+	signer := &signers.SHA256WithRSASigner{
+		MchID:               mchID,
+		PrivateKey:          privateKey,
+		CertificateSerialNo: certificateSerialNo,
 	}
-	return WithCredential(credential)
+	return WithSignerAndWechatPayCredential(signer)
 }
 
 type withValidatorOption struct{ Validator auth.Validator }

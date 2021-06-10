@@ -48,6 +48,7 @@ type Client struct {
 	defaultHeader http.Header
 	credential    auth.Credential
 	validator     auth.Validator
+	signer        auth.Signer
 }
 
 // NewClient 初始化一个微信支付API v3 HTTPClient
@@ -59,6 +60,7 @@ func NewClient(ctx context.Context, opts ...ClientOption) (client *Client, err e
 		return nil, fmt.Errorf("init client setting err:%v", err)
 	}
 	client = &Client{
+		signer:        settings.Signer,
 		validator:     settings.Validator,
 		credential:    settings.Credential,
 		httpClient:    settings.HTTPClient,
@@ -72,6 +74,7 @@ func NewClientWithValidator(client *Client, validator auth.Validator) *Client {
 		httpClient : client.httpClient,
 		defaultHeader : client.defaultHeader,
 		credential : client.credential,
+		signer : client.signer,
 		validator: validator,
 	}
 }

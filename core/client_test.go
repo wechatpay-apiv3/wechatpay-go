@@ -17,7 +17,6 @@ import (
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/credentials"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
@@ -46,7 +45,7 @@ const (
 var (
 	privateKey           *rsa.PrivateKey
 	wechatPayCertificate *x509.Certificate
-	credential           auth.Credential
+	signer               auth.Signer
 	validator            auth.Validator
 	ctx                  context.Context
 	err                  error
@@ -112,12 +111,10 @@ type meta struct {
 
 func TestClient_Upload(t *testing.T) {
 	// 如果你有自定义的Signer或者Verifier
-	credential = &credentials.WechatPayCredentials{
-		Signer: &signers.SHA256WithRSASigner{
-			PrivateKey:          privateKey,
-			CertificateSerialNo: testCertificateSerialNumber,
-		},
-		MchID: testMchID,
+	signer = &signers.SHA256WithRSASigner{
+		MchID:               testMchID,
+		PrivateKey:          privateKey,
+		CertificateSerialNo: testCertificateSerialNumber,
 	}
 	validator = &validators.WechatPayValidator{
 		Verifier: verifiers.NewSHA256WithRSAVerifier(
@@ -126,7 +123,7 @@ func TestClient_Upload(t *testing.T) {
 			),
 		),
 	}
-	client, err := core.NewClient(ctx, core.WithCredential(credential), core.WithValidator(validator))
+	client, err := core.NewClient(ctx, core.WithSignerAndWechatPayCredential(signer), core.WithValidator(validator))
 	assert.Nil(t, err)
 	pictureByes, err := ioutil.ReadFile(filePath)
 	assert.Nil(t, err)

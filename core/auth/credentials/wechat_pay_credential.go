@@ -14,7 +14,6 @@ import (
 // WechatPayCredentials 微信支付请求报文头 Authorization 信息生成器
 type WechatPayCredentials struct {
 	Signer auth.Signer // 数字签名生成器
-	MchID  string      // 商户号
 }
 
 // GenerateAuthorizationHeader 生成请求报文头中的 Authorization 信息，详见：
@@ -34,9 +33,13 @@ func (c *WechatPayCredentials) GenerateAuthorizationHeader(ctx context.Context,
 	if err != nil {
 		return "", err
 	}
-	authorization = fmt.Sprintf(consts.HeaderAuthorizationFormat, c.MchID, nonce, timestamp,
-		signatureResult.CertificateSerialNo, signatureResult.Signature)
+	authorization = fmt.Sprintf(consts.HeaderAuthorizationFormat, c.getAuthorizationType(),
+		signatureResult.MchID, nonce, timestamp, signatureResult.CertificateSerialNo, signatureResult.Signature)
 	return authorization, nil
+}
+
+func (c *WechatPayCredentials) getAuthorizationType() string {
+	return "WECHATPAY2-" + c.Signer.Algorithm()
 }
 
 func generateNonce() (string, error) {
