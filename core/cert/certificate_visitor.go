@@ -23,6 +23,7 @@ type CertificateExporter interface {
 	ExportAll(ctx context.Context) map[string]string
 }
 
+// CertificateVisitor 证书访问器，集 CertificateGetter 与 CertificateExporter 于一体
 type CertificateVisitor interface {
 	CertificateGetter
 	CertificateExporter

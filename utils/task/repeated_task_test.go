@@ -11,7 +11,7 @@ import (
 func TestNewRepeatedTask(t *testing.T) {
 	cnt := new(int)
 
-	task := NewRepeatedTask(1*time.Second, func(time.Time) { *cnt += 1 })
+	task := NewRepeatedTask(1*time.Second, func(time.Time) { *cnt++ })
 	assert.Equal(t, Init, task.State())
 
 	task.Start()
@@ -30,7 +30,7 @@ func TestNewRepeatedTask(t *testing.T) {
 }
 
 func runTask(cnt *int) {
-	task := NewRepeatedTask(1*time.Second, func(time.Time) { *cnt += 1 })
+	task := NewRepeatedTask(1*time.Second, func(time.Time) { *cnt++ })
 
 	task.Start()
 

@@ -10,7 +10,7 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/certificate_map"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 )
 
 // ClientOption  一个ClientOption可以作为微信支付api v3 client的配置
@@ -58,7 +58,7 @@ func WithVerifier(verifier auth.Verifier) ClientOption {
 
 // WithWechatPayCertificate 设置微信支付平台证书信息，返回一个指定validator的ClientOption，用于校验http response header
 func WithWechatPayCertificate(certificateList []*x509.Certificate) ClientOption {
-	verifier := verifiers.NewSHA256WithRSAVerifier(certificate_map.NewCertificateMapWithList(certificateList))
+	verifier := verifiers.NewSHA256WithRSAVerifier(cert.NewCertificateMapWithList(certificateList))
 	return WithVerifier(verifier)
 }
 

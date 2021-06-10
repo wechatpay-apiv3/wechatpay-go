@@ -7,9 +7,9 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/downloader"
 )
 
-// BuildVerifierWithCertProvider 使用 平台证书提供器 初始化 Signer
-func BuildVerifierWithCertProvider(certProvider cert.CertificateGetter) auth.Verifier {
-	return verifiers.NewSHA256WithRSAVerifier(certProvider)
+// BuildVerifierWithCertGetter 使用 平台证书提供器 初始化 Signer
+func BuildVerifierWithCertGetter(certGetter cert.CertificateGetter) auth.Verifier {
+	return verifiers.NewSHA256WithRSAVerifier(certGetter)
 }
 
 // BuildVerifierWithCertificateDownloaderMgr 使用平台证书下载管理器构建 WechatPayValidator
@@ -18,5 +18,5 @@ func BuildVerifierWithCertificateDownloaderMgr(
 	mgr *downloader.CertificateDownloaderMgr,
 	mchID string,
 ) auth.Verifier {
-	return BuildVerifierWithCertProvider(mgr.GetCertificateVisitor(mchID))
+	return BuildVerifierWithCertGetter(mgr.GetCertificateVisitor(mchID))
 }

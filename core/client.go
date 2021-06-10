@@ -70,6 +70,8 @@ func NewClient(_ context.Context, opts ...ClientOption) (client *Client, err err
 	return client, nil
 }
 
+// NewClientWithValidator 使用原 Client 复制一个新的 Client，并设置新 Client 的 validator。
+// 原 Client 不受任何影响
 func NewClientWithValidator(client *Client, validator auth.Validator) *Client {
 	return &Client{
 		httpClient : client.httpClient,

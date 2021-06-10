@@ -6,8 +6,10 @@ import (
 	"time"
 )
 
+// State RepeatedTask 状态类型
 type State int
 
+// State 可能枚举
 const (
 	Init State = iota
 	Running
@@ -85,8 +87,13 @@ type wrapper struct {
 	*implRepeatedTask
 }
 
+// RepeatedTask 自动重复任务
+// 设定间隔时间与任务Handler即可自动按间隔执行，在你不再持有该实例的引用后，任务自动停止。
+// 也可以调用 Stop 方法来停止任务
 type RepeatedTask wrapper
 
+// NewRepeatedTask 初始化一个自动重复任务
+// 创建成功后请调用 Start 方法启动任务，启动后需等待 interval 时间发生第一次调用
 func NewRepeatedTask(interval time.Duration, handler func(time.Time)) *RepeatedTask {
 	task := implRepeatedTask{
 		closed:   make(chan struct{}),

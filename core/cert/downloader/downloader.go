@@ -10,7 +10,7 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/certificate_map"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/certificates"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -35,14 +35,16 @@ func isSameCertificateMap(l, r map[string]*x509.Certificate) bool {
 	return true
 }
 
+// CertificateDownloader 平台证书下载器，下载完成后可直接获取 x509.Certificate 对象或导出证书内容
 type CertificateDownloader struct {
 	certContents map[string]string                    // 证书文本内容，用于导出
-	certificates certificate_map.CertificateMap       // 证书实例
+	certificates cert.CertificateMap                  // 证书实例
 	apiSvc       *certificates.CertificatesApiService // 平台证书下载API
 	mchAPIv3Key  string                               // 商户APIv3密钥
 	lock         sync.RWMutex
 }
 
+// Get 获取证书序列号对应的平台证书
 func (o *CertificateDownloader) Get(ctx context.Context, serialNo string) (*x509.Certificate, bool) {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
@@ -50,6 +52,7 @@ func (o *CertificateDownloader) Get(ctx context.Context, serialNo string) (*x509
 	return o.certificates.Get(ctx, serialNo)
 }
 
+// GetAll 获取平台证书Map
 func (o *CertificateDownloader) GetAll(ctx context.Context) map[string]*x509.Certificate {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
@@ -57,6 +60,7 @@ func (o *CertificateDownloader) GetAll(ctx context.Context) map[string]*x509.Cer
 	return o.certificates.GetAll(ctx)
 }
 
+// GetNewestSerial 获取最新的平台证书的证书序列号
 func (o *CertificateDownloader) GetNewestSerial(ctx context.Context) string {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
@@ -64,6 +68,7 @@ func (o *CertificateDownloader) GetNewestSerial(ctx context.Context) string {
 	return o.certificates.GetNewestSerial(ctx)
 }
 
+// Export 获取证书序列号对应的平台证书内容
 func (o *CertificateDownloader) Export(_ context.Context, serialNo string) (string, bool) {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
@@ -72,6 +77,7 @@ func (o *CertificateDownloader) Export(_ context.Context, serialNo string) (stri
 	return content, ok
 }
 
+// ExportAll 获取平台证书内容Map
 func (o *CertificateDownloader) ExportAll(_ context.Context) map[string]string {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
@@ -117,6 +123,7 @@ func (o *CertificateDownloader) updateCertificates(
 	)
 }
 
+// DownloadCertificates 立即下载平台证书列表
 func (o *CertificateDownloader) DownloadCertificates(ctx context.Context) error {
 	resp, _, err := o.apiSvc.DownloadCertificates(ctx)
 	if err != nil {
@@ -150,6 +157,8 @@ func (o *CertificateDownloader) DownloadCertificates(ctx context.Context) error 
 	return nil
 }
 
+// NewCertificateDownloader 使用商户号/商户私钥等信息初始化商户的平台证书下载器 CertificateDownloader
+// 初始化完成后会立即发起一次下载，确保下载器被正确初始化。
 func NewCertificateDownloader(
 	ctx context.Context, mchID string, privateKey *rsa.PrivateKey, certificateSerialNo string, mchAPIv3Key string,
 ) (*CertificateDownloader, error) {
@@ -163,6 +172,8 @@ func NewCertificateDownloader(
 	return NewCertificateDownloaderWithClient(ctx, client, mchAPIv3Key)
 }
 
+// NewCertificateDownloaderWithClient 使用 core.Client 初始化商户的平台证书下载器 CertificateDownloader
+// 初始化完成后会立即发起一次下载，确保下载器被正确初始化。
 func NewCertificateDownloaderWithClient(
 	ctx context.Context, client *core.Client, mchAPIv3Key string,
 ) (*CertificateDownloader, error) {

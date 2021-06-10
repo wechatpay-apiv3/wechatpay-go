@@ -8,6 +8,7 @@ import (
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
+	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 
 	"github.com/agiledragon/gomonkey"
 )
@@ -25,7 +26,7 @@ func TestWechatPayCredentials_GenerateAuthorizationHeader(t *testing.T) {
 	}
 	c := &WechatPayCredentials{Signer: &signers.SHA256WithRSASigner{}}
 	patches.ApplyMethodSeq(reflect.TypeOf(c.Signer), "Sign", signOutputs)
-	patches.ApplyFuncSeq(generateNonce, generateNonceStrOutputs)
+	patches.ApplyFuncSeq(utils.GenerateNonce, generateNonceStrOutputs)
 	type fields struct {
 		Signer auth.Signer
 	}
@@ -62,27 +63,6 @@ func TestWechatPayCredentials_GenerateAuthorizationHeader(t *testing.T) {
 				return
 			}
 
-		})
-	}
-}
-
-func TestGenerateNonceStr(t *testing.T) {
-	tests := []struct {
-		name    string
-		wantErr bool
-	}{
-		{
-			name:    "generate nonce str success",
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, err := generateNonce()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GenerateNonceStr() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
 		})
 	}
 }
