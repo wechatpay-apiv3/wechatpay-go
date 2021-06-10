@@ -22,24 +22,24 @@ type pseudoCertificateDownloader struct {
 	mchID string
 }
 
-func (o *pseudoCertificateDownloader) GetAll() map[string]*x509.Certificate {
-	return o.mgr.GetCertificateMap(o.mchID)
+func (o *pseudoCertificateDownloader) GetAll(ctx context.Context) map[string]*x509.Certificate {
+	return o.mgr.GetCertificateMap(ctx, o.mchID)
 }
 
-func (o *pseudoCertificateDownloader) Get(serialNo string) (*x509.Certificate, bool) {
-	return o.mgr.GetCertificate(o.mchID, serialNo)
+func (o *pseudoCertificateDownloader) Get(ctx context.Context, serialNo string) (*x509.Certificate, bool) {
+	return o.mgr.GetCertificate(ctx, o.mchID, serialNo)
 }
 
-func (o *pseudoCertificateDownloader) GetNewestSerial() string {
-	return o.mgr.GetNewestCertificateSerial(o.mchID)
+func (o *pseudoCertificateDownloader) GetNewestSerial(ctx context.Context) string {
+	return o.mgr.GetNewestCertificateSerial(ctx, o.mchID)
 }
 
-func (o *pseudoCertificateDownloader) ExportAll() map[string]string {
-	return o.mgr.ExportCertificateMap(o.mchID)
+func (o *pseudoCertificateDownloader) ExportAll(ctx context.Context) map[string]string {
+	return o.mgr.ExportCertificateMap(ctx, o.mchID)
 }
 
-func (o *pseudoCertificateDownloader) Export(serialNo string) (string, bool) {
-	return o.mgr.ExportCertificate(o.mchID, serialNo)
+func (o *pseudoCertificateDownloader) Export(ctx context.Context, serialNo string) (string, bool) {
+	return o.mgr.ExportCertificate(ctx, o.mchID, serialNo)
 }
 
 // CertificateDownloaderMgr 证书下载器管理器
@@ -47,6 +47,7 @@ func (o *pseudoCertificateDownloader) Export(serialNo string) (string, bool) {
 //
 // CertificateDownloaderMgr 不会被 GoGC 自动回收，不再使用时应调用 Stop 方法，防止发生资源泄漏
 type CertificateDownloaderMgr struct {
+	ctx           context.Context
 	task          *task.RepeatedTask
 	downloaderMap map[string]*CertificateDownloader
 	lock          sync.Mutex
@@ -59,7 +60,9 @@ func (o *CertificateDownloaderMgr) Stop() {
 	o.task.Stop()
 }
 
-func (o *CertificateDownloaderMgr) GetCertificate(mchID, serialNo string) (*x509.Certificate, bool) {
+func (o *CertificateDownloaderMgr) GetCertificate(ctx context.Context, mchID, serialNo string) (
+	*x509.Certificate, bool,
+) {
 	o.lock.Lock()
 	downloader, ok := o.downloaderMap[mchID]
 	o.lock.Unlock()
@@ -68,10 +71,10 @@ func (o *CertificateDownloaderMgr) GetCertificate(mchID, serialNo string) (*x509
 		return nil, false
 	}
 
-	return downloader.Get(serialNo)
+	return downloader.Get(ctx, serialNo)
 }
 
-func (o *CertificateDownloaderMgr) GetCertificateMap(mchID string) map[string]*x509.Certificate {
+func (o *CertificateDownloaderMgr) GetCertificateMap(ctx context.Context, mchID string) map[string]*x509.Certificate {
 	o.lock.Lock()
 	downloader, ok := o.downloaderMap[mchID]
 	o.lock.Unlock()
@@ -79,10 +82,10 @@ func (o *CertificateDownloaderMgr) GetCertificateMap(mchID string) map[string]*x
 	if !ok {
 		return nil
 	}
-	return downloader.GetAll()
+	return downloader.GetAll(ctx)
 }
 
-func (o *CertificateDownloaderMgr) GetNewestCertificateSerial(mchID string) string {
+func (o *CertificateDownloaderMgr) GetNewestCertificateSerial(ctx context.Context, mchID string) string {
 	o.lock.Lock()
 	downloader, ok := o.downloaderMap[mchID]
 	o.lock.Unlock()
@@ -90,10 +93,10 @@ func (o *CertificateDownloaderMgr) GetNewestCertificateSerial(mchID string) stri
 	if !ok {
 		return ""
 	}
-	return downloader.GetNewestSerial()
+	return downloader.GetNewestSerial(ctx)
 }
 
-func (o *CertificateDownloaderMgr) ExportCertificate(mchID, serialNo string) (string, bool) {
+func (o *CertificateDownloaderMgr) ExportCertificate(ctx context.Context, mchID, serialNo string) (string, bool) {
 	o.lock.Lock()
 	downloader, ok := o.downloaderMap[mchID]
 	o.lock.Unlock()
@@ -102,10 +105,10 @@ func (o *CertificateDownloaderMgr) ExportCertificate(mchID, serialNo string) (st
 		return "", false
 	}
 
-	return downloader.Export(serialNo)
+	return downloader.Export(ctx, serialNo)
 }
 
-func (o *CertificateDownloaderMgr) ExportCertificateMap(mchID string) map[string]string {
+func (o *CertificateDownloaderMgr) ExportCertificateMap(ctx context.Context, mchID string) map[string]string {
 	o.lock.Lock()
 	downloader, ok := o.downloaderMap[mchID]
 	o.lock.Unlock()
@@ -113,7 +116,7 @@ func (o *CertificateDownloaderMgr) ExportCertificateMap(mchID string) map[string
 	if !ok {
 		return nil
 	}
-	return downloader.ExportAll()
+	return downloader.ExportAll(ctx)
 }
 
 func (o *CertificateDownloaderMgr) GetCertificateVisitor(mchID string) cert.CertificateVisitor {
@@ -122,11 +125,11 @@ func (o *CertificateDownloaderMgr) GetCertificateVisitor(mchID string) cert.Cert
 
 func (o *CertificateDownloaderMgr) getTickHandler() func(time.Time) {
 	return func(time.Time) {
-		o.DownloadCertificates()
+		o.DownloadCertificates(o.ctx)
 	}
 }
 
-func (o *CertificateDownloaderMgr) DownloadCertificates() {
+func (o *CertificateDownloaderMgr) DownloadCertificates(ctx context.Context) {
 	tmpDownloaderMap := make(map[string]*CertificateDownloader)
 
 	o.lock.Lock()
@@ -136,7 +139,7 @@ func (o *CertificateDownloaderMgr) DownloadCertificates() {
 	o.lock.Unlock()
 
 	for _, downloader := range tmpDownloaderMap {
-		_ = downloader.DownloadCertificates()
+		_ = downloader.DownloadCertificates(ctx)
 	}
 }
 
@@ -157,10 +160,9 @@ func (o *CertificateDownloaderMgr) RegisterDownloaderWithPrivateKey(
 }
 
 func (o *CertificateDownloaderMgr) RegisterDownloaderWithClient(
-	client *core.Client, mchID string,
-	mchAPIv3Key string,
+	ctx context.Context, client *core.Client, mchID string, mchAPIv3Key string,
 ) error {
-	downloader, err := NewCertificateDownloaderWithClient(client, mchAPIv3Key)
+	downloader, err := NewCertificateDownloaderWithClient(ctx, client, mchAPIv3Key)
 	if err != nil {
 		return err
 	}
@@ -172,7 +174,7 @@ func (o *CertificateDownloaderMgr) RegisterDownloaderWithClient(
 	return nil
 }
 
-func (o *CertificateDownloaderMgr) RemoveDownloader(mchID string) *CertificateDownloader {
+func (o *CertificateDownloaderMgr) RemoveDownloader(_ context.Context, mchID string) *CertificateDownloader {
 	o.lock.Lock()
 	defer o.lock.Unlock()
 
@@ -188,20 +190,23 @@ func (o *CertificateDownloaderMgr) RemoveDownloader(mchID string) *CertificateDo
 // NewCertificateDownloaderMgr 以默认间隔 DefaultDownloadInterval 创建证书下载管理器
 // 该管理器将以 DefaultDownloadInterval 的间隔定期调度所有 Downloader 进行证书下载。
 // 证书管理器一旦创建即启动，使用完毕请调用 Stop() 防止发生资源泄漏
-func NewCertificateDownloaderMgr() *CertificateDownloaderMgr {
-	return NewCertificateDownloaderMgrWithInterval(DefaultDownloadInterval)
+func NewCertificateDownloaderMgr(ctx context.Context) *CertificateDownloaderMgr {
+	return NewCertificateDownloaderMgrWithInterval(ctx, DefaultDownloadInterval)
 }
 
 // NewCertificateDownloaderMgrWithInterval 创建一个空证书下载管理器（自定义更新间隔）
 //
 // 更新间隔最大不建议超过 2 天，以免错过平台证书平滑切换窗口；
 // 同时亦不建议小于 1 小时，以避免过多请求导致浪费
-func NewCertificateDownloaderMgrWithInterval(downloadInterval time.Duration) *CertificateDownloaderMgr {
+func NewCertificateDownloaderMgrWithInterval(
+	ctx context.Context, downloadInterval time.Duration,
+) *CertificateDownloaderMgr {
 	if downloadInterval <= 0 {
 		downloadInterval = DefaultDownloadInterval
 	}
 
 	downloader := CertificateDownloaderMgr{
+		ctx: ctx,
 		downloaderMap: make(map[string]*CertificateDownloader),
 	}
 	downloader.task = task.NewRepeatedTask(downloadInterval, downloader.getTickHandler())

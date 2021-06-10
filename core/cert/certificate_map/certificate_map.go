@@ -1,6 +1,7 @@
 package certificate_map
 
 import (
+	"context"
 	"crypto/x509"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
@@ -31,12 +32,12 @@ func (m *CertificateMap) Reset(newCertificates map[string]*x509.Certificate) {
 	m.newest = newestSerialNo
 }
 
-func (m *CertificateMap) Get(serialNo string) (*x509.Certificate, bool) {
+func (m *CertificateMap) Get(_ context.Context, serialNo string) (*x509.Certificate, bool) {
 	cert, ok := m.m[serialNo]
 	return cert, ok
 }
 
-func (m *CertificateMap) GetAll() map[string]*x509.Certificate {
+func (m *CertificateMap) GetAll(_ context.Context) map[string]*x509.Certificate {
 	ret := make(map[string]*x509.Certificate)
 
 	for serialNo, cert := range m.m {
@@ -46,7 +47,7 @@ func (m *CertificateMap) GetAll() map[string]*x509.Certificate {
 	return ret
 }
 
-func (m *CertificateMap) GetNewestSerial() string {
+func (m *CertificateMap) GetNewestSerial(_ context.Context) string {
 	return m.newest
 }
 

@@ -43,28 +43,28 @@ type CertificateDownloader struct {
 	lock         sync.RWMutex
 }
 
-func (o *CertificateDownloader) Get(serialNo string) (*x509.Certificate, bool) {
+func (o *CertificateDownloader) Get(ctx context.Context, serialNo string) (*x509.Certificate, bool) {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
 
-	return o.certificates.Get(serialNo)
+	return o.certificates.Get(ctx, serialNo)
 }
 
-func (o *CertificateDownloader) GetAll() map[string]*x509.Certificate {
+func (o *CertificateDownloader) GetAll(ctx context.Context) map[string]*x509.Certificate {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
 
-	return o.certificates.GetAll()
+	return o.certificates.GetAll(ctx)
 }
 
-func (o *CertificateDownloader) GetNewestSerial() string {
+func (o *CertificateDownloader) GetNewestSerial(ctx context.Context) string {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
 
-	return o.certificates.GetNewestSerial()
+	return o.certificates.GetNewestSerial(ctx)
 }
 
-func (o *CertificateDownloader) Export(serialNo string) (string, bool) {
+func (o *CertificateDownloader) Export(_ context.Context, serialNo string) (string, bool) {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
 
@@ -72,7 +72,7 @@ func (o *CertificateDownloader) Export(serialNo string) (string, bool) {
 	return content, ok
 }
 
-func (o *CertificateDownloader) ExportAll() map[string]string {
+func (o *CertificateDownloader) ExportAll(_ context.Context) map[string]string {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
 
@@ -84,9 +84,9 @@ func (o *CertificateDownloader) ExportAll() map[string]string {
 	return ret
 }
 
-func (o *CertificateDownloader) decryptCertificate(encryptCertificate *certificates.EncryptCertificate) (
-	string, error,
-) {
+func (o *CertificateDownloader) decryptCertificate(
+	_ context.Context, encryptCertificate *certificates.EncryptCertificate,
+) (string, error) {
 	plaintext, err := utils.DecryptAES256GCM(
 		o.mchAPIv3Key, *encryptCertificate.AssociatedData,
 		*encryptCertificate.Nonce, *encryptCertificate.Ciphertext,
@@ -99,11 +99,11 @@ func (o *CertificateDownloader) decryptCertificate(encryptCertificate *certifica
 }
 
 func (o *CertificateDownloader) updateCertificates(
-	certContents map[string]string, certificates map[string]*x509.Certificate,
+	ctx context.Context, certContents map[string]string, certificates map[string]*x509.Certificate,
 ) {
 	o.lock.Lock()
 	defer o.lock.Unlock()
-	if isSameCertificateMap(o.certificates.GetAll(), certificates) {
+	if isSameCertificateMap(o.certificates.GetAll(ctx), certificates) {
 		return
 	}
 
@@ -117,8 +117,8 @@ func (o *CertificateDownloader) updateCertificates(
 	)
 }
 
-func (o *CertificateDownloader) DownloadCertificates() error {
-	resp, _, err := o.apiSvc.DownloadCertificates(context.Background())
+func (o *CertificateDownloader) DownloadCertificates(ctx context.Context) error {
+	resp, _, err := o.apiSvc.DownloadCertificates(ctx)
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func (o *CertificateDownloader) DownloadCertificates() error {
 	rawCertContentMap := make(map[string]string)
 	certificateMap := make(map[string]*x509.Certificate)
 	for _, rawCertificate := range resp.Data {
-		certContent, err := o.decryptCertificate(rawCertificate.EncryptCertificate)
+		certContent, err := o.decryptCertificate(ctx, rawCertificate.EncryptCertificate)
 		if err != nil {
 			return err
 		}
@@ -146,13 +146,12 @@ func (o *CertificateDownloader) DownloadCertificates() error {
 		return fmt.Errorf("no certificate downloaded")
 	}
 
-	o.updateCertificates(rawCertContentMap, certificateMap)
+	o.updateCertificates(ctx, rawCertContentMap, certificateMap)
 	return nil
 }
 
 func NewCertificateDownloader(
-	ctx context.Context, mchID string, privateKey *rsa.PrivateKey,
-	certificateSerialNo string, mchAPIv3Key string,
+	ctx context.Context, mchID string, privateKey *rsa.PrivateKey, certificateSerialNo string, mchAPIv3Key string,
 ) (*CertificateDownloader, error) {
 	client, err := core.NewClient(
 		ctx, core.WithMerchantCredential(mchID, certificateSerialNo, privateKey), core.WithoutValidator(),
@@ -161,16 +160,18 @@ func NewCertificateDownloader(
 		return nil, fmt.Errorf("create downloader failed, create client err:%v", err)
 	}
 
-	return NewCertificateDownloaderWithClient(client, mchAPIv3Key)
+	return NewCertificateDownloaderWithClient(ctx, client, mchAPIv3Key)
 }
 
-func NewCertificateDownloaderWithClient(client *core.Client, mchAPIv3Key string) (*CertificateDownloader, error) {
+func NewCertificateDownloaderWithClient(
+	ctx context.Context, client *core.Client, mchAPIv3Key string,
+) (*CertificateDownloader, error) {
 	downloader := CertificateDownloader{
 		apiSvc:      &certificates.CertificatesApiService{Client: client},
 		mchAPIv3Key: mchAPIv3Key,
 	}
 
-	if err := downloader.DownloadCertificates(); err != nil {
+	if err := downloader.DownloadCertificates(ctx); err != nil {
 		return nil, err
 	}
 

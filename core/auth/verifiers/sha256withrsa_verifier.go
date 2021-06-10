@@ -16,11 +16,7 @@ import (
 // SHA256WithRSAVerifier SHA256WithRSA 数字签名验证器
 type SHA256WithRSAVerifier struct {
 	// Certificates 微信支付平台证书Map，key: 平台证书序列号， value: 微信支付平台证书
-	certProvider cert.CertificateGetter
-}
-
-func (verifier *SHA256WithRSAVerifier) CertificateProvider() cert.CertificateGetter {
-	return verifier.certProvider
+	certGetter cert.CertificateGetter
 }
 
 // Verify 对数字签名信息进行验证
@@ -29,14 +25,14 @@ func (verifier *SHA256WithRSAVerifier) Verify(ctx context.Context, serialNumber,
 	if err != nil {
 		return err
 	}
-	if verifier.certProvider == nil {
+	if verifier.certGetter == nil {
 		return fmt.Errorf("verifier has no validator")
 	}
 	sigBytes, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
 		return fmt.Errorf("verify failed: signature not base64 encoded")
 	}
-	certificate, ok := verifier.certProvider.Get(serialNumber)
+	certificate, ok := verifier.certGetter.Get(ctx, serialNumber)
 	if !ok {
 		return fmt.Errorf("certificate[%s] not found in verifier", serialNumber)
 	}
@@ -65,5 +61,5 @@ func checkParameter(ctx context.Context, serialNumber, message, signature string
 }
 
 func NewSHA256WithRSAVerifier(provider cert.CertificateGetter) *SHA256WithRSAVerifier {
-	return &SHA256WithRSAVerifier{certProvider: provider}
+	return &SHA256WithRSAVerifier{certGetter: provider}
 }

@@ -19,7 +19,7 @@ type SHA256WithRSASigner struct {
 }
 
 // Sign 对信息使用 SHA256WithRSA 算法进行签名
-func (s *SHA256WithRSASigner) Sign(ctx context.Context, message string) (*auth.SignatureResult, error) {
+func (s *SHA256WithRSASigner) Sign(_ context.Context, message string) (*auth.SignatureResult, error) {
 	if s.PrivateKey == nil {
 		return nil, fmt.Errorf("you must set privatekey to use SHA256WithRSASigner")
 	}

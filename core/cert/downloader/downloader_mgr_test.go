@@ -14,11 +14,11 @@ import (
 )
 
 func TestAutoCertificateDownloader(t *testing.T) {
-	mgr := downloader.NewCertificateDownloaderMgrWithInterval(5 * time.Second)
+	ctx := context.Background()
+
+	mgr := downloader.NewCertificateDownloaderMgrWithInterval(ctx, 5*time.Second)
 	require.NotNil(t, mgr)
 	defer mgr.Stop()
-
-	ctx := context.Background()
 
 	privateKey, err := utils.LoadPrivateKey(consts.MchPrivateKey)
 	require.NoError(t, err)
@@ -30,7 +30,7 @@ func TestAutoCertificateDownloader(t *testing.T) {
 	client, err := core.NewClient(ctx, opts...)
 	require.NoError(t, err)
 
-	err = mgr.RegisterDownloaderWithClient(client, consts.MchID, consts.MchAPIv3Key)
+	err = mgr.RegisterDownloaderWithClient(ctx, client, consts.MchID, consts.MchAPIv3Key)
 	require.NoError(t, err)
 
 	err = mgr.RegisterDownloaderWithPrivateKey(ctx, privateKey, consts.SerialNo, consts.MchID, consts.MchAPIv3Key)
@@ -38,13 +38,13 @@ func TestAutoCertificateDownloader(t *testing.T) {
 
 	provider := mgr.GetCertificateVisitor(consts.MchID)
 
-	assert.NotEmpty(t, provider.GetAll())
-	for serialNo, cert := range provider.GetAll() {
+	assert.NotEmpty(t, provider.GetAll(ctx))
+	for serialNo, cert := range provider.GetAll(ctx) {
 		assert.Equal(t, serialNo, utils.GetCertificateSerialNumber(*cert))
 	}
 
 	time.Sleep(11 * time.Second)
 
-	mgr.RemoveDownloader(consts.MchID)
-	assert.Empty(t, provider.GetAll())
+	mgr.RemoveDownloader(ctx, consts.MchID)
+	assert.Empty(t, provider.GetAll(ctx))
 }

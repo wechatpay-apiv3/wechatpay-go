@@ -55,7 +55,7 @@ type Client struct {
 // NewClient 初始化一个微信支付API v3 HTTPClient
 //
 // 初始化的时候你可以传递多个配置信息
-func NewClient(ctx context.Context, opts ...ClientOption) (client *Client, err error) {
+func NewClient(_ context.Context, opts ...ClientOption) (client *Client, err error) {
 	settings, err := initSettings(opts)
 	if err != nil {
 		return nil, fmt.Errorf("init client setting err:%v", err)
@@ -264,7 +264,7 @@ func CheckResponse(resp *http.Response) error {
 		return nil
 	}
 	slurp, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	if err == nil {
 		resp.Body = ioutil.NopCloser(bytes.NewBuffer(slurp))
 		apiError := &APIError{
@@ -287,7 +287,7 @@ func CheckResponse(resp *http.Response) error {
 // UnMarshalResponse 将回包组织成结构化数据
 func UnMarshalResponse(httpResp *http.Response, resp interface{}) error {
 	body, err := ioutil.ReadAll(httpResp.Body)
-	httpResp.Body.Close()
+	_ = httpResp.Body.Close()
 
 	if err != nil {
 		return err
