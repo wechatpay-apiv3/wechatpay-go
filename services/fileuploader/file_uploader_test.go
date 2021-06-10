@@ -13,12 +13,20 @@ import (
 )
 
 func TestFileUploader_Upload(t *testing.T) {
+	const (
+		testMchID                   = ""
+		testCertificateSerialNumber = ""
+		testPrivateKey              = `-----BEGIN PRIVATE KEY-----
+-----END PRIVATE KEY-----`
+		testWechatCertificateStr   = `-----BEGIN CERTIFICATE-----
+-----END CERTIFICATE-----`
+	)
 	ctx := context.Background()
 
-	privateKey, _ := utils.LoadPrivateKey(consts.MchPrivateKey)
-	wechatPayCert, _ := utils.LoadCertificate(consts.WechatPayCertificate)
+	privateKey, _ := utils.LoadPrivateKey(testPrivateKey)
+	wechatPayCert, _ := utils.LoadCertificate(testWechatCertificateStr)
 	opts := []core.ClientOption{
-		core.WithMerchantCredential(consts.MchID, consts.SerialNo, privateKey),
+		core.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
 		core.WithWechatPayValidator([]*x509.Certificate{wechatPayCert}),
 	}
 	client, _ := core.NewClient(ctx, opts...)
