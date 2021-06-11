@@ -281,6 +281,10 @@ func (client *Client) DecryptRequest(ctx context.Context, resp interface{}) erro
 	return client.cipher.Decrypt(ctx, resp)
 }
 
+func (client *Client) Sign(ctx context.Context, message string) (result *auth.SignatureResult, err error) {
+	return client.signer.Sign(ctx, message)
+}
+
 // CheckResponse 校验请求是否成功
 //
 // 当http回包的状态码的范围不是200-299之间的时候，会返回相应的错误信息，主要包括http状态码、回包错误码、回包错误信息提示
