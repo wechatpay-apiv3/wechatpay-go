@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/credentials"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 )
 
@@ -92,6 +93,11 @@ func initSettings(opts []ClientOption) (*dialSettings, error) {
 	}
 	if o.Timeout != 0 {
 		o.HTTPClient.Timeout = o.Timeout
+	}
+	if o.Credential == nil {
+		o.Credential = &credentials.WechatPayCredentials{
+			Signer: o.Signer,
+		}
 	}
 	return &o, nil
 }

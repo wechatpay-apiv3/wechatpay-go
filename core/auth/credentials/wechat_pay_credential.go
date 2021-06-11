@@ -3,12 +3,12 @@ package credentials
 
 import (
 	"context"
-	"crypto/rand"
 	"fmt"
 	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
+	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
 // WechatPayCredentials 微信支付请求报文头 Authorization 信息生成器
@@ -23,7 +23,7 @@ func (c *WechatPayCredentials) GenerateAuthorizationHeader(ctx context.Context,
 	if c.Signer == nil {
 		return "", fmt.Errorf("you must init WechatPayCredentials with signer")
 	}
-	nonce, err := generateNonce()
+	nonce, err := utils.GenerateNonce()
 	if err != nil {
 		return "", err
 	}
@@ -40,17 +40,4 @@ func (c *WechatPayCredentials) GenerateAuthorizationHeader(ctx context.Context,
 
 func (c *WechatPayCredentials) getAuthorizationType() string {
 	return "WECHATPAY2-" + c.Signer.Algorithm()
-}
-
-func generateNonce() (string, error) {
-	bytes := make([]byte, consts.NonceLength)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		return "", err
-	}
-	symbolsByteLength := byte(len(consts.NonceSymbols))
-	for i, b := range bytes {
-		bytes[i] = consts.NonceSymbols[b%symbolsByteLength]
-	}
-	return string(bytes), nil
 }

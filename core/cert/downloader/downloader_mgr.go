@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils/task"
 )
@@ -162,21 +161,6 @@ func (o *CertificateDownloaderMgr) RegisterDownloaderWithClient(
 	mchAPIv3Key string,
 ) error {
 	downloader, err := NewCertificateDownloaderWithClient(client, mchAPIv3Key)
-	if err != nil {
-		return err
-	}
-
-	o.lock.Lock()
-	defer o.lock.Unlock()
-
-	o.downloaderMap[mchID] = downloader
-	return nil
-}
-
-func (o *CertificateDownloaderMgr) RegisterDownloaderWithCredential(
-	credential auth.Credential, mchID string, mchAPIv3Key string,
-) error {
-	downloader, err := NewCertificateDownloaderWithCredential(credential, mchAPIv3Key)
 	if err != nil {
 		return err
 	}

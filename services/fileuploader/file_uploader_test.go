@@ -27,7 +27,7 @@ func TestFileUploader_Upload(t *testing.T) {
 	wechatPayCert, _ := utils.LoadCertificate(testWechatCertificateStr)
 	opts := []core.ClientOption{
 		core.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
-		core.WithWechatPayValidator([]*x509.Certificate{wechatPayCert}),
+		core.WithWechatPayCertificate([]*x509.Certificate{wechatPayCert}),
 	}
 	client, _ := core.NewClient(ctx, opts...)
 

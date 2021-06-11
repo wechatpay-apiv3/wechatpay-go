@@ -42,7 +42,7 @@ func TestCertificatesApiService_DownloadCertificates_WithValidator(t *testing.T)
 	require.NoError(t, err)
 	opts := []core.ClientOption{
 		core.WithMerchantCredential(consts.MchID, consts.SerialNo, privateKey),
-		core.WithWechatPayValidator([]*x509.Certificate{wechatPayCert}),
+		core.WithWechatPayCertificate([]*x509.Certificate{wechatPayCert}),
 	}
 
 	client, err := core.NewClient(ctx, opts...)

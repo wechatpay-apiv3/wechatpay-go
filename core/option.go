@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/credentials"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
@@ -17,18 +16,6 @@ import (
 // ClientOption  一个ClientOption可以作为微信支付api v3 client的配置
 type ClientOption interface {
 	Apply(settings *dialSettings)
-}
-
-type withCredentialOption struct{ credential auth.Credential }
-
-// Apply 将配置添加到DialSettings中
-func (w withCredentialOption) Apply(o *dialSettings) {
-	o.Credential = w.credential
-}
-
-// WithCredential 返回一个指定credential的ClientOption，用于生成http request header 中authorization信息
-func WithCredential(credential auth.Credential) ClientOption {
-	return withCredentialOption{credential: credential}
 }
 
 type withSignerOption struct{
@@ -44,22 +31,6 @@ func WithSigner(signer auth.Signer) ClientOption {
 	return withSignerOption{signer}
 }
 
-type withCredentialAndSignerOption struct {
-	credential auth.Credential
-	signer auth.Signer
-}
-
-func (w withCredentialAndSignerOption) Apply(o *dialSettings) {
-	o.Signer = w.signer
-	o.Credential = w.credential
-}
-
-// WithSignerAndWechatPayCredential 通过 signer 构建一对 Credential/Signer，用于生成请求头中的 Authorization 信息
-func WithSignerAndWechatPayCredential(signer auth.Signer) ClientOption {
-	credential := &credentials.WechatPayCredentials{Signer: signer}
-	return withCredentialAndSignerOption{credential: credential, signer: signer}
-}
-
 // WithMerchantCredential 通过商户号、商户证书序列号、商户私钥构建一对 Credential/Signer，用于生成请求头中的 Authorization 信息
 func WithMerchantCredential(mchID, certificateSerialNo string, privateKey *rsa.PrivateKey) ClientOption {
 	signer := &signers.SHA256WithRSASigner{
@@ -67,7 +38,7 @@ func WithMerchantCredential(mchID, certificateSerialNo string, privateKey *rsa.P
 		PrivateKey:          privateKey,
 		CertificateSerialNo: certificateSerialNo,
 	}
-	return WithSignerAndWechatPayCredential(signer)
+	return WithSigner(signer)
 }
 
 type withValidatorOption struct{ Validator auth.Validator }
@@ -77,17 +48,18 @@ func (w withValidatorOption) Apply(o *dialSettings) {
 	o.Validator = w.Validator
 }
 
-// WithValidator 返回一个指定validator的ClientOption，用于校验http response header
-func WithValidator(validator auth.Validator) ClientOption {
+// WithVerifier 返回一个指定verifier的ClientOption，用于校验http response header
+func WithVerifier(verifier auth.Verifier) ClientOption {
+	validator := &validators.WechatPayValidator{
+		Verifier: verifier,
+	}
 	return withValidatorOption{validator}
 }
 
-// WithWechatPayValidator 设置微信支付平台证书信息，返回一个指定validator的ClientOption，用于校验http response header
-func WithWechatPayValidator(certificateList []*x509.Certificate) ClientOption {
-	validator := &validators.WechatPayValidator{
-		Verifier: verifiers.NewSHA256WithRSAVerifier(certificate_map.NewCertificateMapWithList(certificateList)),
-	}
-	return withValidatorOption{validator}
+// WithWechatPayCertificate 设置微信支付平台证书信息，返回一个指定validator的ClientOption，用于校验http response header
+func WithWechatPayCertificate(certificateList []*x509.Certificate) ClientOption {
+	verifier := verifiers.NewSHA256WithRSAVerifier(certificate_map.NewCertificateMapWithList(certificateList))
+	return WithVerifier(verifier)
 }
 
 // WithoutValidator 返回一个指定validator的ClientOption，不进行验签 用于下载证书和下载账单等不需要进行验签的接口

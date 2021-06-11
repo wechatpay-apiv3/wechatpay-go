@@ -18,7 +18,6 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/certificate_map"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
@@ -46,7 +45,7 @@ var (
 	privateKey           *rsa.PrivateKey
 	wechatPayCertificate *x509.Certificate
 	signer               auth.Signer
-	validator            auth.Validator
+	verifier             auth.Verifier
 	ctx                  context.Context
 	err                  error
 )
@@ -66,7 +65,7 @@ func init() {
 func TestGet(t *testing.T) {
 	opts := []core.ClientOption{
 		core.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
-		core.WithWechatPayValidator([]*x509.Certificate{wechatPayCertificate}),
+		core.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 	}
 	client, err := core.NewClient(ctx, opts...)
 	assert.Nil(t, err)
@@ -87,7 +86,7 @@ type testData struct {
 func TestPost(t *testing.T) {
 	opts := []core.ClientOption{
 		core.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
-		core.WithWechatPayValidator([]*x509.Certificate{wechatPayCertificate}),
+		core.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 	}
 	client, err := core.NewClient(ctx, opts...)
 	assert.Nil(t, err)
@@ -116,14 +115,14 @@ func TestClient_Upload(t *testing.T) {
 		PrivateKey:          privateKey,
 		CertificateSerialNo: testCertificateSerialNumber,
 	}
-	validator = &validators.WechatPayValidator{
-		Verifier: verifiers.NewSHA256WithRSAVerifier(
-			certificate_map.NewCertificateMap(
-				map[string]*x509.Certificate{testWechatCertSerialNumber: wechatPayCertificate},
-			),
+
+	verifier = verifiers.NewSHA256WithRSAVerifier(
+		certificate_map.NewCertificateMap(
+			map[string]*x509.Certificate{testWechatCertSerialNumber: wechatPayCertificate},
 		),
-	}
-	client, err := core.NewClient(ctx, core.WithSignerAndWechatPayCredential(signer), core.WithValidator(validator))
+	)
+
+	client, err := core.NewClient(ctx, core.WithSigner(signer), core.WithVerifier(verifier))
 	assert.Nil(t, err)
 	pictureByes, err := ioutil.ReadFile(filePath)
 	assert.Nil(t, err)
@@ -167,7 +166,7 @@ func ExampleNewClient_default() {
 	ctx := context.Background()
 	opts := []core.ClientOption{
 		core.WithMerchantCredential(mchID, mchCertificateSerialNumber, mchPrivateKey), // 使用商户信息生成默认 WechatPayCredential
-		core.WithWechatPayValidator(wechatPayCertList),                                // 使用微信支付平台证书列表生成默认 SHA256WithRSAVerifier
+		core.WithWechatPayCertificate(wechatPayCertList),                              // 使用微信支付平台证书列表生成默认 SHA256WithRSAVerifier
 		core.WithHTTPClient(customHTTPClient),                                         // 设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
 		core.WithTimeout(2 * time.Second),                                             // 设置自定义超时时间，不设置时使用 http.Client{} 默认超时
 	}
