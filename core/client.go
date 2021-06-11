@@ -63,7 +63,7 @@ func NewClient(ctx context.Context, opts ...ClientOption) (client *Client, err e
 	client = &Client{
 		signer:        settings.Signer,
 		validator:     settings.Validator,
-		credential:    settings.Credential,
+		credential:    &credentials.WechatPayCredentials{Signer: settings.Signer},
 		httpClient:    settings.HTTPClient,
 		defaultHeader: settings.Header,
 	}
@@ -93,11 +93,6 @@ func initSettings(opts []ClientOption) (*dialSettings, error) {
 	}
 	if o.Timeout != 0 {
 		o.HTTPClient.Timeout = o.Timeout
-	}
-	if o.Credential == nil {
-		o.Credential = &credentials.WechatPayCredentials{
-			Signer: o.Signer,
-		}
 	}
 	return &o, nil
 }

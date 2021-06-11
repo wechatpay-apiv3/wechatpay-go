@@ -32,8 +32,6 @@ const (
 
 // 请求报文签名相关常量
 const (
-	NonceSymbols           = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" // 随机字符串可用字符集
-	NonceLength            = 32                                                               // 随机字符串的长度
 	SignatureMessageFormat = "%s\n%s\n%d\n%s\n%s\n"                                           // 数字签名原文格式
 	// HeaderAuthorizationFormat 请求头中的 Authorization 拼接格式
 	HeaderAuthorizationFormat = "%s mchid=\"%s\",nonce_str=\"%s\",timestamp=\"%d\",serial_no=\"%s\",signature=\"%s\""
