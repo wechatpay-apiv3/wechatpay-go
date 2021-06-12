@@ -117,9 +117,7 @@ func (o *CertificateDownloader) updateCertificates(
 	o.certificates.Reset(certificates)
 	o.client = core.NewClientWithValidator(
 		o.client,
-		&validators.WechatPayValidator{
-			Verifier: verifiers.NewSHA256WithRSAVerifier(o),
-		},
+		validators.NewWechatPayValidator(verifiers.NewSHA256WithRSAVerifier(o)),
 	)
 }
 
