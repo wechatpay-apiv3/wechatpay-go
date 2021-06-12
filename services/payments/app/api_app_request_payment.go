@@ -1,4 +1,4 @@
-package jsapi
+package app
 
 import (
 	"context"
@@ -13,24 +13,23 @@ import (
 // PrepayWithRequestPaymentResponse 预下单ID，并包含了调起支付的请求参数
 type PrepayWithRequestPaymentResponse struct {
 	// 预支付交易会话标识
-	PrepayId *string `json:"prepay_id"`
-	// 应用ID
-	Appid *string `json:"appId"`
+	PrepayId *string `json:"prepayId"`
+	// 商户号
+	PartnerId *string `json:"partnerId"`
 	// 时间戳
 	TimeStamp *string `json:"timeStamp"`
 	// 随机字符串
 	NonceStr *string `json:"nonceStr"`
 	// 订单详情扩展字符串
 	Package *string `json:"package"`
-	// 签名方式
-	SignType *string `json:"signType"`
 	// 签名
-	PaySign *string `json:"paySign"`
+	Sign *string `json:"sign"`
 }
 
-// PrepayWithRequestPayment Jsapi支付下单，并返回调起支付的请求参数
-func (a *JsapiApiService) PrepayWithRequestPayment(
-	ctx context.Context, req PrepayRequest) (resp *PrepayWithRequestPaymentResponse, result *core.APIResult, err error) {
+func (a *AppApiService) PrepayWithRequestPayment(
+	ctx context.Context,
+	req PrepayRequest,
+) (resp *PrepayWithRequestPaymentResponse, result *core.APIResult, err error) {
 	prepayResp, result, err := a.Prepay(ctx, req)
 	if err != nil {
 		return nil, result, err
@@ -38,21 +37,20 @@ func (a *JsapiApiService) PrepayWithRequestPayment(
 
 	resp = new(PrepayWithRequestPaymentResponse)
 	resp.PrepayId = prepayResp.PrepayId
-	resp.SignType = core.String("RSA")
-	resp.Appid = req.Appid
 	resp.TimeStamp = core.String(strconv.FormatInt(time.Now().Unix(), 10))
 	nonce, err := utils.GenerateNonce()
 	if err != nil {
 		return nil, nil, fmt.Errorf("generate request for payment err:%s", err.Error())
 	}
 	resp.NonceStr = core.String(nonce)
-	resp.Package = core.String("prepay_id=" + *prepayResp.PrepayId)
-	message := fmt.Sprintf("%s\n%s\n%s\n%s\n", *resp.Appid, *resp.TimeStamp, *resp.NonceStr, *resp.Package)
+	resp.Package = core.String("Sign=WXPay")
+	message := fmt.Sprintf("%s\n%s\n%s\n%s\n", *req.Appid, *resp.TimeStamp, *resp.NonceStr, *prepayResp.PrepayId)
 	signatureResult, err := a.Client.Sign(ctx, message)
 	if err != nil {
 		return nil, nil, fmt.Errorf("generate sign for payment err:%s", err.Error())
 	}
-	resp.PaySign = core.String(signatureResult.Signature)
+	resp.Sign = core.String(signatureResult.Signature)
+	resp.PartnerId = core.String(signatureResult.MchID)
 	return resp, result, nil
 }
 
@@ -63,10 +61,10 @@ func (o PrepayWithRequestPaymentResponse) String() string {
 	} else {
 		ret += fmt.Sprintf("PrepayId:%v, ", *o.PrepayId)
 	}
-	if o.Appid == nil {
-		ret += "Appid:<nil>, "
+	if o.PartnerId == nil {
+		ret += "PartnerId:<nil>, "
 	} else {
-		ret += fmt.Sprintf("Appid:%v, ", *o.Appid)
+		ret += fmt.Sprintf("PartnerId:%v, ", *o.PartnerId)
 	}
 	if o.TimeStamp == nil {
 		ret += "TimeStamp:<nil>, "
@@ -83,15 +81,10 @@ func (o PrepayWithRequestPaymentResponse) String() string {
 	} else {
 		ret += fmt.Sprintf("Package:%v, ", *o.Package)
 	}
-	if o.SignType == nil {
-		ret += "SignType:<nil>, "
+	if o.Sign == nil {
+		ret += "Sign:<nil>"
 	} else {
-		ret += fmt.Sprintf("SignType:%v, ", *o.SignType)
-	}
-	if o.PaySign == nil {
-		ret += "PaySign:<nil>"
-	} else {
-		ret += fmt.Sprintf("PaySign:%v", *o.PaySign)
+		ret += fmt.Sprintf("Sign:%v", *o.Sign)
 	}
 
 	return fmt.Sprintf("PrepayResponse{%s}", ret)
