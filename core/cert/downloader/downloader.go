@@ -154,8 +154,9 @@ func NewCertificateDownloader(
 	ctx context.Context, mchID string, privateKey *rsa.PrivateKey,
 	certificateSerialNo string, mchAPIv3Key string,
 ) (*CertificateDownloader, error) {
-
-	client, err := core.NewClient(ctx, core.WithMerchantCredential(mchID, certificateSerialNo, privateKey))
+	client, err := core.NewClient(
+		ctx, core.WithMerchantCredential(mchID, certificateSerialNo, privateKey), core.WithoutValidator(),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("create downloader failed, create client err:%v", err)
 	}

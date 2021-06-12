@@ -12,7 +12,7 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
-func TestCertificateDownloader(t *testing.T) {
+func TestNewCertificateDownloaderWithClient(t *testing.T) {
 	ctx := context.Background()
 
 	privateKey, err := utils.LoadPrivateKey(consts.MchPrivateKey)
@@ -26,6 +26,21 @@ func TestCertificateDownloader(t *testing.T) {
 	require.NoError(t, err)
 
 	d, err := downloader.NewCertificateDownloaderWithClient(client, consts.MchAPIv3Key)
+	require.NoError(t, err)
+
+	assert.NotEmpty(t, d.GetAll())
+	for serialNo, cert := range d.GetAll() {
+		assert.Equal(t, serialNo, utils.GetCertificateSerialNumber(*cert))
+	}
+}
+
+func TestNewCertificateDownloader(t *testing.T) {
+	privateKey, err := utils.LoadPrivateKey(consts.MchPrivateKey)
+	require.NoError(t, err)
+
+	d, err := downloader.NewCertificateDownloader(
+		context.Background(), consts.MchID, privateKey, consts.SerialNo, consts.MchAPIv3Key,
+	)
 	require.NoError(t, err)
 
 	assert.NotEmpty(t, d.GetAll())
