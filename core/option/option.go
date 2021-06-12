@@ -59,9 +59,7 @@ func (w withValidatorOption) Apply(o *core.DialSettings) error {
 
 // WithVerifier 返回一个指定verifier的ClientOption，用于校验http response header
 func WithVerifier(verifier auth.Verifier) core.ClientOption {
-	validator := &validators.WechatPayValidator{
-		Verifier: verifier,
-	}
+	validator := validators.NewWechatPayValidator(verifier)
 	return withValidatorOption{Validator: validator}
 }
 
