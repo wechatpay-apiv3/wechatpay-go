@@ -11,6 +11,10 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/ciphers"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/decryptors"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/encryptors"
 )
 
 // ClientOption  一个ClientOption可以作为微信支付api v3 client的配置
@@ -18,7 +22,7 @@ type ClientOption interface {
 	Apply(settings *dialSettings)
 }
 
-type withSignerOption struct{
+type withSignerOption struct {
 	signer auth.Signer
 }
 
@@ -102,4 +106,42 @@ func (w withHeaderOption) Apply(o *dialSettings) {
 // WithHeader 返回一个为http client设置额外header信息的ClientOption
 func WithHeader(header http.Header) ClientOption {
 	return withHeaderOption{header: header}
+}
+
+type withCipherOption struct{ cipher cipher.Cipher }
+
+// Apply 将配置添加到DialSettings中
+func (w withCipherOption) Apply(o *dialSettings) {
+	o.Cipher = w.cipher
+}
+
+// WithWechatPayCipher 返回一个为 Client 设置 WechatPayCipher 的 ClientOption
+func WithWechatPayCipher(encryptor cipher.Encryptor, decryptor cipher.Decryptor) ClientOption {
+	return withCipherOption{ciphers.NewWechatPayCipher(encryptor, decryptor)}
+}
+
+type withSettingOption struct{ settings dialSettings }
+
+func (w withSettingOption) Apply(o *dialSettings) {
+	*o = w.settings
+}
+
+func WithWechatPayAuthAndCipher(
+	mchID string, certificateSerialNo string, privateKey *rsa.PrivateKey, certificateList []*x509.Certificate,
+) ClientOption {
+	certGetter := cert.NewCertificateMapWithList(certificateList)
+	return withSettingOption{
+		settings: dialSettings{
+			Signer: &signers.SHA256WithRSASigner{
+				MchID:               mchID,
+				PrivateKey:          privateKey,
+				CertificateSerialNo: certificateSerialNo,
+			},
+			Validator: &validators.WechatPayValidator{Verifier: verifiers.NewSHA256WithRSAVerifier(certGetter)},
+			Cipher: ciphers.NewWechatPayCipher(
+				encryptors.NewWechatPayEncryptor(certGetter),
+				decryptors.NewWechatPayDecryptor(privateKey),
+			),
+		},
+	}
 }
