@@ -9,8 +9,8 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher"
 )
 
-// dialSettings 微信支付apiv3 go http-client需要的配置信息
-type dialSettings struct {
+// DialSettings 微信支付 API v3 Go SDK core.Client 需要的配置信息
+type DialSettings struct {
 	HTTPClient *http.Client   // 自定义所使用的 HTTPClient 实例
 	Header     http.Header    // 自定义额外请求头
 	Signer     auth.Signer    // 签名器
@@ -20,7 +20,7 @@ type dialSettings struct {
 }
 
 // Validate 校验请求配置是否有效
-func (ds *dialSettings) Validate() error {
+func (ds *DialSettings) Validate() error {
 	if ds.Validator == nil {
 		return fmt.Errorf("validator is required for Client")
 	}
