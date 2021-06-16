@@ -55,7 +55,7 @@ type CertificateDownloaderMgr struct {
 	ctx           context.Context
 	task          *task.RepeatedTask
 	downloaderMap map[string]*CertificateDownloader
-	lock          sync.Mutex
+	lock          sync.RWMutex
 }
 
 // Stop 停止 CertificateDownloaderMgr 的自动下载 Goroutine
@@ -72,9 +72,9 @@ func (o *CertificateDownloaderMgr) Stop() {
 func (o *CertificateDownloaderMgr) GetCertificate(ctx context.Context, mchID, serialNo string) (
 	*x509.Certificate, bool,
 ) {
-	o.lock.Lock()
+	o.lock.RLock()
 	downloader, ok := o.downloaderMap[mchID]
-	o.lock.Unlock()
+	o.lock.RUnlock()
 
 	if !ok {
 		return nil, false
@@ -85,9 +85,9 @@ func (o *CertificateDownloaderMgr) GetCertificate(ctx context.Context, mchID, se
 
 // GetCertificateMap 获取商户的平台证书Map
 func (o *CertificateDownloaderMgr) GetCertificateMap(ctx context.Context, mchID string) map[string]*x509.Certificate {
-	o.lock.Lock()
+	o.lock.RLock()
 	downloader, ok := o.downloaderMap[mchID]
-	o.lock.Unlock()
+	o.lock.RUnlock()
 
 	if !ok {
 		return nil
@@ -97,9 +97,9 @@ func (o *CertificateDownloaderMgr) GetCertificateMap(ctx context.Context, mchID 
 
 // GetNewestCertificateSerial 获取商户的最新的平台证书序列号
 func (o *CertificateDownloaderMgr) GetNewestCertificateSerial(ctx context.Context, mchID string) string {
-	o.lock.Lock()
+	o.lock.RLock()
 	downloader, ok := o.downloaderMap[mchID]
-	o.lock.Unlock()
+	o.lock.RUnlock()
 
 	if !ok {
 		return ""
@@ -109,9 +109,9 @@ func (o *CertificateDownloaderMgr) GetNewestCertificateSerial(ctx context.Contex
 
 // ExportCertificate 获取商户的某个平台证书内容
 func (o *CertificateDownloaderMgr) ExportCertificate(ctx context.Context, mchID, serialNo string) (string, bool) {
-	o.lock.Lock()
+	o.lock.RLock()
 	downloader, ok := o.downloaderMap[mchID]
-	o.lock.Unlock()
+	o.lock.RUnlock()
 
 	if !ok {
 		return "", false
@@ -122,9 +122,9 @@ func (o *CertificateDownloaderMgr) ExportCertificate(ctx context.Context, mchID,
 
 // ExportCertificateMap 导出商户的平台证书内容Map
 func (o *CertificateDownloaderMgr) ExportCertificateMap(ctx context.Context, mchID string) map[string]string {
-	o.lock.Lock()
+	o.lock.RLock()
 	downloader, ok := o.downloaderMap[mchID]
-	o.lock.Unlock()
+	o.lock.RUnlock()
 
 	if !ok {
 		return nil
@@ -147,11 +147,11 @@ func (o *CertificateDownloaderMgr) getTickHandler() func(time.Time) {
 func (o *CertificateDownloaderMgr) DownloadCertificates(ctx context.Context) {
 	tmpDownloaderMap := make(map[string]*CertificateDownloader)
 
-	o.lock.Lock()
+	o.lock.RLock()
 	for key, downloader := range o.downloaderMap {
 		tmpDownloaderMap[key] = downloader
 	}
-	o.lock.Unlock()
+	o.lock.RUnlock()
 
 	for _, downloader := range tmpDownloaderMap {
 		_ = downloader.DownloadCertificates(ctx)
@@ -205,6 +205,14 @@ func (o *CertificateDownloaderMgr) RemoveDownloader(_ context.Context, mchID str
 
 	delete(o.downloaderMap, mchID)
 	return downloader
+}
+
+func (o *CertificateDownloaderMgr) HasDownloader(_ context.Context, mchID string) bool {
+	o.lock.RLock()
+	defer o.lock.RUnlock()
+
+	_, ok := o.downloaderMap[mchID]
+	return ok
 }
 
 // NewCertificateDownloaderMgr 以默认间隔 DefaultDownloadInterval 创建证书下载管理器
