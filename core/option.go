@@ -13,21 +13,28 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/ciphers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/decryptors"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/encryptors"
 )
 
-// ClientOption  一个ClientOption可以作为微信支付api v3 client的配置
+// ClientOption 微信支付 API v3 HTTPClient core.Client 初始化参数
 type ClientOption interface {
-	Apply(settings *dialSettings)
+	Apply(settings *DialSettings) error
+}
+
+// ErrorOption 错误初始化参数，用于返回错误
+type ErrorOption struct{ Error error }
+
+// Apply 返回初始化错误
+func (w ErrorOption) Apply(o *DialSettings) error {
+	return w.Error
 }
 
 type withSignerOption struct {
 	signer auth.Signer
 }
 
-func (w withSignerOption) Apply(o *dialSettings) {
+func (w withSignerOption) Apply(o *DialSettings) error {
 	o.Signer = w.signer
+	return nil
 }
 
 // WithSigner 返回一个指定signer的ClientOption
@@ -48,8 +55,9 @@ func WithMerchantCredential(mchID, certificateSerialNo string, privateKey *rsa.P
 type withValidatorOption struct{ Validator auth.Validator }
 
 // Apply 将配置添加到DialSettings中
-func (w withValidatorOption) Apply(o *dialSettings) {
+func (w withValidatorOption) Apply(o *DialSettings) error {
 	o.Validator = w.Validator
+	return nil
 }
 
 // WithVerifier 返回一个指定verifier的ClientOption，用于校验http response header
@@ -74,8 +82,9 @@ func WithoutValidator() ClientOption {
 type withHTTPClientOption struct{ client *http.Client }
 
 // Apply 将配置添加到DialSettings中
-func (w withHTTPClientOption) Apply(o *dialSettings) {
+func (w withHTTPClientOption) Apply(o *DialSettings) error {
 	o.HTTPClient = w.client
+	return nil
 }
 
 // WithHTTPClient 返回一个指定网络通信为HttpClient的ClientOption，指定后使用用户自动创建的的http.client，如果用户不创建，则帮助用户
@@ -87,8 +96,9 @@ func WithHTTPClient(client *http.Client) ClientOption {
 type withTimeoutOption time.Duration
 
 // Apply 将配置添加到DialSettings中
-func (w withTimeoutOption) Apply(o *dialSettings) {
+func (w withTimeoutOption) Apply(o *DialSettings) error {
 	o.Timeout = time.Duration(w)
+	return nil
 }
 
 // WithTimeout 返回一个指定超时时间的ClientOption
@@ -99,8 +109,9 @@ func WithTimeout(timeout time.Duration) ClientOption {
 type withHeaderOption struct{ header http.Header }
 
 // Apply 将配置添加到DialSettings中
-func (w withHeaderOption) Apply(o *dialSettings) {
+func (w withHeaderOption) Apply(o *DialSettings) error {
 	o.Header = w.header
+	return nil
 }
 
 // WithHeader 返回一个为http client设置额外header信息的ClientOption
@@ -111,37 +122,12 @@ func WithHeader(header http.Header) ClientOption {
 type withCipherOption struct{ cipher cipher.Cipher }
 
 // Apply 将配置添加到DialSettings中
-func (w withCipherOption) Apply(o *dialSettings) {
+func (w withCipherOption) Apply(o *DialSettings) error {
 	o.Cipher = w.cipher
+	return nil
 }
 
 // WithWechatPayCipher 返回一个为 Client 设置 WechatPayCipher 的 ClientOption
 func WithWechatPayCipher(encryptor cipher.Encryptor, decryptor cipher.Decryptor) ClientOption {
 	return withCipherOption{ciphers.NewWechatPayCipher(encryptor, decryptor)}
-}
-
-type withSettingOption struct{ settings dialSettings }
-
-func (w withSettingOption) Apply(o *dialSettings) {
-	*o = w.settings
-}
-
-func WithWechatPayAuthAndCipher(
-	mchID string, certificateSerialNo string, privateKey *rsa.PrivateKey, certificateList []*x509.Certificate,
-) ClientOption {
-	certGetter := cert.NewCertificateMapWithList(certificateList)
-	return withSettingOption{
-		settings: dialSettings{
-			Signer: &signers.SHA256WithRSASigner{
-				MchID:               mchID,
-				PrivateKey:          privateKey,
-				CertificateSerialNo: certificateSerialNo,
-			},
-			Validator: &validators.WechatPayValidator{Verifier: verifiers.NewSHA256WithRSAVerifier(certGetter)},
-			Cipher: ciphers.NewWechatPayCipher(
-				encryptors.NewWechatPayEncryptor(certGetter),
-				decryptors.NewWechatPayDecryptor(privateKey),
-			),
-		},
-	}
 }

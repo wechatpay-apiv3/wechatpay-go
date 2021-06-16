@@ -86,10 +86,15 @@ func NewClientWithValidator(client *Client, validator auth.Validator) *Client {
 	}
 }
 
-func initSettings(opts []ClientOption) (*dialSettings, error) {
-	var o dialSettings
+func initSettings(opts []ClientOption) (*DialSettings, error) {
+	var (
+		o   DialSettings
+		err error
+	)
 	for _, opt := range opts {
-		opt.Apply(&o)
+		if err = opt.Apply(&o); err != nil {
+			return nil, err
+		}
 	}
 	if err := o.Validate(); err != nil {
 		return nil, err
