@@ -27,6 +27,7 @@ import (
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/credentials"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 )
 
@@ -50,6 +51,7 @@ type Client struct {
 	credential    auth.Credential
 	validator     auth.Validator
 	signer        auth.Signer
+	cipher        cipher.Cipher
 }
 
 // NewClient 初始化一个微信支付API v3 HTTPClient
@@ -66,6 +68,7 @@ func NewClient(_ context.Context, opts ...ClientOption) (client *Client, err err
 		credential:    &credentials.WechatPayCredentials{Signer: settings.Signer},
 		httpClient:    settings.HTTPClient,
 		defaultHeader: settings.Header,
+		cipher:        settings.Cipher,
 	}
 	return client, nil
 }
@@ -74,11 +77,12 @@ func NewClient(_ context.Context, opts ...ClientOption) (client *Client, err err
 // 原 Client 不受任何影响
 func NewClientWithValidator(client *Client, validator auth.Validator) *Client {
 	return &Client{
-		httpClient : client.httpClient,
-		defaultHeader : client.defaultHeader,
-		credential : client.credential,
-		signer : client.signer,
-		validator: validator,
+		httpClient:    client.httpClient,
+		defaultHeader: client.defaultHeader,
+		credential:    client.credential,
+		signer:        client.signer,
+		validator:     validator,
+		cipher:        client.cipher,
 	}
 }
 
@@ -256,6 +260,20 @@ func (client *Client) doHTTP(req *http.Request) (result *APIResult, err error) {
 
 	result.Response, err = client.httpClient.Do(req)
 	return result, err
+}
+
+func (client *Client) EncryptRequest(ctx context.Context, req interface{}) (string, error) {
+	if client.cipher == nil {
+		return "", nil
+	}
+	return client.cipher.Encrypt(ctx, req)
+}
+
+func (client *Client) DecryptRequest(ctx context.Context, resp interface{}) error {
+	if client.cipher == nil {
+		return nil
+	}
+	return client.cipher.Decrypt(ctx, resp)
 }
 
 // CheckResponse 校验请求是否成功

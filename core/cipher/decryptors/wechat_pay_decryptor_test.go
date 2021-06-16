@@ -44,7 +44,7 @@ BDa+8mDLkWu5nHEhOxy2JJZl
 
 	privateKey, err := utils.LoadPrivateKey(testPrivateKey)
 	assert.Nil(t, err)
-	decryptor := WechatPayDecryptor{PrivateKey: privateKey}
+	decryptor := NewWechatPayDecryptor(privateKey)
 
 	plaintext, err := decryptor.Decrypt(context.Background(), testCipherText)
 	assert.Nil(t, err)
