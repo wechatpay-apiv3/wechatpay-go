@@ -11,7 +11,7 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
-	"github.com/wechatpay-apiv3/wechatpay-go/services/certificates"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
@@ -37,10 +37,10 @@ func isSameCertificateMap(l, r map[string]*x509.Certificate) bool {
 
 // CertificateDownloader 平台证书下载器，下载完成后可直接获取 x509.Certificate 对象或导出证书内容
 type CertificateDownloader struct {
-	certContents map[string]string                    // 证书文本内容，用于导出
-	certificates cert.CertificateMap                  // 证书实例
-	apiSvc       *certificates.CertificatesApiService // 平台证书下载API
-	mchAPIv3Key  string                               // 商户APIv3密钥
+	certContents map[string]string   // 证书文本内容，用于导出
+	certificates cert.CertificateMap // 证书实例
+	client       *core.Client        // 微信支付 API v3 Go SDK HTTPClient
+	mchAPIv3Key  string              // 商户APIv3密钥
 	lock         sync.RWMutex
 }
 
@@ -91,7 +91,7 @@ func (o *CertificateDownloader) ExportAll(_ context.Context) map[string]string {
 }
 
 func (o *CertificateDownloader) decryptCertificate(
-	_ context.Context, encryptCertificate *certificates.EncryptCertificate,
+	_ context.Context, encryptCertificate *encryptCertificate,
 ) (string, error) {
 	plaintext, err := utils.DecryptAES256GCM(
 		o.mchAPIv3Key, *encryptCertificate.AssociatedData,
@@ -115,17 +115,30 @@ func (o *CertificateDownloader) updateCertificates(
 
 	o.certContents = certContents
 	o.certificates.Reset(certificates)
-	o.apiSvc.Client = core.NewClientWithValidator(
-		o.apiSvc.Client,
+	o.client = core.NewClientWithValidator(
+		o.client,
 		&validators.WechatPayValidator{
 			Verifier: verifiers.NewSHA256WithRSAVerifier(o),
 		},
 	)
 }
 
+func (o *CertificateDownloader) performDownloading(ctx context.Context) (*downloadCertificatesResponse, error) {
+	result, err := o.client.Get(ctx, consts.WechatPayAPIServer+"/v3/certificates")
+	if err != nil {
+		return nil, err
+	}
+
+	resp := new(downloadCertificatesResponse)
+	if err = core.UnMarshalResponse(result.Response, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 // DownloadCertificates 立即下载平台证书列表
 func (o *CertificateDownloader) DownloadCertificates(ctx context.Context) error {
-	resp, _, err := o.apiSvc.DownloadCertificates(ctx)
+	resp, err := o.performDownloading(ctx)
 	if err != nil {
 		return err
 	}
@@ -178,7 +191,7 @@ func NewCertificateDownloaderWithClient(
 	ctx context.Context, client *core.Client, mchAPIv3Key string,
 ) (*CertificateDownloader, error) {
 	downloader := CertificateDownloader{
-		apiSvc:      &certificates.CertificatesApiService{Client: client},
+		client:      client,
 		mchAPIv3Key: mchAPIv3Key,
 	}
 
