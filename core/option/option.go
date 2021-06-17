@@ -11,7 +11,6 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/ciphers"
 )
@@ -41,7 +40,7 @@ func WithVerifier(verifier auth.Verifier) core.ClientOption {
 
 // WithWechatPayCertificate 设置微信支付平台证书信息，返回一个指定validator的ClientOption，用于校验http response header
 func WithWechatPayCertificate(certificateList []*x509.Certificate) core.ClientOption {
-	verifier := verifiers.NewSHA256WithRSAVerifier(cert.NewCertificateMapWithList(certificateList))
+	verifier := verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(certificateList))
 	return WithVerifier(verifier)
 }
 

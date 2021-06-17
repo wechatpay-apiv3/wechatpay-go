@@ -1,4 +1,4 @@
-package downloader
+package cert
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -39,7 +38,7 @@ func isSameCertificateMap(l, r map[string]*x509.Certificate) bool {
 // CertificateDownloader 平台证书下载器，下载完成后可直接获取 x509.Certificate 对象或导出证书内容
 type CertificateDownloader struct {
 	certContents map[string]string   // 证书文本内容，用于导出
-	certificates cert.CertificateMap // 证书实例
+	certificates core.CertificateMap // 证书实例
 	client       *core.Client        // 微信支付 API v3 Go SDK HTTPClient
 	mchAPIv3Key  string              // 商户APIv3密钥
 	lock         sync.RWMutex

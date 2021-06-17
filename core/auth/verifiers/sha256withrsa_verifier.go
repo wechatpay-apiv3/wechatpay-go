@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
+	"github.com/wechatpay-apiv3/wechatpay-go/core"
 )
 
 // SHA256WithRSAVerifier SHA256WithRSA 数字签名验证器
 type SHA256WithRSAVerifier struct {
 	// Certificates 微信支付平台证书Map，key: 平台证书序列号， value: 微信支付平台证书
-	certGetter cert.CertificateGetter
+	certGetter core.CertificateGetter
 }
 
 // Verify 对数字签名信息进行验证
@@ -61,6 +61,6 @@ func checkParameter(ctx context.Context, serialNumber, message, signature string
 }
 
 // NewSHA256WithRSAVerifier 使用 cert.CertificateGetter 初始化 SHA256WithRSAVerifier
-func NewSHA256WithRSAVerifier(getter cert.CertificateGetter) *SHA256WithRSAVerifier {
+func NewSHA256WithRSAVerifier(getter core.CertificateGetter) *SHA256WithRSAVerifier {
 	return &SHA256WithRSAVerifier{certGetter: getter}
 }

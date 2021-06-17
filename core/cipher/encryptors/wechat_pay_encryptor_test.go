@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
+	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
@@ -94,7 +94,7 @@ func initWechatPayEncryptor() (*WechatPayEncryptor, error) {
 		l = append(l, cert)
 	}
 
-	return NewWechatPayEncryptor(cert.NewCertificateMapWithList(l)), nil
+	return NewWechatPayEncryptor(core.NewCertificateMapWithList(l)), nil
 }
 
 func TestWechatPayEncryptor_SelectCertificate(t *testing.T) {

@@ -1,4 +1,4 @@
-package downloader
+package cert
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils/task"
 )
 
@@ -133,7 +132,7 @@ func (o *CertificateDownloaderMgr) ExportCertificateMap(ctx context.Context, mch
 }
 
 // GetCertificateVisitor 获取某个商户的平台证书访问器
-func (o *CertificateDownloaderMgr) GetCertificateVisitor(mchID string) cert.CertificateVisitor {
+func (o *CertificateDownloaderMgr) GetCertificateVisitor(mchID string) core.CertificateVisitor {
 	return &pseudoCertificateDownloader{mgr: o, mchID: mchID}
 }
 
