@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/downloader"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -51,7 +51,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	d, err := downloader.NewCertificateDownloaderWithClient(ctx, client, mchAPIv3Key)
+	d, err := cert.NewCertificateDownloaderWithClient(ctx, client, mchAPIv3Key)
 	if err != nil {
 		reportError("下载证书失败：%v", err)
 		os.Exit(2)
@@ -131,7 +131,7 @@ func checkArgs() error {
 	return nil
 }
 
-func saveCertificates(ctx context.Context, d *downloader.CertificateDownloader) error {
+func saveCertificates(ctx context.Context, d *cert.CertificateDownloader) error {
 	for serialNo, certContent := range d.ExportAll(ctx) {
 		outputFilePath := filepath.Join(outputPath, fmt.Sprintf("wechatpay_%v.pem", serialNo))
 

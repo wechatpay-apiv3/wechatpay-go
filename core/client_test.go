@@ -19,7 +19,6 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
@@ -118,7 +117,7 @@ func TestClient_Upload(t *testing.T) {
 	}
 
 	verifier = verifiers.NewSHA256WithRSAVerifier(
-		cert.NewCertificateMap(
+		core.NewCertificateMap(
 			map[string]*x509.Certificate{testWechatCertSerialNumber: wechatPayCertificate},
 		),
 	)

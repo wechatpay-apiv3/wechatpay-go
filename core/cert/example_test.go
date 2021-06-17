@@ -1,4 +1,4 @@
-package downloader_test
+package cert_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/builder"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/downloader"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 )
 
@@ -22,7 +22,7 @@ func ExampleNewCertificateDownloader_saveCert() {
 	)
 	// 假设以上参数已初始化完成
 
-	d, err := downloader.NewCertificateDownloader(ctx, mchID, mchPrivateKey, mchCertSerialNo, mchAPIv3Key)
+	d, err := cert.NewCertificateDownloader(ctx, mchID, mchPrivateKey, mchCertSerialNo, mchAPIv3Key)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -36,7 +36,7 @@ func ExampleNewCertificateDownloader_saveCert() {
 
 func ExampleNewCertificateDownloaderMgr() {
 	ctx := context.Background()
-	mgr := downloader.NewCertificateDownloaderMgr(ctx)
+	mgr := cert.NewCertificateDownloaderMgr(ctx)
 	// CertificateDownloaderMgr 初始化完成，尚未注册任何 Downloader，不会进行任何证书下载
 
 	var (
@@ -64,7 +64,7 @@ func ExampleNewCertificateDownloaderMgr() {
 }
 
 func ExampleNewCertificateDownloaderMgr_useMgr() {
-	var certDownloadMgr *downloader.CertificateDownloaderMgr
+	var certDownloadMgr *cert.CertificateDownloaderMgr
 	// certDownloadMgr 已经初始化完成且注册了需要的 Downloader
 
 	var (

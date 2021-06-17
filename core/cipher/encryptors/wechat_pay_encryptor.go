@@ -4,18 +4,18 @@ import (
 	"context"
 	"fmt"
 
-	coreCert "github.com/wechatpay-apiv3/wechatpay-go/core/cert"
+	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
 // WechatPayEncryptor 微信支付字符串加密器
 type WechatPayEncryptor struct {
 	// 微信支付平台证书提供器
-	certGetter coreCert.CertificateGetter
+	certGetter core.CertificateGetter
 }
 
 // NewWechatPayEncryptor 新建一个 WechatPayEncryptor
-func NewWechatPayEncryptor(certProvider coreCert.CertificateGetter) *WechatPayEncryptor {
+func NewWechatPayEncryptor(certProvider core.CertificateGetter) *WechatPayEncryptor {
 	return &WechatPayEncryptor{certGetter: certProvider}
 }
 
