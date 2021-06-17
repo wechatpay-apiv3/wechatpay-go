@@ -10,6 +10,7 @@ import (
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cert/downloader"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
@@ -162,12 +163,12 @@ func createClient(ctx context.Context) (*core.Client, error) {
 			return nil, fmt.Errorf("平台证书有误：%v", err)
 		}
 		client, err = core.NewClient(
-			ctx, core.WithMerchantCredential(mchID, mchSerialNo, privateKey),
-			core.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
+			ctx, option.WithMerchantCredential(mchID, mchSerialNo, privateKey),
+			option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 		)
 	} else {
 		client, err = core.NewClient(
-			ctx, core.WithMerchantCredential(mchID, mchSerialNo, privateKey), core.WithoutValidator(),
+			ctx, option.WithMerchantCredential(mchID, mchSerialNo, privateKey), option.WithoutValidator(),
 		)
 	}
 	if err != nil {
