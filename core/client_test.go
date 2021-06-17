@@ -21,6 +21,7 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 
 	"github.com/stretchr/testify/assert"
@@ -64,8 +65,8 @@ func init() {
 
 func TestGet(t *testing.T) {
 	opts := []core.ClientOption{
-		core.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
-		core.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
+		option.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
+		option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 	}
 	client, err := core.NewClient(ctx, opts...)
 	assert.Nil(t, err)
@@ -85,8 +86,8 @@ type testData struct {
 
 func TestPost(t *testing.T) {
 	opts := []core.ClientOption{
-		core.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
-		core.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
+		option.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
+		option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 	}
 	client, err := core.NewClient(ctx, opts...)
 	assert.Nil(t, err)
@@ -122,7 +123,7 @@ func TestClient_Upload(t *testing.T) {
 		),
 	)
 
-	client, err := core.NewClient(ctx, core.WithSigner(signer), core.WithVerifier(verifier))
+	client, err := core.NewClient(ctx, option.WithSigner(signer), option.WithVerifier(verifier))
 	assert.Nil(t, err)
 	pictureByes, err := ioutil.ReadFile(filePath)
 	assert.Nil(t, err)
@@ -165,10 +166,10 @@ func ExampleNewClient_default() {
 
 	ctx := context.Background()
 	opts := []core.ClientOption{
-		core.WithMerchantCredential(mchID, mchCertificateSerialNumber, mchPrivateKey), // 使用商户信息生成默认 WechatPayCredential
-		core.WithWechatPayCertificate(wechatPayCertList),                              // 使用微信支付平台证书列表生成默认 SHA256WithRSAVerifier
-		core.WithHTTPClient(customHTTPClient),                                         // 设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
-		core.WithTimeout(2 * time.Second),                                             // 设置自定义超时时间，不设置时使用 http.Client{} 默认超时
+		option.WithMerchantCredential(mchID, mchCertificateSerialNumber, mchPrivateKey), // 使用商户信息生成默认 WechatPayCredential
+		option.WithWechatPayCertificate(wechatPayCertList),                              // 使用微信支付平台证书列表生成默认 SHA256WithRSAVerifier
+		option.WithHTTPClient(customHTTPClient),                                         // 设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
+		option.WithTimeout(2 * time.Second),                                             // 设置自定义超时时间，不设置时使用 http.Client{} 默认超时
 	}
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {

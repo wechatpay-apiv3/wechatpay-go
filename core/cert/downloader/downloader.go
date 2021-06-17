@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
@@ -175,9 +176,14 @@ func (o *CertificateDownloader) DownloadCertificates(ctx context.Context) error 
 func NewCertificateDownloader(
 	ctx context.Context, mchID string, privateKey *rsa.PrivateKey, certificateSerialNo string, mchAPIv3Key string,
 ) (*CertificateDownloader, error) {
-	client, err := core.NewClient(
-		ctx, core.WithMerchantCredential(mchID, certificateSerialNo, privateKey), core.WithoutValidator(),
-	)
+	credentialOption := core.WithSignerOption{Signer: &signers.SHA256WithRSASigner{
+		MchID:               mchID,
+		PrivateKey:          privateKey,
+		CertificateSerialNo: certificateSerialNo,
+	}}
+	validatorOption := core.WithValidatorOption{Validator: &validators.NullValidator{}}
+
+	client, err := core.NewClient(ctx, credentialOption, validatorOption)
 	if err != nil {
 		return nil, fmt.Errorf("create downloader failed, create client err:%v", err)
 	}
