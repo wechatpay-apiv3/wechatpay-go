@@ -4,7 +4,6 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"net/http"
-	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
@@ -96,44 +95,6 @@ func (w withHTTPClientOption) Apply(o *core.DialSettings) error {
 // 创建一个默认的http.client
 func WithHTTPClient(client *http.Client) core.ClientOption {
 	return withHTTPClientOption{Client: client}
-}
-
-// endregion
-
-// region Timeout
-
-// withTimeoutOption 为 Client 设置 超时时间
-type withTimeoutOption time.Duration
-
-// Apply 将配置添加到core.DialSettings中
-func (w withTimeoutOption) Apply(o *core.DialSettings) error {
-	o.Timeout = time.Duration(w)
-	return nil
-}
-
-// WithTimeout 返回一个指定超时时间的ClientOption
-func WithTimeout(timeout time.Duration) core.ClientOption {
-	return withTimeoutOption(timeout)
-}
-
-// endregion
-
-// region HeaderOption
-
-// withHeaderOption 为 Client 设置 DefaultHeader
-type withHeaderOption struct {
-	Header http.Header
-}
-
-// Apply 将配置添加到 core.DialSettings 中
-func (w withHeaderOption) Apply(o *core.DialSettings) error {
-	o.Header = w.Header
-	return nil
-}
-
-// WithHeader 返回一个为http client设置额外header信息的ClientOption
-func WithHeader(header http.Header) core.ClientOption {
-	return withHeaderOption{Header: header}
 }
 
 // endregion

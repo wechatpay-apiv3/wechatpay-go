@@ -13,7 +13,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
@@ -168,7 +167,6 @@ func ExampleNewClient_default() {
 		option.WithMerchantCredential(mchID, mchCertificateSerialNumber, mchPrivateKey), // 使用商户信息生成默认 WechatPayCredential
 		option.WithWechatPayCertificate(wechatPayCertList),                              // 使用微信支付平台证书列表生成默认 SHA256WithRSAVerifier
 		option.WithHTTPClient(customHTTPClient),                                         // 设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
-		option.WithTimeout(2 * time.Second),                                             // 设置自定义超时时间，不设置时使用 http.Client{} 默认超时
 	}
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
