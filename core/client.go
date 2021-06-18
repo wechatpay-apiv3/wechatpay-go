@@ -59,12 +59,11 @@ func (w ErrorOption) Apply(o *DialSettings) error {
 
 // Client 微信支付API v3 基础 Client
 type Client struct {
-	httpClient    *http.Client
-	defaultHeader http.Header
-	credential    auth.Credential
-	validator     auth.Validator
-	signer        auth.Signer
-	cipher        cipher.Cipher
+	httpClient *http.Client
+	credential auth.Credential
+	validator  auth.Validator
+	signer     auth.Signer
+	cipher     cipher.Cipher
 }
 
 // NewClient 初始化一个微信支付API v3 HTTPClient
@@ -93,30 +92,25 @@ func NewClientWithDialSettings(ctx context.Context, settings *DialSettings) (*Cl
 // 原 Client 不受任何影响
 func NewClientWithValidator(client *Client, validator auth.Validator) *Client {
 	return &Client{
-		httpClient:    client.httpClient,
-		defaultHeader: client.defaultHeader,
-		credential:    client.credential,
-		signer:        client.signer,
-		validator:     validator,
-		cipher:        client.cipher,
+		httpClient: client.httpClient,
+		credential: client.credential,
+		signer:     client.signer,
+		validator:  validator,
+		cipher:     client.cipher,
 	}
 }
 
 func initClientWithSettings(_ context.Context, settings *DialSettings) *Client {
 	client := &Client{
-		signer:        settings.Signer,
-		validator:     settings.Validator,
-		credential:    &credentials.WechatPayCredentials{Signer: settings.Signer},
-		httpClient:    settings.HTTPClient,
-		defaultHeader: settings.Header,
-		cipher:        settings.Cipher,
+		signer:     settings.Signer,
+		validator:  settings.Validator,
+		credential: &credentials.WechatPayCredentials{Signer: settings.Signer},
+		httpClient: settings.HTTPClient,
+		cipher:     settings.Cipher,
 	}
 
 	if client.httpClient == nil {
 		client.httpClient = &http.Client{}
-	}
-	if settings.Timeout != 0 {
-		client.httpClient.Timeout = settings.Timeout
 	}
 	return client
 }
@@ -157,12 +151,13 @@ func (client *Client) Put(ctx context.Context, requestURL string, requestBody in
 	return client.requestWithJSONBody(ctx, http.MethodPut, requestURL, requestBody)
 }
 
-// Delete 向微信支付发送一个 Http Delete 请求
+// Delete 向微信支付发送一个 HTTP Delete 请求
 func (client *Client) Delete(ctx context.Context, requestURL string, requestBody interface{}) (*APIResult, error) {
 	return client.requestWithJSONBody(ctx, http.MethodDelete, requestURL, requestBody)
 }
 
 // Upload 向微信支付发送上传文件
+// 推荐使用 services/fileuploader 中各上传接口的实现
 func (client *Client) Upload(ctx context.Context, requestURL, meta, reqBody, formContentType string) (*APIResult, error) {
 	return client.doRequest(ctx, http.MethodPost, requestURL, nil, formContentType, strings.NewReader(reqBody), meta)
 }
@@ -197,14 +192,7 @@ func (client *Client) doRequest(
 	}
 
 	// Header Setting Priority:
-	// Fixed Headers > Per-Request Header Parameters > Client Default Headers
-
-	// Add Client Default Headers
-	for key, values := range client.defaultHeader {
-		for _, v := range values {
-			request.Header.Add(key, v)
-		}
-	}
+	// Fixed Headers > Per-Request Header Parameters
 
 	// Add Request Header Parameters
 	if header != nil {
@@ -246,6 +234,7 @@ func (client *Client) doRequest(
 // Request 向微信支付发送请求
 //
 // 相比于 Get / Post / Put / Patch / Delete 方法，本方法可以设置更多内容
+// 特别地，如果需要为当前请求设置 Header，可以使用本方法
 func (client *Client) Request(
 	ctx context.Context,
 	method, requestPath string,
