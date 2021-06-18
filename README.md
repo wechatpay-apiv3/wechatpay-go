@@ -148,7 +148,8 @@ func JsapiPrepay() error {
 	var client *core.Client
 	
 	svc := jsapi.JsapiApiService{Client: client}
-	resp, result, err := svc.Prepay(ctx,
+	// 得到prepay_id，以及调起支付所需的参数和签名
+	resp, result, err := svc.PrepayWithRequestPayment(ctx,
 		jsapi.PrepayRequest{
 			Appid:       core.String("wxd678efh567hg6787"),
 			Mchid:       core.String("1900009191"),
