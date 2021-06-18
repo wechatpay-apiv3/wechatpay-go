@@ -9,16 +9,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"mime/multipart"
-	"net/http"
 	"testing"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 
@@ -150,60 +147,4 @@ func TestClient_Upload(t *testing.T) {
 	body, err := ioutil.ReadAll(result.Response.Body)
 	assert.Nil(t, err)
 	t.Log(string(body))
-}
-
-func ExampleNewClient_default() {
-	// 示例参数，实际使用时请自行初始化
-	var (
-		mchID                      string
-		mchCertificateSerialNumber string
-		mchPrivateKey              *rsa.PrivateKey
-		wechatPayCertList          []*x509.Certificate
-		customHTTPClient           *http.Client
-	)
-
-	ctx := context.Background()
-	opts := []core.ClientOption{
-		option.WithMerchantCredential(mchID, mchCertificateSerialNumber, mchPrivateKey), // 使用商户信息生成默认 WechatPayCredential
-		option.WithWechatPayCertificate(wechatPayCertList),                              // 使用微信支付平台证书列表生成默认 SHA256WithRSAVerifier
-		option.WithHTTPClient(customHTTPClient),                                         // 设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
-	}
-	client, err := core.NewClient(ctx, opts...)
-	if err != nil {
-		log.Printf("new wechat pay client err:%s", err.Error())
-		return
-	}
-	// 接下来使用 client 进行请求发送
-	_ = client
-}
-
-func ExampleCreateFormField() {
-	var w multipart.Writer
-
-	meta := map[string]string{
-		"filename": "sample.jpg",
-		"sha256":   "5944758444f0af3bc843e39b611a6b0c8c38cca44af653cd461b5765b71dc3f8",
-	}
-
-	metaBytes, err := json.Marshal(meta)
-	if err != nil {
-		// TODO: 处理错误
-		return
-	}
-
-	err = core.CreateFormField(&w, "meta", consts.ApplicationJSON, metaBytes)
-	if err != nil {
-		// TODO: 处理错误
-	}
-}
-
-func ExampleCreateFormFile() {
-	var w multipart.Writer
-
-	var fileContent []byte
-
-	err := core.CreateFormFile(&w, "sample.jpg", consts.ImageJPG, fileContent)
-	if err != nil {
-		// TODO: 处理错误
-	}
 }
