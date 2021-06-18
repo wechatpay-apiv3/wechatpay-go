@@ -60,7 +60,7 @@ func checkParameter(ctx context.Context, serialNumber, message, signature string
 	return nil
 }
 
-// NewSHA256WithRSAVerifier 使用 cert.CertificateGetter 初始化 SHA256WithRSAVerifier
+// NewSHA256WithRSAVerifier 使用 core.CertificateGetter 初始化 SHA256WithRSAVerifier
 func NewSHA256WithRSAVerifier(getter core.CertificateGetter) *SHA256WithRSAVerifier {
 	return &SHA256WithRSAVerifier{certGetter: getter}
 }
