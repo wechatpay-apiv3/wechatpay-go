@@ -44,6 +44,19 @@ type APIResult struct {
 	Response *http.Response
 }
 
+// ClientOption 微信支付 API v3 HTTPClient core.Client 初始化参数
+type ClientOption interface {
+	Apply(settings *DialSettings) error
+}
+
+// ErrorOption 错误初始化参数，用于返回错误
+type ErrorOption struct{ Error error }
+
+// Apply 返回初始化错误
+func (w ErrorOption) Apply(o *DialSettings) error {
+	return w.Error
+}
+
 // Client 微信支付API v3 基础 Client
 type Client struct {
 	httpClient    *http.Client
@@ -57,19 +70,22 @@ type Client struct {
 // NewClient 初始化一个微信支付API v3 HTTPClient
 //
 // 初始化的时候你可以传递多个配置信息
-func NewClient(_ context.Context, opts ...ClientOption) (client *Client, err error) {
+func NewClient(ctx context.Context, opts ...ClientOption) (*Client, error) {
 	settings, err := initSettings(opts)
 	if err != nil {
 		return nil, fmt.Errorf("init client setting err:%v", err)
 	}
-	client = &Client{
-		signer:        settings.Signer,
-		validator:     settings.Validator,
-		credential:    &credentials.WechatPayCredentials{Signer: settings.Signer},
-		httpClient:    settings.HTTPClient,
-		defaultHeader: settings.Header,
-		cipher:        settings.Cipher,
+
+	client := initClientWithSettings(ctx, settings)
+	return client, nil
+}
+
+func NewClientWithDialSettings(ctx context.Context, settings *DialSettings) (*Client, error) {
+	if err := settings.Validate(); err != nil {
+		return nil, err
 	}
+
+	client := initClientWithSettings(ctx, settings)
 	return client, nil
 }
 
@@ -86,6 +102,25 @@ func NewClientWithValidator(client *Client, validator auth.Validator) *Client {
 	}
 }
 
+func initClientWithSettings(_ context.Context, settings *DialSettings) *Client {
+	client := &Client{
+		signer:        settings.Signer,
+		validator:     settings.Validator,
+		credential:    &credentials.WechatPayCredentials{Signer: settings.Signer},
+		httpClient:    settings.HTTPClient,
+		defaultHeader: settings.Header,
+		cipher:        settings.Cipher,
+	}
+
+	if client.httpClient == nil {
+		client.httpClient = &http.Client{}
+	}
+	if settings.Timeout != 0 {
+		client.httpClient.Timeout = settings.Timeout
+	}
+	return client
+}
+
 func initSettings(opts []ClientOption) (*DialSettings, error) {
 	var (
 		o   DialSettings
@@ -98,12 +133,6 @@ func initSettings(opts []ClientOption) (*DialSettings, error) {
 	}
 	if err := o.Validate(); err != nil {
 		return nil, err
-	}
-	if o.HTTPClient == nil {
-		o.HTTPClient = &http.Client{}
-	}
-	if o.Timeout != 0 {
-		o.HTTPClient.Timeout = o.Timeout
 	}
 	return &o, nil
 }
