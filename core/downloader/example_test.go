@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/builder"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/downloader"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 )
@@ -60,7 +60,7 @@ func ExampleNewCertificateDownloaderMgr() {
 	certVisitor := mgr.GetCertificateVisitor(mchID)
 
 	// 使用 certVisitor 初始化 Validator 进行验签
-	option.WithVerifier(builder.BuildVerifierWithCertGetter(certVisitor))
+	option.WithVerifier(verifiers.NewSHA256WithRSAVerifier(certVisitor))
 }
 
 func ExampleNewCertificateDownloaderMgr_useMgr() {
@@ -76,8 +76,7 @@ func ExampleNewCertificateDownloaderMgr_useMgr() {
 	ctx := context.Background()
 	client, err := core.NewClient(
 		ctx,
-		option.WithMerchantCredential(mchID, mchCertSerialNo, mchPrivateKey),
-		option.WithVerifier(builder.BuildVerifierWithCertificateDownloaderMgr(certDownloadMgr, mchID)),
+		option.WithWechatPayAutoAuthCipherUsingDownloaderMgr(mchID, mchCertSerialNo, mchPrivateKey, certDownloadMgr),
 	)
 
 	if err != nil {
