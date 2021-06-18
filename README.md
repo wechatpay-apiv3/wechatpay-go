@@ -3,14 +3,16 @@
 
 ## 版本信息
 
-版本号：`v0.2.0`
+版本号：`v0.2.1-dev`
 
 版本功能：
 1. 支持微信支付 API v3 请求签名与应答验签能力的 HTTP Client: `core.Client`，该 HTTP Client 在执行请求时将自动携带身份认证信息，并检查应答的微信支付签名。
-2. 微信支付各服务API对应的SDK，目前仅包含： 
-    1) 微信核心支付4种常用支付接口（JSAPI支付, APP支付，H5支付，Native支付）的SDK 
-	2) 微信支付4种文件上传接口的SDK
-	3) 更多API跟进中
+2. 微信支付平台证书下载库 `core/downloader`，提供手动下载器`CertificateDownloader`，以及自动下载管理器`CertificateDownloaderMgr`
+3. 微信支付各服务API对应的SDK，目前仅包含： 
+    - 微信核心支付4种常用支付接口（JSAPI支付, APP支付，H5支付，Native支付）的SDK。特别的，为【JSAPI支付】与【APP支付】提供了自动构建拉起支付所需签名的接口。
+	- 微信支付4种文件上传接口的SDK
+	- 微信支付证书下载接口的SDK
+	- 更多API跟进中
 
 兼容性：
 本版本为测试版本，因为接口重命名/代码结构调整等原因，与之前版本存在不兼容的情况。
@@ -27,14 +29,14 @@ go mod init
 在 `go.mod` 文件中加入对本SDK的依赖：
 ```
 require (
-    github.com/wechatpay-apiv3/wechatpay-go v0.2.0
+    github.com/wechatpay-apiv3/wechatpay-go v0.2.0-dev
 )
 ```
 并使用`go mod tidy`进行下载。
 
 也可以直接在项目目录中执行： 
 ```shell
-go get -u github.com/wechatpay-apiv3/wechatpay-go@v0.2.0
+go get -u github.com/wechatpay-apiv3/wechatpay-go@v0.2.0-dev
 ```
 来自动完成`go.mod`的修改与SDK的下载。
 
@@ -46,32 +48,29 @@ package main
 import (
 	"context"
 	"crypto/rsa"
-	"crypto/x509"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 )
 
 func main() {
 	// 示例参数，实际使用时请自行初始化
 	var (
 		mchID                      string              // 商户号
-		mchCertificateSerialNumber string              // 商户API证书序列号
-		mchPrivateKey              *rsa.PrivateKey     // 商户API私钥
-		wechatPayCertList          []*x509.Certificate // 微信支付平台证书
-		customHTTPClient           *http.Client
-		customHTTPHeader           http.Header
+		mchCertificateSerialNumber string              // 商户证书序列号
+		mchPrivateKey              *rsa.PrivateKey     // 商户私钥
+		mchAPIv3Key                string              // 商户APIv3密钥
+		customHTTPClient           *http.Client        // 自定义客户端实例
 	)
 
 	ctx := context.Background()
 	opts := []core.ClientOption{
-		core.WithMerchantCredential(mchID, mchCertificateSerialNumber, mchPrivateKey), // 必要，使用商户信息生成默认 WechatPayCredential
-		core.WithWechatPayValidator(wechatPayCertList),                                // 必要，使用微信支付平台证书列表生成默认 WechatPayValidator
-		core.WithHTTPClient(customHTTPClient),                                         // 可选，设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
-		core.WithTimeout(2 * time.Second),                                             // 可选，设置自定义超时时间，不设置时使用 http.Client{} 默认超时
-		core.WithHeader(customHTTPHeader),                                             // 可选，设置自定义请求头
+		// 一次性设置 签名/验签/敏感字段加解密，并注册 平台证书下载器，自动定时获取最新的平台证书
+		option.WithWechatPayAutoAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, mchAPIv3Key),
+		// 设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
+		option.WithHTTPClient(customHTTPClient),
 	}
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
@@ -82,7 +81,38 @@ func main() {
 	_ = client
 }
 ```
-`core.Client`初始化完成后，可以在多个goroutine中并发使用。 
+使用以上方法，可以快速构建一个集成了签名/验签的`Client`，除此以外，还会自动初始化全局默认的平台证书下载管理器`downloader.MgrInstance()`提供平台证书。
+每24小时更新一次平台证书，保证验签所使用的证书更新。
+
+如果你希望直接使用本地的平台证书，也可以使用如下初始化方法
+```go
+func main() {
+	// 示例参数，实际使用时请自行初始化
+	var (
+		mchID                      string              // 商户号
+		mchCertificateSerialNumber string              // 商户证书序列号
+		mchPrivateKey              *rsa.PrivateKey     // 商户私钥
+		wechatPayCertList          []*x509.Certificate // 平台证书列表
+		customHTTPClient           *http.Client        // 自定义客户端实例
+	)
+
+	ctx := context.Background()
+	opts := []core.ClientOption{
+		// 一次性设置 签名/验签/敏感字段加解密，使用本地提供的平台证书列表
+		option.WithWechatPayAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, wechatPayCertList),
+		// 设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
+		option.WithHTTPClient(customHTTPClient),
+	}
+	client, err := core.NewClient(ctx, opts...)
+	if err != nil {
+		log.Printf("new wechat pay client err:%s", err)
+		return
+	}
+	// 接下来使用 client 进行请求发送
+	_ = client
+}
+```
+`core.Client`初始化完成后，可以在多个goroutine中并发使用。
 
 #### 名词解释
 
@@ -228,8 +258,11 @@ func DecryptOAEP(ciphertext string, privateKey *rsa.PrivateKey) (message string,
 ```
 
 ### [建设中] 服务 SDK 自动加解密
-未来会在服务 SDK 中集成请求/应答隐私字段自动加解密功能，省去手动对敏感信息字段进行处理的繁琐工作。
-尽情期待。
+目前我们已经完成了敏感字段自动加解密工具的开发，你可以使用`WithWechatPayAuthCipher`/`WithWechatPayAutoAuthCipher`/`WithCipher`等选项为
+`core.Client` 设置加解密器。
+但是比较遗憾的是，加解密器的正确运作依赖于我们在接口请求/应答结构所进行的Tag标记，也就是说只有我们提供了SDK的服务才能享受到自动加解密。
+而目前我们所提供了SDK的服务接口均不存在需要加解密的字段，故而暂时这个能力还无法为大家提供服务。如果开发者需要访问存在**敏感字段**的接口，目前还是需要手动进行加解密。
+我们会尽快上线更多服务接口的SDK，让自动加解密发挥它的价值。
 
 ## 自定义签名生成器与验证器
 当默认的本地签名和验签方式不适合你的系统时，你可以通过实现`Signer`或者`Verifier`来定制签名和验签。
@@ -239,16 +272,16 @@ func DecryptOAEP(ciphertext string, privateKey *rsa.PrivateKey) (message string,
 type CustomSigner struct {
 }
 
-func (customSigner *CustomSigner) Sign(ctx context.Context, message string) (*auth.SignatureResult, error) {
+func (s *CustomSigner) Sign(ctx context.Context, message string) (*auth.SignatureResult, error) {
     // TODO: 远程调用获取签名信息
-    return &auth.SignatureResult{MchCertificateSerialNo: "xxx", Signature: "xxxx"}, nil
+    return &auth.SignatureResult{MchID: "xxx", MchCertificateSerialNo: "xxx", Signature: "xxx"}, nil
 }
 
 // 校验器
 type CustomVerifier struct {
 }
 
-func (customSigner *CustomVerifier) Verify(ctx context.Context, serial, message, signature string) error {
+func (v *CustomVerifier) Verify(ctx context.Context, serial, message, signature string) error {
     // TODO: 远程调用验签
     return nil
 }
@@ -271,17 +304,16 @@ import (
 )
 
 func NewCustomClient(ctx context.Context, mchID string) (*core.Client, error) {
-	credential := &credentials.WechatPayCredentials{
-		Signer: &custom_signer.CustomSigner{},
-		MchID:  mchID,
+	signer := &custom_signer.CustomSigner{
+		// ... 
 	}
-	validator := &validators.WechatPayValidator{
-		Verifier: &custom_verifier.CustomVerifier{},
+	verifier := &custom_verifier.CustomVerifier{
+		// ...
 	}
 
 	opts := []core.ClientOption{
-		core.WithCredential(credential),
-		core.WithValidator(validator),
+		option.WithSigner(signer),
+		option.WithVerifier(verifier),
 	}
 
 	return core.NewClient(ctx, opts...)
@@ -290,25 +322,74 @@ func NewCustomClient(ctx context.Context, mchID string) (*core.Client, error) {
 
 ## 常见问题
 ### 如何下载平台证书
-首次下载平台证书时，用户还没有平台证书，此时无法完成验签行为。
-可以使用如下方法**临时**跳过应答签名验证：
+现在本 SDK 已经提供平台证书下载器库以及命令行工具供开发者使用。
+#### 在代码中下载平台证书
+使用 `cert.CertificateDownloader` 下载平台证书
 ```go
-opts := []core.ClientOption{
-	core.WithMerchantCredential(mchID, mchCertificateSerialNumber, privateKey),
-	core.WithoutValidator(),
+var (
+	mchID           string
+	mchCertSerialNo string
+	mchPrivateKey   *rsa.PrivateKey
+	mchAPIv3Key     string
+)
+// 假设以上参数已初始化完成
+
+d, err := cert.NewCertificateDownloader(ctx, mchID, mchPrivateKey, mchCertSerialNo, mchAPIv3Key)
+if err != nil {
+	return err
+}
+// Downloader 创建时会立即进行一次下载操作，创建成功后即可直接访问
+
+// 访问平台证书内容
+for serialNo, certContent := range d.ExportAll(ctx) {
+	// ...
 }
 
-client, err := core.NewClient(ctx, opts...)
+// 获得解析好的平台证书结构 *x509.Certificate
+for serialNo, cert := range d.GetAll(ctx) {
+	// ...
+}
+
+// 重新下载证书(如果你认为有必要的话）
+err := d.DownloadCertificates(ctx)
+if err != nil {
+	return err
+}
 ```
-使用 `core.WithoutValidator()` 可以构建一个空验证器 `NullValidator`，该验证器不会对应答进行检查。
-> **注意**：为了保证请求安全，请务必在一般业务请求中使用正确的签名验证器
+微信支付推荐每24小时更新一次平台证书列表，来保证平台证书的平滑替换。为此本 SDK 还提供了自动平台证书下载管理器 `CertificateDownloaderMgr`
+对一般用户而言，你可以在初始化 Client 时使用前文所建议的`option.WithWechatPayAutoAuthCipher`，便可以享受到我们为你建立的默认证书下载管理器。
+你可以使用`downloader.MgrInstance()`访问到这个默认的管理器，请不要调用它的`Stop()`方法，除非你知道自己在做什么。
+
+使用`option.WithWechatPayAutoAuthCipher`初始化`core.Client`后，会自动在默认的证书下载管理器中注册对应商户的证书自动更新任务。
+它除了会为`core.Client`中的验签器提供平台证书外，你也可以直接使用`mgr.GetCertificate`或`mgr.GetCertificateVisitor`等方法直接获取到证书，这些证书可以用于敏感字段的加密。
+
+如果你希望了解更多，并自行对平台证书下载管理器的生命周期进行管理，可以自行阅读 [`core/downloader`](core/downloader) 的代码。
+
+#### 使用命令行工具下载证书到本地目录
+首先使用 `go` 指令下载命令行工具
+```shell
+go get -u github.com/wechatpay-apiv3/wechatpay-go/cmd/wechatpay_download_certs@v0.2.1-dev
+```
+然后执行 `wechatpay_download_certs` 即可下载平台证书到当前目录
+```shell
+wechatpay_download_certs -m <mchID> -p <mchPrivateKeyPath> -s <mchSerialNo> -k <mchAPIv3Key>
+```
+完整参数列表可运行 `wechatpay_download_certs -h` 进行查看。
 
 ### 如何下载账单
 [账单下载API](https://pay.weixin.qq.com/wiki/doc/apiv3/wxpay/pay/bill/chapter3_3.shtml) 分成了两个步骤：
 1. `/v3/bill/tradebill` 获取账单下载链接和账单摘要
 2. `/v3/billdownload/file` 账单文件下载，请求需签名但应答不签名
 
-其中第二步的应答中不包含应答数字签名，我们可以参考上一个问题下载平台证书的方法，使用`WithoutValidator()`**跳过**应答签名的校验。
+其中第二步的应答中不包含应答数字签名，无法进行验签，应使用`WithoutValidator()`**跳过**应答签名的校验。
+```go
+opts := []core.ClientOption{
+	option.WithMerchantCredential(mchID, mchCertificateSerialNumber, privateKey),
+	option.WithoutValidator(),
+}
+
+client, err := core.NewClient(ctx, opts...)
+```
 
 > **注意**：第一步中应正常对应答签名进行验证
 > 
