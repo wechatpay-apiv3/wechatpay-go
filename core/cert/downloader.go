@@ -175,14 +175,16 @@ func (o *CertificateDownloader) DownloadCertificates(ctx context.Context) error 
 func NewCertificateDownloader(
 	ctx context.Context, mchID string, privateKey *rsa.PrivateKey, certificateSerialNo string, mchAPIv3Key string,
 ) (*CertificateDownloader, error) {
-	credentialOption := core.WithSignerOption{Signer: &signers.SHA256WithRSASigner{
-		MchID:               mchID,
-		PrivateKey:          privateKey,
-		CertificateSerialNo: certificateSerialNo,
-	}}
-	validatorOption := core.WithValidatorOption{Validator: &validators.NullValidator{}}
+	settings := core.DialSettings{
+		Signer: &signers.SHA256WithRSASigner{
+			MchID:               mchID,
+			PrivateKey:          privateKey,
+			CertificateSerialNo: certificateSerialNo,
+		},
+		Validator: &validators.NullValidator{},
+	}
 
-	client, err := core.NewClient(ctx, credentialOption, validatorOption)
+	client, err := core.NewClientWithDialSettings(ctx, &settings)
 	if err != nil {
 		return nil, fmt.Errorf("create downloader failed, create client err:%v", err)
 	}
