@@ -1,4 +1,4 @@
-package cert_test
+package downloader_test
 
 import (
 	"context"
@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/downloader"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -26,7 +26,7 @@ func TestNewCertificateDownloaderWithClient(t *testing.T) {
 	client, err := core.NewClient(ctx, opts...)
 	require.NoError(t, err)
 
-	d, err := cert.NewCertificateDownloaderWithClient(ctx, client, consts.MchAPIv3Key)
+	d, err := downloader.NewCertificateDownloaderWithClient(ctx, client, consts.MchAPIv3Key)
 	require.NoError(t, err)
 
 	assert.NotEmpty(t, d.GetAll(ctx))
@@ -41,7 +41,7 @@ func TestNewCertificateDownloader(t *testing.T) {
 
 	ctx := context.Background()
 
-	d, err := cert.NewCertificateDownloader(
+	d, err := downloader.NewCertificateDownloader(
 		context.Background(), consts.MchID, privateKey, consts.SerialNo, consts.MchAPIv3Key,
 	)
 	require.NoError(t, err)

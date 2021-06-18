@@ -9,10 +9,10 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/signers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/ciphers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/decryptors"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/encryptors"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/downloader"
 )
 
 type withAuthCipherOption struct{ settings core.DialSettings }
@@ -50,7 +50,7 @@ func WithWechatPayAuthCipher(
 func WithWechatPayAutoAuthCipher(
 	mchID string, certificateSerialNo string, privateKey *rsa.PrivateKey, mchAPIv3Key string,
 ) core.ClientOption {
-	mgr := cert.MgrInstance()
+	mgr := downloader.MgrInstance()
 
 	if !mgr.HasDownloader(context.Background(), mchID) {
 		err := mgr.RegisterDownloaderWithPrivateKey(
@@ -70,7 +70,7 @@ func WithWechatPayAutoAuthCipher(
 // 【注意】本函数的能力与 WithWechatPayAutoAuthCipher 完全一致，除非有自行管理 CertificateDownloaderMgr 的需求，
 // 否则推荐直接使用 WithWechatPayAutoAuthCipher
 func WithWechatPayAutoAuthCipherUsingDownloaderMgr(
-	mchID string, certificateSerialNo string, privateKey *rsa.PrivateKey, mgr *cert.CertificateDownloaderMgr,
+	mchID string, certificateSerialNo string, privateKey *rsa.PrivateKey, mgr *downloader.CertificateDownloaderMgr,
 ) core.ClientOption {
 	certVisitor := mgr.GetCertificateVisitor(mchID)
 	return withAuthCipherOption{

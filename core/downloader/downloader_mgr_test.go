@@ -1,4 +1,4 @@
-package cert_test
+package downloader_test
 
 import (
 	"context"
@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/cert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/downloader"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -17,7 +17,7 @@ import (
 func TestAutoCertificateDownloader(t *testing.T) {
 	ctx := context.Background()
 
-	mgr := cert.NewCertificateDownloaderMgrWithInterval(ctx, 5*time.Second)
+	mgr := downloader.NewCertificateDownloaderMgrWithInterval(ctx, 5*time.Second)
 	require.NotNil(t, mgr)
 	defer mgr.Stop()
 
