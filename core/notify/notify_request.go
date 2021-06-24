@@ -14,8 +14,6 @@ type Request struct {
 	Resource     *EncryptedResource `json:"resource"`
 	Summary      string             `json:"summary"`
 
-	// 通知内容Map
-	Content ContentMap
 	// 原始通知请求
 	RawRequest *http.Request
 }

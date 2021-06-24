@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/x509"
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -41,6 +42,71 @@ func Test_getRequestBody(t *testing.T) {
 	assert.Equal(t, body, string(bodyBytes))
 }
 
+type contentType struct {
+	ContractId      *string    `json:"contract_id"`
+	Mchid           *string    `json:"mchid"`
+	Appid           *string    `json:"appid"`
+	Openid          *string    `json:"openid"`
+	PlanId          *string    `json:"plan_id"`
+	ContractStatus  *string    `json:"contract_status"`
+	CreateTime      *time.Time `json:"create_time"`
+	OutContractCode *string    `json:"out_contract_code"`
+}
+
+func (o contentType) String() string {
+	ret := ""
+
+	if o.ContractId == nil {
+		ret += "ContractId:<nil>,"
+	} else {
+		ret += fmt.Sprintf("ContractId:%v,", *o.ContractId)
+	}
+
+	if o.Mchid == nil {
+		ret += "Mchid:<nil>,"
+	} else {
+		ret += fmt.Sprintf("Mchid:%v,", *o.Mchid)
+	}
+
+	if o.Appid == nil {
+		ret += "Appid:<nil>,"
+	} else {
+		ret += fmt.Sprintf("Appid:%v,", *o.Appid)
+	}
+
+	if o.Openid == nil {
+		ret += "Openid:<nil>,"
+	} else {
+		ret += fmt.Sprintf("Openid:%v,", *o.Openid)
+	}
+
+	if o.PlanId == nil {
+		ret += "PlanId:<nil>,"
+	} else {
+		ret += fmt.Sprintf("PlanId:%v,", *o.PlanId)
+	}
+
+	if o.ContractStatus == nil {
+		ret += "ContractStatus:<nil>,"
+	} else {
+		ret += fmt.Sprintf("ContractStatus:%v,", *o.ContractStatus)
+	}
+
+	if o.CreateTime == nil {
+		ret += "CreateTime:<nil>,"
+	} else {
+		ret += fmt.Sprintf("CreateTime:%v,", *o.CreateTime)
+	}
+
+	if o.OutContractCode == nil {
+		ret += "OutContractCode:<nil>,"
+	} else {
+		ret += fmt.Sprintf("OutContractCode:%v,", *o.OutContractCode)
+	}
+
+	return fmt.Sprintf("contentType{%s}", ret)
+}
+
 func TestHandler_ParseNotifyRequest(t *testing.T) {
 	patch := gomonkey.ApplyFunc(time.Now, func() time.Time {
 		return time.Unix(1624523846, 0)
@@ -72,7 +138,9 @@ func TestHandler_ParseNotifyRequest(t *testing.T) {
 
 	handler := NewNotifyHandler(consts.MchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList([]*x509.Certificate{cert})))
 
-	notifyReq, err := handler.ParseNotifyRequest(context.Background(), req)
+	content := new(contentType)
+
+	notifyReq, err := handler.ParseNotifyRequest(context.Background(), req, content)
 	require.NoError(t, err)
 	assert.Equal(t, "3119dfba-e649-5eec-ab1e-3412bc4d2e17", notifyReq.ID)
 	assert.Equal(t, "2021-06-24T16:37:26+08:00", notifyReq.CreateTime.Format(time.RFC3339))
@@ -84,6 +152,6 @@ func TestHandler_ParseNotifyRequest(t *testing.T) {
 	assert.Equal(t, "AEAD_AES_256_GCM", notifyReq.Resource.Algorithm)
 	assert.Equal(t, "payscore", notifyReq.Resource.OriginalType)
 
-	t.Log(notifyReq.Content)
+	t.Log(content)
 	t.Log(notifyReq.Resource.Plaintext)
 }

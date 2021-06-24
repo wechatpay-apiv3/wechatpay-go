@@ -20,7 +20,7 @@ type Handler struct {
 }
 
 // ParseNotifyRequest 从 HTTP 请求(http.Request) 中解析 微信支付通知(notify.Request)
-func (h *Handler) ParseNotifyRequest(ctx context.Context, request *http.Request) (*Request, error) {
+func (h *Handler) ParseNotifyRequest(ctx context.Context, request *http.Request, content interface{}) (*Request, error) {
 	if err := h.validator.Validate(ctx, request); err != nil {
 		return nil, fmt.Errorf("not valid wechatpay notify request: %v", err)
 	}
@@ -44,12 +44,10 @@ func (h *Handler) ParseNotifyRequest(ctx context.Context, request *http.Request)
 
 	ret.Resource.Plaintext = plaintext
 
-	content := ContentMap{}
 	if err = json.Unmarshal([]byte(plaintext), &content); err != nil {
-		return ret, fmt.Errorf("unmarshal plaintext to content map failed: %v", err)
+		return ret, fmt.Errorf("unmarshal plaintext to content failed: %v", err)
 	}
 
-	ret.Content = content
 	return ret, nil
 }
 
