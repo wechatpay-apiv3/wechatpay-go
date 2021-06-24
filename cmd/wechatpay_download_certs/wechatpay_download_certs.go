@@ -166,13 +166,16 @@ func createClient(ctx context.Context) (*core.Client, error) {
 			ctx, option.WithMerchantCredential(mchID, mchSerialNo, privateKey),
 			option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 		)
+		if err != nil {
+			return nil, fmt.Errorf("创建 Client 失败：%v", err)
+		}
 	} else {
 		client, err = core.NewClient(
 			ctx, option.WithMerchantCredential(mchID, mchSerialNo, privateKey), option.WithoutValidator(),
 		)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("创建 Client 失败：%v", err)
+		if err != nil {
+			return nil, fmt.Errorf("创建 Client 失败：%v", err)
+		}
 	}
 
 	return client, nil

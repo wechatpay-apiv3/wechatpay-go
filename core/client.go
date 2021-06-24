@@ -195,11 +195,9 @@ func (client *Client) doRequest(
 	// Fixed Headers > Per-Request Header Parameters
 
 	// Add Request Header Parameters
-	if header != nil {
-		for key, values := range header {
-			for _, v := range values {
-				request.Header.Add(key, v)
-			}
+	for key, values := range header {
+		for _, v := range values {
+			request.Header.Add(key, v)
 		}
 	}
 
@@ -426,7 +424,7 @@ func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err e
 // contains is a case insensitive match, finding needle in a haystack
 func contains(haystack []string, needle string) bool {
 	for _, a := range haystack {
-		if strings.ToLower(a) == strings.ToLower(needle) {
+		if strings.EqualFold(a, needle) {
 			return true
 		}
 	}
