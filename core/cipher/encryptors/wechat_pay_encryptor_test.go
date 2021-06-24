@@ -99,9 +99,10 @@ func initWechatPayEncryptor() (*WechatPayEncryptor, error) {
 
 func TestWechatPayEncryptor_SelectCertificate(t *testing.T) {
 	e, err := initWechatPayEncryptor()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	serial, err := e.SelectCertificate(context.Background())
+	assert.NoError(t, err)
 	assert.Equal(t, "D7CE59D1F522D701", serial)
 }
 
