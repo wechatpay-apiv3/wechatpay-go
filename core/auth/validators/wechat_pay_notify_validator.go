@@ -11,7 +11,7 @@ import (
 
 // WechatPayNotifyValidator 微信支付 API v3 通知请求报文验证器
 type WechatPayNotifyValidator struct {
-	baseWechatPayValidator
+	wechatPayValidator
 }
 
 func (v *WechatPayNotifyValidator) Validate(ctx context.Context, request *http.Request) error {
@@ -30,6 +30,6 @@ func (v *WechatPayNotifyValidator) Validate(ctx context.Context, request *http.R
 
 func NewWechatPayNotifyValidator(verifier auth.Verifier) *WechatPayNotifyValidator {
 	return &WechatPayNotifyValidator{
-		baseWechatPayValidator{verifier: verifier},
+		wechatPayValidator{verifier: verifier},
 	}
 }
