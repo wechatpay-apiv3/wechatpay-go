@@ -36,7 +36,7 @@ func WithWechatPayAuthCipher(
 				PrivateKey:          privateKey,
 				CertificateSerialNo: certificateSerialNo,
 			},
-			Validator: validators.NewWechatPayValidator(verifiers.NewSHA256WithRSAVerifier(certGetter)),
+			Validator: validators.NewWechatPayResponseValidator(verifiers.NewSHA256WithRSAVerifier(certGetter)),
 			Cipher: ciphers.NewWechatPayCipher(
 				encryptors.NewWechatPayEncryptor(certGetter),
 				decryptors.NewWechatPayDecryptor(privateKey),
@@ -80,7 +80,7 @@ func WithWechatPayAutoAuthCipherUsingDownloaderMgr(
 				CertificateSerialNo: certificateSerialNo,
 				PrivateKey:          privateKey,
 			},
-			Validator: validators.NewWechatPayValidator(verifiers.NewSHA256WithRSAVerifier(certVisitor)),
+			Validator: validators.NewWechatPayResponseValidator(verifiers.NewSHA256WithRSAVerifier(certVisitor)),
 			Cipher: ciphers.NewWechatPayCipher(
 				encryptors.NewWechatPayEncryptor(certVisitor),
 				decryptors.NewWechatPayDecryptor(privateKey),

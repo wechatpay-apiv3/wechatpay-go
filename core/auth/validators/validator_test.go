@@ -18,7 +18,7 @@ import (
 	"github.com/agiledragon/gomonkey"
 )
 
-func TestWechatPayValidator_Validate(t *testing.T) {
+func TestWechatPayResponseValidator_Validate(t *testing.T) {
 	patches := gomonkey.NewPatches()
 	defer patches.Reset()
 	validateParametersOutputs := []gomonkey.OutputCell{
@@ -34,7 +34,7 @@ func TestWechatPayValidator_Validate(t *testing.T) {
 		{Values: gomonkey.Params{fmt.Errorf("verift err")}, Times: 1},
 	}
 
-	validator := NewWechatPayValidator(&verifiers.SHA256WithRSAVerifier{})
+	validator := NewWechatPayResponseValidator(&verifiers.SHA256WithRSAVerifier{})
 	validHeader := map[string][]string{
 		consts.WechatPaySignature: {base64.StdEncoding.EncodeToString([]byte("1"))},
 		consts.WechatPaySerial:    {"1"},
@@ -195,8 +195,14 @@ func Test_checkParameters(t *testing.T) {
 	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			body, err := ioutil.ReadAll(tt.args.response.Body)
-			require.NoError(t, err)
+			var (
+				body []byte
+				err  error
+			)
+			if tt.args.response.Body != nil {
+				body, err = ioutil.ReadAll(tt.args.response.Body)
+				require.NoError(t, err)
+			}
 
 			if err := checkParameters(ctx, tt.args.response.Header, body); (err != nil) != tt.wantErr {
 				t.Errorf("validateParameters() error = %v, wantErr %v", err, tt.wantErr)
