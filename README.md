@@ -70,7 +70,7 @@ func main() {
 	opts := []core.ClientOption{
 		// 一次性设置 签名/验签/敏感字段加解密，并注册 平台证书下载器，自动定时获取最新的平台证书
 		option.WithWechatPayAutoAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, mchAPIv3Key),
-		// 设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
+		// 设置自定义 HTTPClient 实例，不设置时默认使用 http.Client{}，并设置超时时间为 30s
 		option.WithHTTPClient(customHTTPClient),
 	}
 	client, err := core.NewClient(ctx, opts...)
@@ -101,7 +101,7 @@ func main() {
 	opts := []core.ClientOption{
 		// 一次性设置 签名/验签/敏感字段加解密，使用本地提供的平台证书列表
 		option.WithWechatPayAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, wechatPayCertList),
-		// 设置自定义 HTTPClient 实例，不设置时使用默认 http.Client{}
+		// 设置自定义 HTTPClient 实例，不设置时默认使用 http.Client{}，并设置超时时间为 30s
 		option.WithHTTPClient(customHTTPClient),
 	}
 	client, err := core.NewClient(ctx, opts...)
@@ -243,7 +243,7 @@ github.com/wechatpay-apiv3/wechatpay-go
 ## 敏感信息加解密
 为了保证通信过程中敏感信息字段（如用户的住址、银行卡号、手机号码等）的机密性，微信支付 API v3 要求商户对上送的敏感信息字段进行加密。
 与之相对应，微信支付会对下行的敏感信息字段进行加密，商户需解密后方能得到原文。
-详见[这里](https://wechatpay-api.gitbook.io/wechatpay-api-v3/qian-ming-zhi-nan-1/min-gan-xin-xi-jia-mi)。
+详见[这里](https://wechatpay-api.gitbook.io/wechatpay-api-v3/qian-ming-zhi-nan-1/min-gan-xin-xi-jia-mi) 
 
 ### 加解密算法工具
 工具包 `github.com/wechatpay-apiv3/wechatpay-go/utils` 中提供了加解密所需要的函数，可以使用这些方法手动对敏感信息字段进行加解密

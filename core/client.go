@@ -110,7 +110,9 @@ func initClientWithSettings(_ context.Context, settings *DialSettings) *Client {
 	}
 
 	if client.httpClient == nil {
-		client.httpClient = &http.Client{}
+		client.httpClient = &http.Client{
+			Timeout: consts.DefaultTimeout,
+		}
 	}
 	return client
 }
