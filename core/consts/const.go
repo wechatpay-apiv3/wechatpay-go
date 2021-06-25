@@ -1,6 +1,8 @@
 // Package consts 微信支付 API v3 Go SDK 常量
 package consts
 
+import "time"
+
 // 微信支付 API 地址
 const (
 	WechatPayAPIServer       = "https://api.mch.weixin.qq.com"  // 微信支付 API 地址
@@ -47,5 +49,6 @@ const (
 )
 
 const (
-	FiveMinute = 5 * 60 // 回包校验最长时间（秒）
+	FiveMinute     = 5 * 60           // 回包校验最长时间（秒）
+	DefaultTimeout = 30 * time.Second // HTTP 请求默认超时时间
 )
