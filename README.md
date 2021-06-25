@@ -3,12 +3,13 @@
 
 ## 版本信息
 
-版本号：`v0.2.1-dev`
+版本号：`v0.2.1`
 
 版本功能：
 1. 支持微信支付 API v3 请求签名与应答验签能力的 HTTP Client: `core.Client`，该 HTTP Client 在执行请求时将自动携带身份认证信息，并检查应答的微信支付签名。
 2. 微信支付平台证书下载库 `core/downloader`，提供手动下载器`CertificateDownloader`，以及自动下载管理器`CertificateDownloaderMgr`
-3. 微信支付各服务API对应的SDK，目前仅包含： 
+3. 微信支付回调通知处理库 `core/notify`，提供通知处理器`Handler`，可以对微信支付回调通知进行验签，然后对回调通知内容进行解密，并解析为特定的结构（如支付回调通知的`Transaction`），也可以选择解析为字典`map[string]interface{}`
+4. 微信支付各服务API对应的SDK，目前仅包含： 
     - 微信核心支付4种常用支付接口（JSAPI支付, APP支付，H5支付，Native支付）的SDK。特别的，为【JSAPI支付】与【APP支付】提供了自动构建拉起支付所需签名的接口。
 	- 微信支付4种文件上传接口的SDK
 	- 微信支付证书下载接口的SDK
@@ -29,14 +30,14 @@ go mod init
 在 `go.mod` 文件中加入对本SDK的依赖：
 ```
 require (
-    github.com/wechatpay-apiv3/wechatpay-go v0.2.0-dev
+    github.com/wechatpay-apiv3/wechatpay-go v0.2.1
 )
 ```
 并使用`go mod tidy`进行下载。
 
 也可以直接在项目目录中执行： 
 ```shell
-go get -u github.com/wechatpay-apiv3/wechatpay-go@v0.2.0-dev
+go get -u github.com/wechatpay-apiv3/wechatpay-go@v0.2.1
 ```
 来自动完成`go.mod`的修改与SDK的下载。
 
@@ -258,12 +259,64 @@ func EncryptOAEPWithCertificate(message string, certificate *x509.Certificate) (
 func DecryptOAEP(ciphertext string, privateKey *rsa.PrivateKey) (message string, err error)
 ```
 
+### 设置 `Wechatpay-Serial` 请求头
+对请求参数进行加密后，需要在请求头中添加 `Wechatpay-Serial` 参数，用于传递加密所使用的微信支付平台证书序列号。
+
+目前 `core.Client` 的 `Get/Post/Put/Patch/Delete/Upload` 方法只能传递最简单的内容，并不支持设置 HTTPHeader。
+你可以使用 `Request` 方法来传输自定义 HTTPHeader。
+
 ### [建设中] 服务 SDK 自动加解密
 目前我们已经完成了敏感字段自动加解密工具的开发，你可以使用`WithWechatPayAuthCipher`/`WithWechatPayAutoAuthCipher`/`WithCipher`等选项为
 `core.Client` 设置加解密器。
 但是比较遗憾的是，加解密器的正确运作依赖于我们在接口请求/应答结构所进行的Tag标记，也就是说只有我们提供了SDK的服务才能享受到自动加解密。
 而目前我们所提供了SDK的服务接口均不存在需要加解密的字段，故而暂时这个能力还无法为大家提供服务。如果开发者需要访问存在**敏感字段**的接口，目前还是需要手动进行加解密。
 我们会尽快上线更多服务接口的SDK，让自动加解密发挥它的价值。
+
+## 回调通知验签与解密
+`core/notify` 中提供了回调通知处理器 `Handler`，提供回调通知验签与解密功能。`Handler` 需要使用验签器 `Verifier` 和 商户APIv3密钥进行初始化。
+```go
+mchAPIv3Key := "<your api v3 key>"
+verifier := verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList([]*x509.Certificate{wechatPayCert})) 
+
+handler := NewNotifyHandler(mchAPIv3Key, verifier)
+```
+初始化完成后即可调用`handler.ParseNotifyRequest`方法进行回调通知的验签及解密。
+### 使用平台证书下载管理器初始化 `notify.Handler`
+如果你已经知道如何在创建 `client` 的时候使用平台证书下载管理器自动更新平台证书，你可以在回调处理中也享受管理器提供了平台证书自动更新能力。
+为了你能正确使用平台证书管理器，请确保你已经阅读并理解[在更多地方使用平台证书下载管理器](README.md#在更多地方使用平台证书下载管理器)的说明。
+
+以下是使用平台证书下载管理器初始化 `notify.Handler` 的示例代码
+```go
+var (
+	mchID                      string              // 商户号
+	mchCertificateSerialNumber string              // 商户证书序列号
+	mchPrivateKey              *rsa.PrivateKey     // 商户私钥
+	mchAPIv3Key                string              // 商户APIv3密钥
+)
+
+func Example_a() {
+	ctx := context.Background()
+	client, err := core.NewClient(ctx, option.WithWechatPayAutoAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, mchAPIv3Key))
+	
+	// 由于已经使用 WithWechatPayAutoAuthCipher 在 downloader.MgrInstance() 中注册了商户的下载器，则下面可以直接使用该下载管理器获取证书
+	certVisitor := downloader.MgrInstance().GetCertificateVisitor(mchID)
+	handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certVisitor))
+}
+
+func Example_b() {
+	// 这是一个单纯的回调处理进程，没有使用 WithWechatPayAutoAuthCipher 创建商户的 client，此时则需要手动注册下载器
+	ctx := context.Background()
+	err := downloader.MgrInstance().RegisterDownloaderWithPrivateKey(ctx, mchPrivateKey, mchCertificateSerialNumber, mchID, mchAPIV3Key)
+	if err != nil {
+		return	
+	}
+	
+	// 注册完成，使用下载管理器获取证书
+	certVisitor := downloader.MgrInstance().GetCertificateVisitor(mchID)
+	handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certVisitor))
+}
+
+```
 
 ## 自定义签名生成器与验证器
 当默认的本地签名和验签方式不适合你的系统时，你可以通过实现`Signer`或者`Verifier`来定制签名和验签。
@@ -364,12 +417,21 @@ if err != nil {
 使用`option.WithWechatPayAutoAuthCipher`初始化`core.Client`后，会自动在默认的证书下载管理器中注册对应商户的证书自动更新任务。
 它除了会为`core.Client`中的验签器提供平台证书外，你也可以直接使用`mgr.GetCertificate`或`mgr.GetCertificateVisitor`等方法直接获取到证书，这些证书可以用于敏感字段的加密。
 
+#### 在更多地方使用平台证书下载管理器
+> 注意：如果你想使用 `downloader.MgrInstance().GetCertificate` 或 `downloader.MgrInstance().GetCertificateVisitor` 来获取某个商户`mchID`的平台证书（比如用于回调通知验签），
+> 请确保你在该进程中使用过 `option.WithWechatPayAutoAuthCipher` 创建该商户的 `client`。
+> 这是因为平台证书下载管理器必须使用商户信息注册下载器之后才能提供对应商户的平台证书。
+> 如果你并不需要创建该商户的 client，请使用 `downloader.MgrInstance().RegisterDownloaderWithPrivateKey` 手动注册下载器。
+>
+> `option.WithWechatPayAutoAuthCipher` 和 `downloader.MgrInstance().RegisterDownloaderWithPrivateKey` 只需要在进程中调用过一次即可，多次调用无实际意义。
+> 如果二者都没有调用过，则查询该商户的平台证书时结果均为空。
+
 如果你希望了解更多，并自行对平台证书下载管理器的生命周期进行管理，可以自行阅读 [`core/downloader`](core/downloader) 的代码。
 
 #### 使用命令行工具下载证书到本地目录
 首先使用 `go` 指令下载命令行工具
 ```shell
-go get -u github.com/wechatpay-apiv3/wechatpay-go/cmd/wechatpay_download_certs@v0.2.1-dev
+go get -u github.com/wechatpay-apiv3/wechatpay-go/cmd/wechatpay_download_certs@v0.2.1
 ```
 然后执行 `wechatpay_download_certs` 即可下载平台证书到当前目录
 ```shell
