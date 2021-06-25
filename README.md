@@ -297,6 +297,9 @@ var (
 func Example_a() {
 	ctx := context.Background()
 	client, err := core.NewClient(ctx, option.WithWechatPayAutoAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, mchAPIv3Key))
+	if err != nil {
+		return
+	}
 	
 	// 由于已经使用 WithWechatPayAutoAuthCipher 在 downloader.MgrInstance() 中注册了商户的下载器，则下面可以直接使用该下载管理器获取证书
 	certVisitor := downloader.MgrInstance().GetCertificateVisitor(mchID)
