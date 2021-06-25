@@ -45,56 +45,56 @@ type CertificateDownloader struct {
 }
 
 // Get 获取证书序列号对应的平台证书
-func (o *CertificateDownloader) Get(ctx context.Context, serialNo string) (*x509.Certificate, bool) {
-	o.lock.RLock()
-	defer o.lock.RUnlock()
+func (d *CertificateDownloader) Get(ctx context.Context, serialNo string) (*x509.Certificate, bool) {
+	d.lock.RLock()
+	defer d.lock.RUnlock()
 
-	return o.certificates.Get(ctx, serialNo)
+	return d.certificates.Get(ctx, serialNo)
 }
 
 // GetAll 获取平台证书Map
-func (o *CertificateDownloader) GetAll(ctx context.Context) map[string]*x509.Certificate {
-	o.lock.RLock()
-	defer o.lock.RUnlock()
+func (d *CertificateDownloader) GetAll(ctx context.Context) map[string]*x509.Certificate {
+	d.lock.RLock()
+	defer d.lock.RUnlock()
 
-	return o.certificates.GetAll(ctx)
+	return d.certificates.GetAll(ctx)
 }
 
 // GetNewestSerial 获取最新的平台证书的证书序列号
-func (o *CertificateDownloader) GetNewestSerial(ctx context.Context) string {
-	o.lock.RLock()
-	defer o.lock.RUnlock()
+func (d *CertificateDownloader) GetNewestSerial(ctx context.Context) string {
+	d.lock.RLock()
+	defer d.lock.RUnlock()
 
-	return o.certificates.GetNewestSerial(ctx)
+	return d.certificates.GetNewestSerial(ctx)
 }
 
 // Export 获取证书序列号对应的平台证书内容
-func (o *CertificateDownloader) Export(_ context.Context, serialNo string) (string, bool) {
-	o.lock.RLock()
-	defer o.lock.RUnlock()
+func (d *CertificateDownloader) Export(_ context.Context, serialNo string) (string, bool) {
+	d.lock.RLock()
+	defer d.lock.RUnlock()
 
-	content, ok := o.certContents[serialNo]
+	content, ok := d.certContents[serialNo]
 	return content, ok
 }
 
 // ExportAll 获取平台证书内容Map
-func (o *CertificateDownloader) ExportAll(_ context.Context) map[string]string {
-	o.lock.RLock()
-	defer o.lock.RUnlock()
+func (d *CertificateDownloader) ExportAll(_ context.Context) map[string]string {
+	d.lock.RLock()
+	defer d.lock.RUnlock()
 
 	ret := make(map[string]string)
-	for serialNo, content := range o.certContents {
+	for serialNo, content := range d.certContents {
 		ret[serialNo] = content
 	}
 
 	return ret
 }
 
-func (o *CertificateDownloader) decryptCertificate(
+func (d *CertificateDownloader) decryptCertificate(
 	_ context.Context, encryptCertificate *encryptCertificate,
 ) (string, error) {
 	plaintext, err := utils.DecryptAES256GCM(
-		o.mchAPIv3Key, *encryptCertificate.AssociatedData,
+		d.mchAPIv3Key, *encryptCertificate.AssociatedData,
 		*encryptCertificate.Nonce, *encryptCertificate.Ciphertext,
 	)
 	if err != nil {
@@ -104,25 +104,25 @@ func (o *CertificateDownloader) decryptCertificate(
 	return plaintext, nil
 }
 
-func (o *CertificateDownloader) updateCertificates(
+func (d *CertificateDownloader) updateCertificates(
 	ctx context.Context, certContents map[string]string, certificates map[string]*x509.Certificate,
 ) {
-	o.lock.Lock()
-	defer o.lock.Unlock()
-	if isSameCertificateMap(o.certificates.GetAll(ctx), certificates) {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+	if isSameCertificateMap(d.certificates.GetAll(ctx), certificates) {
 		return
 	}
 
-	o.certContents = certContents
-	o.certificates.Reset(certificates)
-	o.client = core.NewClientWithValidator(
-		o.client,
-		validators.NewWechatPayResponseValidator(verifiers.NewSHA256WithRSAVerifier(o)),
+	d.certContents = certContents
+	d.certificates.Reset(certificates)
+	d.client = core.NewClientWithValidator(
+		d.client,
+		validators.NewWechatPayResponseValidator(verifiers.NewSHA256WithRSAVerifier(d)),
 	)
 }
 
-func (o *CertificateDownloader) performDownloading(ctx context.Context) (*downloadCertificatesResponse, error) {
-	result, err := o.client.Get(ctx, consts.WechatPayAPIServer+"/v3/certificates")
+func (d *CertificateDownloader) performDownloading(ctx context.Context) (*downloadCertificatesResponse, error) {
+	result, err := d.client.Get(ctx, consts.WechatPayAPIServer+"/v3/certificates")
 	if err != nil {
 		return nil, err
 	}
@@ -135,8 +135,8 @@ func (o *CertificateDownloader) performDownloading(ctx context.Context) (*downlo
 }
 
 // DownloadCertificates 立即下载平台证书列表
-func (o *CertificateDownloader) DownloadCertificates(ctx context.Context) error {
-	resp, err := o.performDownloading(ctx)
+func (d *CertificateDownloader) DownloadCertificates(ctx context.Context) error {
+	resp, err := d.performDownloading(ctx)
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func (o *CertificateDownloader) DownloadCertificates(ctx context.Context) error 
 	rawCertContentMap := make(map[string]string)
 	certificateMap := make(map[string]*x509.Certificate)
 	for _, rawCertificate := range resp.Data {
-		certContent, err := o.decryptCertificate(ctx, rawCertificate.EncryptCertificate)
+		certContent, err := d.decryptCertificate(ctx, rawCertificate.EncryptCertificate)
 		if err != nil {
 			return err
 		}
@@ -164,7 +164,7 @@ func (o *CertificateDownloader) DownloadCertificates(ctx context.Context) error 
 		return fmt.Errorf("no certificate downloaded")
 	}
 
-	o.updateCertificates(ctx, rawCertContentMap, certificateMap)
+	d.updateCertificates(ctx, rawCertContentMap, certificateMap)
 	return nil
 }
 

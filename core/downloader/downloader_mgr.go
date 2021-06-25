@@ -22,28 +22,28 @@ type pseudoCertificateDownloader struct {
 }
 
 // GetAll 获取平台证书Map
-func (o *pseudoCertificateDownloader) GetAll(ctx context.Context) map[string]*x509.Certificate {
-	return o.mgr.GetCertificateMap(ctx, o.mchID)
+func (d *pseudoCertificateDownloader) GetAll(ctx context.Context) map[string]*x509.Certificate {
+	return d.mgr.GetCertificateMap(ctx, d.mchID)
 }
 
 // Get 获取证书序列号对应的平台证书
-func (o *pseudoCertificateDownloader) Get(ctx context.Context, serialNo string) (*x509.Certificate, bool) {
-	return o.mgr.GetCertificate(ctx, o.mchID, serialNo)
+func (d *pseudoCertificateDownloader) Get(ctx context.Context, serialNo string) (*x509.Certificate, bool) {
+	return d.mgr.GetCertificate(ctx, d.mchID, serialNo)
 }
 
 // GetNewestSerial 获取最新的平台证书的证书序列号
-func (o *pseudoCertificateDownloader) GetNewestSerial(ctx context.Context) string {
-	return o.mgr.GetNewestCertificateSerial(ctx, o.mchID)
+func (d *pseudoCertificateDownloader) GetNewestSerial(ctx context.Context) string {
+	return d.mgr.GetNewestCertificateSerial(ctx, d.mchID)
 }
 
 // ExportAll 获取平台证书内容Map
-func (o *pseudoCertificateDownloader) ExportAll(ctx context.Context) map[string]string {
-	return o.mgr.ExportCertificateMap(ctx, o.mchID)
+func (d *pseudoCertificateDownloader) ExportAll(ctx context.Context) map[string]string {
+	return d.mgr.ExportCertificateMap(ctx, d.mchID)
 }
 
 // Export 获取证书序列号对应的平台证书内容
-func (o *pseudoCertificateDownloader) Export(ctx context.Context, serialNo string) (string, bool) {
-	return o.mgr.ExportCertificate(ctx, o.mchID, serialNo)
+func (d *pseudoCertificateDownloader) Export(ctx context.Context, serialNo string) (string, bool) {
+	return d.mgr.ExportCertificate(ctx, d.mchID, serialNo)
 }
 
 // CertificateDownloaderMgr 证书下载器管理器
@@ -60,20 +60,20 @@ type CertificateDownloaderMgr struct {
 // Stop 停止 CertificateDownloaderMgr 的自动下载 Goroutine
 // 当且仅当不再需要当前管理器自动下载后调用
 // 一旦调用成功，当前管理器无法再次启动
-func (o *CertificateDownloaderMgr) Stop() {
-	o.lock.Lock()
-	defer o.lock.Unlock()
+func (mgr *CertificateDownloaderMgr) Stop() {
+	mgr.lock.Lock()
+	defer mgr.lock.Unlock()
 
-	o.task.Stop()
+	mgr.task.Stop()
 }
 
 // GetCertificate 获取商户的某个平台证书
-func (o *CertificateDownloaderMgr) GetCertificate(ctx context.Context, mchID, serialNo string) (
+func (mgr *CertificateDownloaderMgr) GetCertificate(ctx context.Context, mchID, serialNo string) (
 	*x509.Certificate, bool,
 ) {
-	o.lock.RLock()
-	downloader, ok := o.downloaderMap[mchID]
-	o.lock.RUnlock()
+	mgr.lock.RLock()
+	downloader, ok := mgr.downloaderMap[mchID]
+	mgr.lock.RUnlock()
 
 	if !ok {
 		return nil, false
@@ -83,10 +83,10 @@ func (o *CertificateDownloaderMgr) GetCertificate(ctx context.Context, mchID, se
 }
 
 // GetCertificateMap 获取商户的平台证书Map
-func (o *CertificateDownloaderMgr) GetCertificateMap(ctx context.Context, mchID string) map[string]*x509.Certificate {
-	o.lock.RLock()
-	downloader, ok := o.downloaderMap[mchID]
-	o.lock.RUnlock()
+func (mgr *CertificateDownloaderMgr) GetCertificateMap(ctx context.Context, mchID string) map[string]*x509.Certificate {
+	mgr.lock.RLock()
+	downloader, ok := mgr.downloaderMap[mchID]
+	mgr.lock.RUnlock()
 
 	if !ok {
 		return nil
@@ -95,10 +95,10 @@ func (o *CertificateDownloaderMgr) GetCertificateMap(ctx context.Context, mchID 
 }
 
 // GetNewestCertificateSerial 获取商户的最新的平台证书序列号
-func (o *CertificateDownloaderMgr) GetNewestCertificateSerial(ctx context.Context, mchID string) string {
-	o.lock.RLock()
-	downloader, ok := o.downloaderMap[mchID]
-	o.lock.RUnlock()
+func (mgr *CertificateDownloaderMgr) GetNewestCertificateSerial(ctx context.Context, mchID string) string {
+	mgr.lock.RLock()
+	downloader, ok := mgr.downloaderMap[mchID]
+	mgr.lock.RUnlock()
 
 	if !ok {
 		return ""
@@ -107,10 +107,10 @@ func (o *CertificateDownloaderMgr) GetNewestCertificateSerial(ctx context.Contex
 }
 
 // ExportCertificate 获取商户的某个平台证书内容
-func (o *CertificateDownloaderMgr) ExportCertificate(ctx context.Context, mchID, serialNo string) (string, bool) {
-	o.lock.RLock()
-	downloader, ok := o.downloaderMap[mchID]
-	o.lock.RUnlock()
+func (mgr *CertificateDownloaderMgr) ExportCertificate(ctx context.Context, mchID, serialNo string) (string, bool) {
+	mgr.lock.RLock()
+	downloader, ok := mgr.downloaderMap[mchID]
+	mgr.lock.RUnlock()
 
 	if !ok {
 		return "", false
@@ -120,10 +120,10 @@ func (o *CertificateDownloaderMgr) ExportCertificate(ctx context.Context, mchID,
 }
 
 // ExportCertificateMap 导出商户的平台证书内容Map
-func (o *CertificateDownloaderMgr) ExportCertificateMap(ctx context.Context, mchID string) map[string]string {
-	o.lock.RLock()
-	downloader, ok := o.downloaderMap[mchID]
-	o.lock.RUnlock()
+func (mgr *CertificateDownloaderMgr) ExportCertificateMap(ctx context.Context, mchID string) map[string]string {
+	mgr.lock.RLock()
+	downloader, ok := mgr.downloaderMap[mchID]
+	mgr.lock.RUnlock()
 
 	if !ok {
 		return nil
@@ -132,25 +132,25 @@ func (o *CertificateDownloaderMgr) ExportCertificateMap(ctx context.Context, mch
 }
 
 // GetCertificateVisitor 获取某个商户的平台证书访问器
-func (o *CertificateDownloaderMgr) GetCertificateVisitor(mchID string) core.CertificateVisitor {
-	return &pseudoCertificateDownloader{mgr: o, mchID: mchID}
+func (mgr *CertificateDownloaderMgr) GetCertificateVisitor(mchID string) core.CertificateVisitor {
+	return &pseudoCertificateDownloader{mgr: mgr, mchID: mchID}
 }
 
-func (o *CertificateDownloaderMgr) getTickHandler() func(time.Time) {
+func (mgr *CertificateDownloaderMgr) getTickHandler() func(time.Time) {
 	return func(time.Time) {
-		o.DownloadCertificates(o.ctx)
+		mgr.DownloadCertificates(mgr.ctx)
 	}
 }
 
 // DownloadCertificates 让所有已注册下载器均进行一次下载
-func (o *CertificateDownloaderMgr) DownloadCertificates(ctx context.Context) {
+func (mgr *CertificateDownloaderMgr) DownloadCertificates(ctx context.Context) {
 	tmpDownloaderMap := make(map[string]*CertificateDownloader)
 
-	o.lock.RLock()
-	for key, downloader := range o.downloaderMap {
+	mgr.lock.RLock()
+	for key, downloader := range mgr.downloaderMap {
 		tmpDownloaderMap[key] = downloader
 	}
-	o.lock.RUnlock()
+	mgr.lock.RUnlock()
 
 	for _, downloader := range tmpDownloaderMap {
 		_ = downloader.DownloadCertificates(ctx)
@@ -158,7 +158,7 @@ func (o *CertificateDownloaderMgr) DownloadCertificates(ctx context.Context) {
 }
 
 // RegisterDownloaderWithPrivateKey 向 Mgr 注册商户的平台证书下载器
-func (o *CertificateDownloaderMgr) RegisterDownloaderWithPrivateKey(
+func (mgr *CertificateDownloaderMgr) RegisterDownloaderWithPrivateKey(
 	ctx context.Context, privateKey *rsa.PrivateKey,
 	certificateSerialNo string, mchID string, mchAPIv3Key string,
 ) error {
@@ -167,15 +167,15 @@ func (o *CertificateDownloaderMgr) RegisterDownloaderWithPrivateKey(
 		return err
 	}
 
-	o.lock.Lock()
-	defer o.lock.Unlock()
+	mgr.lock.Lock()
+	defer mgr.lock.Unlock()
 
-	o.downloaderMap[mchID] = downloader
+	mgr.downloaderMap[mchID] = downloader
 	return nil
 }
 
 // RegisterDownloaderWithClient 向 Mgr 注册商户的平台证书下载器
-func (o *CertificateDownloaderMgr) RegisterDownloaderWithClient(
+func (mgr *CertificateDownloaderMgr) RegisterDownloaderWithClient(
 	ctx context.Context, client *core.Client, mchID string, mchAPIv3Key string,
 ) error {
 	downloader, err := NewCertificateDownloaderWithClient(ctx, client, mchAPIv3Key)
@@ -183,34 +183,34 @@ func (o *CertificateDownloaderMgr) RegisterDownloaderWithClient(
 		return err
 	}
 
-	o.lock.Lock()
-	defer o.lock.Unlock()
+	mgr.lock.Lock()
+	defer mgr.lock.Unlock()
 
-	o.downloaderMap[mchID] = downloader
+	mgr.downloaderMap[mchID] = downloader
 	return nil
 }
 
 // RemoveDownloader 移除商户的平台证书下载器
 // 移除后从 GetCertificateVisitor 接口获得的对应商户的 CertificateVisitor 将会失效，
 // 请确认不再需要该商户的证书后再行移除，如果下载器存在，本接口将会返回该下载器。
-func (o *CertificateDownloaderMgr) RemoveDownloader(_ context.Context, mchID string) *CertificateDownloader {
-	o.lock.Lock()
-	defer o.lock.Unlock()
+func (mgr *CertificateDownloaderMgr) RemoveDownloader(_ context.Context, mchID string) *CertificateDownloader {
+	mgr.lock.Lock()
+	defer mgr.lock.Unlock()
 
-	downloader, ok := o.downloaderMap[mchID]
+	downloader, ok := mgr.downloaderMap[mchID]
 	if !ok {
 		return nil
 	}
 
-	delete(o.downloaderMap, mchID)
+	delete(mgr.downloaderMap, mchID)
 	return downloader
 }
 
-func (o *CertificateDownloaderMgr) HasDownloader(_ context.Context, mchID string) bool {
-	o.lock.RLock()
-	defer o.lock.RUnlock()
+func (mgr *CertificateDownloaderMgr) HasDownloader(_ context.Context, mchID string) bool {
+	mgr.lock.RLock()
+	defer mgr.lock.RUnlock()
 
-	_, ok := o.downloaderMap[mchID]
+	_, ok := mgr.downloaderMap[mchID]
 	return ok
 }
 
