@@ -40,6 +40,6 @@ jobs:
     - name: staticcheck
       run: |
         go get -u honnef.co/go/tools/cmd/staticcheck@latest &&
-        $HOME/go/bin/staticcheck -tests=false
+        $HOME/go/bin/staticcheck -tests=false ./...
         
 
