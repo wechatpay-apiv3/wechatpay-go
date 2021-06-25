@@ -1,0 +1,45 @@
+name: Go
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: "Build for go v${{ matrix.go }}"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go:
+        - "1.16"
+        - "1.15"
+        - "1.14"
+        - "1.13"
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go }}
+
+    - name: Build
+      run: go build -v ./...
+  
+  staticcheck:
+    name: "Static check"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.16"
+    - name: staticcheck
+      run: |
+        go get -u honnef.co/go/tools/cmd/staticcheck@latest &&
+        $HOME/go/bin/staticcheck -tests=false ./...
+        
+
