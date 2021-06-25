@@ -4,19 +4,21 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strconv"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 
 	"github.com/agiledragon/gomonkey"
 )
 
-func TestWechatPayValidator_Validate(t *testing.T) {
+func TestWechatPayResponseValidator_Validate(t *testing.T) {
 	patches := gomonkey.NewPatches()
 	defer patches.Reset()
 	validateParametersOutputs := []gomonkey.OutputCell{
@@ -32,7 +34,7 @@ func TestWechatPayValidator_Validate(t *testing.T) {
 		{Values: gomonkey.Params{fmt.Errorf("verift err")}, Times: 1},
 	}
 
-	validator := &WechatPayValidator{Verifier: &verifiers.SHA256WithRSAVerifier{}}
+	validator := NewWechatPayResponseValidator(&verifiers.SHA256WithRSAVerifier{})
 	validHeader := map[string][]string{
 		consts.WechatPaySignature: {base64.StdEncoding.EncodeToString([]byte("1"))},
 		consts.WechatPaySerial:    {"1"},
@@ -43,9 +45,9 @@ func TestWechatPayValidator_Validate(t *testing.T) {
 		consts.WechatPaySerial:    {"1"},
 		consts.RequestID:          {"1"},
 	}
-	patches.ApplyFuncSeq(validateParameters, validateParametersOutputs)
+	patches.ApplyFuncSeq(checkParameters, validateParametersOutputs)
 	patches.ApplyFuncSeq(buildMessage, buildMessageOutputs)
-	patches.ApplyMethodSeq(reflect.TypeOf(validator.Verifier), "Verify", verifyOutputs)
+	patches.ApplyMethodSeq(reflect.TypeOf(validator.verifier), "Verify", verifyOutputs)
 	type args struct {
 		ctx      context.Context
 		response *http.Response
@@ -104,7 +106,7 @@ func TestWechatPayValidator_Validate(t *testing.T) {
 	}
 }
 
-func Test_validateParameters(t *testing.T) {
+func Test_checkParameters(t *testing.T) {
 	type args struct {
 		response *http.Response
 	}
@@ -190,9 +192,19 @@ func Test_validateParameters(t *testing.T) {
 			wantErr: true,
 		},
 	}
+	ctx := context.Background()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := validateParameters(tt.args.response); (err != nil) != tt.wantErr {
+			var (
+				body []byte
+				err  error
+			)
+			if tt.args.response.Body != nil {
+				body, err = ioutil.ReadAll(tt.args.response.Body)
+				require.NoError(t, err)
+			}
+
+			if err := checkParameters(ctx, tt.args.response.Header, body); (err != nil) != tt.wantErr {
 				t.Errorf("validateParameters() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
