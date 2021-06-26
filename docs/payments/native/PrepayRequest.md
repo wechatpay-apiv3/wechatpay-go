@@ -8,7 +8,7 @@
 **Mchid** | **string** | 直连商户号  | 
 **Description** | **string** | 商品描述  | 
 **OutTradeNo** | **string** | 商户订单号  | 
-**TimeExpire** | **time.Time** | 订单生成时间，格式为rfc3339格式 | [可选] 
+**TimeExpire** | **time.Time** | 订单失效时间，格式为rfc3339格式 | [可选] 
 **Attach** | **string** | 附加数据  | [可选] 
 **NotifyUrl** | **string** | 有效性：1. HTTPS；2. 不允许携带查询串。  | 
 **GoodsTag** | **string** | 商品标记，代金券或立减优惠功能的参数。  | [可选] 
