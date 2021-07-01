@@ -58,7 +58,7 @@ func init() {
 	}
 }
 
-func TestSha256WithRsa1(t *testing.T) {
+func TestSha256WithRsa(t *testing.T) {
 	type args struct {
 		source     string
 		privateKey *rsa.PrivateKey
@@ -84,8 +84,8 @@ func TestSha256WithRsa1(t *testing.T) {
 				source:     "source",
 				privateKey: nil,
 			},
-			wantSignature: "",
 			wantErr:       true,
+			wantSignature: "",
 		},
 	}
 	for _, tt := range tests {
