@@ -131,8 +131,8 @@ func assertAuthorization(t *testing.T, schema, method, uri string, params signPa
 		body)
 	hashed := sha256.Sum256([]byte(message))
 	signBytes, err := base64.StdEncoding.DecodeString(params["signature"])
-	assert.Nil(t, err)
-	assert.Nil(t, rsa.VerifyPKCS1v15(&privateKey.PublicKey, crypto.SHA256, hashed[:], signBytes))
+	assert.NoError(t, err)
+	assert.NoError(t, rsa.VerifyPKCS1v15(&privateKey.PublicKey, crypto.SHA256, hashed[:], signBytes))
 }
 
 func TestGet(t *testing.T) {
@@ -141,7 +141,7 @@ func TestGet(t *testing.T) {
 		option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 	}
 	client, err := core.NewClient(ctx, opts...)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		schema, params := parseAuthorization(t, r.Header.Get("Authorization"))
@@ -153,9 +153,9 @@ func TestGet(t *testing.T) {
 	defer ts.Close()
 
 	result, err := client.Get(ctx, ts.URL + "/v3/test-resources?p=q&hello=world")
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	body, err := ioutil.ReadAll(result.Response.Body)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, string(body), responseBody)
 }
 
@@ -172,7 +172,7 @@ func TestPost(t *testing.T) {
 		option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 	}
 	client, err := core.NewClient(ctx, opts...)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	data := &testData{
 		StockID:           "xxx",
 		StockCreatorMchID: "xxx",
@@ -190,9 +190,9 @@ func TestPost(t *testing.T) {
 	defer ts.Close()
 
 	result, err := client.Post(ctx, ts.URL + "/v3/test-resources?p=q&hello=world", data)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	body, err := ioutil.ReadAll(result.Response.Body)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, string(body), responseBody)
 }
 
@@ -248,14 +248,14 @@ func TestClient_Upload(t *testing.T) {
 	)
 
 	client, err := core.NewClient(ctx, option.WithSigner(signer), option.WithVerifier(verifier))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	pictureBytes := make([]byte, 1024)
 	// 随机的数据充当图片数据
 	rand.Read(pictureBytes)
 	// 计算文件序列化后的sha256
 	h := sha256.New()
 	_, err = h.Write(pictureBytes)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	metaObject := &meta{}
 	pictureSha256 := h.Sum(nil)
 	metaObject.FileName = fileName
@@ -264,15 +264,15 @@ func TestClient_Upload(t *testing.T) {
 	reqBody := &bytes.Buffer{}
 	writer := multipart.NewWriter(reqBody)
 	err = core.CreateFormField(writer, "meta", "application/json", metaByte)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	err = core.CreateFormFile(writer, fileName, "image/jpg", pictureBytes)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	err = writer.Close()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mr, err := r.MultipartReader()
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 		var body []byte
 		for {
@@ -280,6 +280,7 @@ func TestClient_Upload(t *testing.T) {
 			if err == io.EOF {
 				break
 			}
+			assert.NoError(t, err)
 			if p.FormName() == "meta" {
 				body, _ = io.ReadAll(p)
 			} else if p.FormName() == "file" {
@@ -302,11 +303,12 @@ func TestClient_Upload(t *testing.T) {
 		string(metaByte),
 		reqBody.String(),
 		writer.FormDataContentType())
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	if result.Response.Body != nil {
 		defer result.Response.Body.Close()
 	}
 	body, err := ioutil.ReadAll(result.Response.Body)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	t.Log(string(body))
+	assert.Equal(t, string(body), responseBody)
 }
