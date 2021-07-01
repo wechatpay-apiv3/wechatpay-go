@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/decryptors"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/encryptors"
@@ -71,7 +72,7 @@ func TestWechatPayCipher_Encrypt_Decrypt(t *testing.T) {
 
 	serial, err := c.Encrypt(context.Background(), &s)
 	assert.Equal(t, "Mock Serial", serial)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Encrypted小可", s.Name)
 	assert.Equal(t, 8, s.Age)
 	assert.Equal(t, "中国", *(s.Addresses[0].Country))
@@ -88,7 +89,7 @@ func TestWechatPayCipher_Encrypt_Decrypt(t *testing.T) {
 	assert.Equal(t, (*string)(nil), (*s.Parents)[1].PhoneNumber)
 
 	err = c.Decrypt(context.Background(), &s)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "小可", s.Name)
 	assert.Equal(t, 8, s.Age)
 	assert.Equal(t, "中国", *(s.Addresses[0].Country))
@@ -120,6 +121,6 @@ func TestWechatPayCipher_CipherValue(t *testing.T) {
 
 	serial, err := c.Encrypt(context.Background(), s)
 	assert.Equal(t, "Mock Serial", serial)
-	assert.NotNil(t, err)
+	require.Error(t, err)
 	assert.Equal(t, "in-place cipher requires settable input, ptr for example", err.Error())
 }
