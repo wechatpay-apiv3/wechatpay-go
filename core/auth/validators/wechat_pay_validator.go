@@ -26,15 +26,11 @@ func (v *wechatPayValidator) validateHTTPMessage(ctx context.Context, header htt
 		return err
 	}
 
-	message, err := buildMessage(ctx, header, body)
-	if err != nil {
-		return err
-	}
+	message := buildMessage(ctx, header, body)
 
 	serialNumber := header.Get(consts.WechatPaySerial)
 	signature := header.Get(consts.WechatPaySignature)
-	err = v.verifier.Verify(ctx, serialNumber, message, signature)
-	if err != nil {
+	if err := v.verifier.Verify(ctx, serialNumber, message, signature); err != nil {
 		return fmt.Errorf(
 			"validate verify fail serial=%s request-id=%s err=%s",
 			serialNumber, header.Get(consts.RequestID), err,
@@ -81,10 +77,9 @@ func checkParameters(ctx context.Context, header http.Header, body []byte) error
 	return nil
 }
 
-func buildMessage(ctx context.Context, header http.Header, body []byte) (string, error) {
+func buildMessage(ctx context.Context, header http.Header, body []byte) string {
 	timeStamp := header.Get(consts.WechatPayTimestamp)
 	nonce := header.Get(consts.WechatPayNonce)
 
-	message := fmt.Sprintf("%s\n%s\n%s\n", timeStamp, nonce, string(body))
-	return message, nil
+	return fmt.Sprintf("%s\n%s\n%s\n", timeStamp, nonce, string(body))
 }
