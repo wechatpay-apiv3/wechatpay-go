@@ -22,6 +22,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
@@ -206,7 +207,9 @@ func (client *Client) doRequest(
 	// Set Fixed Headers
 	request.Header.Set(consts.Accept, "*/*")
 	request.Header.Set(consts.ContentType, contentType)
-	request.Header.Set(consts.UserAgent, consts.UserAgentContent)
+
+	ua := fmt.Sprintf(consts.UserAgentFormat, consts.Version, runtime.GOOS, runtime.Version())
+	request.Header.Set(consts.UserAgent, ua)
 
 	// Set Authentication
 	if authorization, err = client.credential.GenerateAuthorizationHeader(ctx, method, request.URL.RequestURI(),

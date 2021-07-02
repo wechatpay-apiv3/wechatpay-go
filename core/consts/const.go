@@ -12,7 +12,7 @@ const (
 // SDK 相关信息
 const (
 	Version          = "0.2.1"                              // SDK 版本
-	UserAgentContent = "WechatPay-API-v3-Go-SDK/" + Version // UserAgent中的信息
+	UserAgentFormat  = "WechatPay-Go/%s (%s) GO/%s" // UserAgent中的信息
 )
 
 // HTTP 请求报文 Header 相关常量
