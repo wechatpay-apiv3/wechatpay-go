@@ -142,14 +142,14 @@ func TestGet(t *testing.T) {
 		option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 	}
 	client, err := core.NewClient(ctx, opts...)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
 		assert.Equal(t, r.RequestURI, testRequestUri)
 
 		schema, params := parseAuthorization(t, r.Header.Get("Authorization"))
-		assertAuthorization(t, schema, "GET", testRequestUri, params, make([]byte, 0))
+		assertAuthorization(t, schema, r.Method, r.RequestURI, params, make([]byte, 0))
 
 		writeResponse(w)
 	}))
@@ -175,7 +175,7 @@ func TestPost(t *testing.T) {
 		option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
 	}
 	client, err := core.NewClient(ctx, opts...)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	data := &testData{
 		StockID:           "xxx",
 		StockCreatorMchID: "xxx",
@@ -184,7 +184,8 @@ func TestPost(t *testing.T) {
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, r.Method, "POST")
+		assert.Equal(t, r.Method, "POST")
+		assert.Equal(t, r.RequestURI, testRequestUri)
 
 		schema, params := parseAuthorization(t, r.Header.Get("Authorization"))
 		body, _ := ioutil.ReadAll(r.Body)
@@ -194,7 +195,7 @@ func TestPost(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	result, err := client.Post(ctx, ts.URL + "/v3/test-resources?p=q&hello=world", data)
+	result, err := client.Post(ctx, ts.URL + testRequestUri, data)
 	assert.NoError(t, err)
 	body, err := ioutil.ReadAll(result.Response.Body)
 	assert.NoError(t, err)
@@ -217,6 +218,9 @@ func TestRequest(t *testing.T) {
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, r.Method, "POST")
+		assert.Equal(t, r.RequestURI, testRequestUri)
+
 		schema, params := parseAuthorization(t, r.Header.Get("Authorization"))
 		body, _ := ioutil.ReadAll(r.Body)
 		assertAuthorization(t, schema, r.Method, r.RequestURI, params, body)
@@ -225,9 +229,19 @@ func TestRequest(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	var query  url.Values
+	testUrl, err := url.Parse(ts.URL + testRequestUri)
+	assert.NoError(t, err)
+
 	var header http.Header
-	result, err := client.Request(ctx, http.MethodPost, ts.URL, header, query, data, "application/json")
+	result, err := client.Request(
+		ctx,
+		http.MethodPost,
+		ts.URL + testUrl.Path,
+		header,
+		testUrl.Query(),
+		data,
+		"application/json",
+	)
 	assert.NoError(t, err)
 	body, err := ioutil.ReadAll(result.Response.Body)
 	assert.Equal(t, string(body), responseBody)
@@ -253,7 +267,7 @@ func TestClient_Upload(t *testing.T) {
 	)
 
 	client, err := core.NewClient(ctx, option.WithSigner(signer), option.WithVerifier(verifier))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	pictureBytes := make([]byte, 1024)
 	// 随机的数据充当图片数据
 	rand.Read(pictureBytes)
@@ -276,6 +290,9 @@ func TestClient_Upload(t *testing.T) {
 	assert.NoError(t, err)
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, r.Method, "POST")
+		assert.Equal(t, r.RequestURI, testRequestUri)
+
 		mr, err := r.MultipartReader()
 		assert.NoError(t, err)
 
@@ -288,10 +305,10 @@ func TestClient_Upload(t *testing.T) {
 			assert.NoError(t, err)
 			if p.FormName() == "meta" {
 				body, _ = io.ReadAll(p)
+				assert.Equal(t, metaByte, body)
 			} else if p.FormName() == "file" {
-				/* pkg/mime/multipart do not need test */
-				//slurp, _ := io.ReadAll(p)
-				//require.Equal(t, pictureBytes, slurp)
+				slurp, _ := io.ReadAll(p)
+				assert.Equal(t, pictureBytes, slurp)
 			}
 		}
 
@@ -304,7 +321,7 @@ func TestClient_Upload(t *testing.T) {
 
 	result, err := client.Upload(
 		ctx,
-		ts.URL + "/v3/test-upload?p=q&hello=world",
+		ts.URL + testRequestUri,
 		string(metaByte),
 		reqBody.String(),
 		writer.FormDataContentType())
