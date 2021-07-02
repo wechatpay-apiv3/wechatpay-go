@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -99,27 +100,27 @@ func initWechatPayEncryptor() (*WechatPayEncryptor, error) {
 
 func TestWechatPayEncryptor_SelectCertificate(t *testing.T) {
 	e, err := initWechatPayEncryptor()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	serial, err := e.SelectCertificate(context.Background())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "D7CE59D1F522D701", serial)
 }
 
 func TestWechatPayEncryptor_Encrypt(t *testing.T) {
 	e, err := initWechatPayEncryptor()
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	const serial = "F5765756002FDD77"
 	const plaintext = "hello world"
 
 	ciphertext, err := e.Encrypt(context.Background(), serial, plaintext)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	privateKey, err := utils.LoadPrivateKey(privateKeyStr)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	newPlainText, err := utils.DecryptOAEP(ciphertext, privateKey)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, newPlainText, plaintext)
 }

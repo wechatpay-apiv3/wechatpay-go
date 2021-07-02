@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
@@ -43,10 +44,10 @@ BDa+8mDLkWu5nHEhOxy2JJZl
 	)
 
 	privateKey, err := utils.LoadPrivateKey(testPrivateKey)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	decryptor := NewWechatPayDecryptor(privateKey)
 
 	plaintext, err := decryptor.Decrypt(context.Background(), testCipherText)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, plaintext, testPlainText)
 }
