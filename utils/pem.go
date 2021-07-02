@@ -16,6 +16,9 @@ func LoadCertificate(certificateStr string) (certificate *x509.Certificate, err 
 	if block == nil {
 		return nil, fmt.Errorf("decode certificate err")
 	}
+	if block.Type != "CERTIFICATE" {
+		return nil, fmt.Errorf("the kind of PEM should be CERTIFICATE")
+	}
 	certificate, err = x509.ParseCertificate(block.Bytes)
 	if err != nil {
 		return nil, fmt.Errorf("parse certificate err:%s", err.Error())
@@ -28,6 +31,9 @@ func LoadPrivateKey(privateKeyStr string) (privateKey *rsa.PrivateKey, err error
 	block, _ := pem.Decode([]byte(privateKeyStr))
 	if block == nil {
 		return nil, fmt.Errorf("decode private key err")
+	}
+	if block.Type != "PRIVATE KEY" {
+		return nil, fmt.Errorf("the kind of PEM should be PRVATE KEY")
 	}
 	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
@@ -45,6 +51,9 @@ func LoadPublicKey(publicKeyStr string) (publicKey *rsa.PublicKey, err error) {
 	block, _ := pem.Decode([]byte(publicKeyStr))
 	if block == nil {
 		return nil, errors.New("decode public key error")
+	}
+	if block.Type != "PUBLIC KEY" {
+		return nil, fmt.Errorf("the kind of PEM should be PUBLIC KEY")
 	}
 	key, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
