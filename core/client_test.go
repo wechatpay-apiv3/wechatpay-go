@@ -42,7 +42,8 @@ const (
 
 	fileName  = "picture.jpeg"
 
-	responseBody        = `{"hello":"client"}`
+	responseBody   = `{"hello":"client"}`
+	testRequestUri = "/v3/resource?first=this+is+a+field&second=was+it+clear+%28already%29%3F"
 )
 
 var (
@@ -144,15 +145,17 @@ func TestGet(t *testing.T) {
 	assert.NoError(t, err)
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, r.Method, "GET")
+		assert.Equal(t, r.RequestURI, testRequestUri)
+
 		schema, params := parseAuthorization(t, r.Header.Get("Authorization"))
-		var body []byte
-		assertAuthorization(t, schema, r.Method, r.RequestURI, params, body)
+		assertAuthorization(t, schema, "GET", testRequestUri, params, make([]byte, 0))
 
 		writeResponse(w)
 	}))
 	defer ts.Close()
 
-	result, err := client.Get(ctx, ts.URL + "/v3/test-resources?p=q&hello=world")
+	result, err := client.Get(ctx, ts.URL + testRequestUri)
 	assert.NoError(t, err)
 	body, err := ioutil.ReadAll(result.Response.Body)
 	assert.NoError(t, err)
@@ -181,6 +184,8 @@ func TestPost(t *testing.T) {
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, r.Method, "POST")
+
 		schema, params := parseAuthorization(t, r.Header.Get("Authorization"))
 		body, _ := ioutil.ReadAll(r.Body)
 		assertAuthorization(t, schema, r.Method, r.RequestURI, params, body)
