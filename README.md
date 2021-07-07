@@ -238,6 +238,26 @@ result, err = client.Get(ctx, "https://api.mch.weixin.qq.com/v3/certificates")
 ```
 使用 `core.Client` 发送 HTTP 请求后会得到一个 `core.APIResult` 实例，其中包含了当次请求的请求报文 `*http.Request` 以及应答报文 `*http.Response`。
 
+### 错误处理
+
+以下情况，SDK 发送请求会返回 `error`：
+
+- HTTP 网络错误，如应答接收超时或网络连接失败
+- 客户端失败，如生成签名失败
+- 服务器端返回了**非** `2xx` HTTP 状态码
+- 应答签名验证失败
+
+为了方便使用，我们将服务器返回的 `4xx` 和 `5xx` 错误，转换成了`APIError`。开发者可以参考以下的代码进行错误处理。
+
+```go
+result, err := client.Get(ctx, "https://api.mch.weixin.qq.com/v3/certificates")
+if err != nil {
+	if core.IsAPIError(err, "INVALID_REQUEST") { 
+		// 处理无效请求 
+	}
+	// 处理的其他错误
+}
+```
 
 ## 目录介绍
 ```
