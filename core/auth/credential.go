@@ -5,5 +5,5 @@ import "context"
 
 // Credential 请求报文头 Authorization 信息生成器
 type Credential interface {
-	GenerateAuthorizationHeader(ctx context.Context, method, canonicalURL, signBody string) (authorization string, err error)
+	GenerateAuthorizationHeader(ctx context.Context, method, canonicalURL, signBody string) (string, error)
 }
