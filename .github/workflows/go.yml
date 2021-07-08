@@ -41,5 +41,21 @@ jobs:
       run: |
         go get -u honnef.co/go/tools/cmd/staticcheck@latest &&
         $HOME/go/bin/staticcheck -tests=false ./...
-        
 
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go:
+          - "1.16"
+          - "1.15"
+          - "1.14"
+          - "1.13"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Test
+        run: go test -gcflags=all=-l ./core/... ./utils/...
