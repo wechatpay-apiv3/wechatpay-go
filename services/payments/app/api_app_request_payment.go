@@ -26,6 +26,7 @@ type PrepayWithRequestPaymentResponse struct {
 	Sign *string `json:"sign"`
 }
 
+// PrepayWithRequestPayment APP支付下单，并返回调起支付的请求参数
 func (a *AppApiService) PrepayWithRequestPayment(
 	ctx context.Context,
 	req PrepayRequest,

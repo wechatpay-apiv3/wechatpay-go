@@ -54,7 +54,7 @@ type ClientOption interface {
 type ErrorOption struct{ Error error }
 
 // Apply 返回初始化错误
-func (w ErrorOption) Apply(o *DialSettings) error {
+func (w ErrorOption) Apply(*DialSettings) error {
 	return w.Error
 }
 
@@ -80,6 +80,7 @@ func NewClient(ctx context.Context, opts ...ClientOption) (*Client, error) {
 	return client, nil
 }
 
+// NewClientWithDialSettings 使用 DialSettings 初始化一个微信支付API v3 HTTPClient
 func NewClientWithDialSettings(ctx context.Context, settings *DialSettings) (*Client, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, err
@@ -161,11 +162,15 @@ func (client *Client) Delete(ctx context.Context, requestURL string, requestBody
 
 // Upload 向微信支付发送上传文件
 // 推荐使用 services/fileuploader 中各上传接口的实现
-func (client *Client) Upload(ctx context.Context, requestURL, meta, reqBody, formContentType string) (*APIResult, error) {
+func (client *Client) Upload(ctx context.Context, requestURL, meta, reqBody, formContentType string) (
+	*APIResult, error,
+) {
 	return client.doRequest(ctx, http.MethodPost, requestURL, nil, formContentType, strings.NewReader(reqBody), meta)
 }
 
-func (client *Client) requestWithJSONBody(ctx context.Context, method, requestURL string, body interface{}) (*APIResult, error) {
+func (client *Client) requestWithJSONBody(ctx context.Context, method, requestURL string, body interface{}) (
+	*APIResult, error,
+) {
 	reqBody, err := setBody(body, consts.ApplicationJSON)
 	if err != nil {
 		return nil, err
@@ -181,7 +186,8 @@ func (client *Client) doRequest(
 	header http.Header,
 	contentType string,
 	reqBody io.Reader,
-	signBody string) (*APIResult, error) {
+	signBody string,
+) (*APIResult, error) {
 
 	var (
 		err           error
@@ -212,8 +218,10 @@ func (client *Client) doRequest(
 	request.Header.Set(consts.UserAgent, ua)
 
 	// Set Authentication
-	if authorization, err = client.credential.GenerateAuthorizationHeader(ctx, method, request.URL.RequestURI(),
-		signBody); err != nil {
+	if authorization, err = client.credential.GenerateAuthorizationHeader(
+		ctx, method, request.URL.RequestURI(),
+		signBody,
+	); err != nil {
 		return nil, fmt.Errorf("generate authorization err:%s", err.Error())
 	}
 	request.Header.Set(consts.Authorization, authorization)
@@ -244,7 +252,8 @@ func (client *Client) Request(
 	headerParams http.Header,
 	queryParams url.Values,
 	postBody interface{},
-	contentType string) (result *APIResult, err error) {
+	contentType string,
+) (result *APIResult, err error) {
 
 	// Setup path and query parameters
 	varURL, err := url.Parse(requestPath)
@@ -288,6 +297,10 @@ func (client *Client) doHTTP(req *http.Request) (result *APIResult, err error) {
 	return result, err
 }
 
+// EncryptRequest 使用 cipher 对请求结构进行原地加密，并返回加密所用的平台证书的序列号。
+// 未设置 cipher 时将跳过加密，并返回空序列号。
+//
+// 本方法会对结构中的敏感字段进行原地加密，因此需要传入结构体的指针。
 func (client *Client) EncryptRequest(ctx context.Context, req interface{}) (string, error) {
 	if client.cipher == nil {
 		return "", nil
@@ -295,13 +308,17 @@ func (client *Client) EncryptRequest(ctx context.Context, req interface{}) (stri
 	return client.cipher.Encrypt(ctx, req)
 }
 
-func (client *Client) DecryptRequest(ctx context.Context, resp interface{}) error {
+// DecryptResponse 使用 cipher 对应答结构进行原地解密，未设置 cipher 时将跳过解密
+//
+// 本方法会对结构中的敏感字段进行原地解密，因此需要传入结构体的指针。
+func (client *Client) DecryptResponse(ctx context.Context, resp interface{}) error {
 	if client.cipher == nil {
 		return nil
 	}
 	return client.cipher.Decrypt(ctx, resp)
 }
 
+// Sign 使用 signer 对字符串进行签名
 func (client *Client) Sign(ctx context.Context, message string) (result *auth.SignatureResult, err error) {
 	return client.signer.Sign(ctx, message)
 }

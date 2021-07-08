@@ -5,10 +5,13 @@ import (
 )
 
 const (
-	NonceSymbols           = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" // 随机字符串可用字符集
-	NonceLength            = 32                                                               // 随机字符串的长度
+	// NonceSymbols 随机字符串可用字符集
+	NonceSymbols = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	// NonceLength 随机字符串的长度
+	NonceLength = 32
 )
 
+// GenerateNonce 生成一个长度为 NonceLength 的随机字符串（只包含大小写字母与数字）
 func GenerateNonce() (string, error) {
 	bytes := make([]byte, NonceLength)
 	_, err := rand.Read(bytes)
