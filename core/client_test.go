@@ -108,7 +108,7 @@ func parseAuthorization(t *testing.T, authorization string) (schema string, para
 	assert.Equal(t, len(s2), 5)
 
 	for _, v := range s2 {
-		s3 := strings.SplitN(v, "=",2)
+		s3 := strings.SplitN(v, "=", 2)
 		assert.Equal(t, len(s3), 2)
 		pk := s3[0]
 		pv := strings.Trim(s3[1], "\"")
@@ -216,7 +216,7 @@ func TestRequest(t *testing.T) {
 		AppID:             "xxx",
 	}
 
-	tt := []struct{
+	tt := []struct {
 		method      string
 		uri         string
 		contentType string
@@ -228,14 +228,14 @@ func TestRequest(t *testing.T) {
 			"/v3/get",
 			"",
 			nil,
-			http.Header{"My-Id":{"1234"}},
+			http.Header{"My-Id": {"1234"}},
 		},
 		{
 			http.MethodPost,
 			testRequestUri,
 			"application/json",
 			data,
-			http.Header{"My-Id":{"1234"}},
+			http.Header{"My-Id": {"1234"}},
 		},
 		{
 			http.MethodDelete,
@@ -249,7 +249,7 @@ func TestRequest(t *testing.T) {
 			"/v3/put",
 			"",
 			data,
-			http.Header{"My-Id":{"1234"}},
+			http.Header{"My-Id": {"1234"}},
 		},
 		{
 			http.MethodPatch,
@@ -290,7 +290,7 @@ func TestRequest(t *testing.T) {
 		result, err := client.Request(
 			ctx,
 			test.method,
-			ts.URL + testUrl.Path,
+			ts.URL+testUrl.Path,
 			test.header,
 			testUrl.Query(),
 			test.body,
@@ -298,6 +298,7 @@ func TestRequest(t *testing.T) {
 		)
 		assert.NoError(t, err)
 		body, err := ioutil.ReadAll(result.Response.Body)
+		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, result.Response.StatusCode)
 		assert.Equal(t, responseBody, string(body))
 		ts.Close()
@@ -327,7 +328,7 @@ func TestClientVerifyFail(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err = client.Get(ctx, ts.URL + testRequestUri)
+	_, err = client.Get(ctx, ts.URL+testRequestUri)
 	assert.Contains(t, err.Error(), "verify fail")
 }
 
@@ -346,7 +347,7 @@ func TestClientNoAuth(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err = client.Get(ctx, ts.URL + testRequestUri)
+	_, err = client.Get(ctx, ts.URL+testRequestUri)
 	apiError, ok := err.(*core.APIError)
 	assert.True(t, ok)
 	assert.Equal(t, 401, apiError.StatusCode)
