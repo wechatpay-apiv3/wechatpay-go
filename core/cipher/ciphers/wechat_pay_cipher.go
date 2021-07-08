@@ -163,6 +163,7 @@ func (c *WechatPayCipher) isFieldRequireCipher(f reflect.StructField, t reflect.
 	return false
 }
 
+// NewWechatPayCipher 使用 cipher.Encryptor + cipher.Decryptor 构建一个 WechatPayCipher
 func NewWechatPayCipher(encryptor cipher.Encryptor, decryptor cipher.Decryptor) *WechatPayCipher {
 	return &WechatPayCipher{encryptor: encryptor, decryptor: decryptor}
 }

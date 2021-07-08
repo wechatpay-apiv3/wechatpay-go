@@ -27,6 +27,7 @@ func (v *WechatPayResponseValidator) Validate(ctx context.Context, response *htt
 	return v.validateHTTPMessage(ctx, response.Header, body)
 }
 
+// NewWechatPayResponseValidator 使用 auth.Verifier 初始化一个 WechatPayResponseValidator
 func NewWechatPayResponseValidator(verifier auth.Verifier) *WechatPayResponseValidator {
 	return &WechatPayResponseValidator{
 		wechatPayValidator{verifier: verifier},

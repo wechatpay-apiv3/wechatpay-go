@@ -11,8 +11,8 @@ const (
 
 // SDK 相关信息
 const (
-	Version          = "0.2.1"                              // SDK 版本
-	UserAgentFormat  = "WechatPay-Go/%s (%s) GO/%s" // UserAgent中的信息
+	Version         = "0.2.1"                      // SDK 版本
+	UserAgentFormat = "WechatPay-Go/%s (%s) GO/%s" // UserAgent中的信息
 )
 
 // HTTP 请求报文 Header 相关常量
@@ -48,6 +48,7 @@ const (
 	RequestID          = "Request-Id"          // 微信支付回包请求ID
 )
 
+// 时间相关常量
 const (
 	FiveMinute     = 5 * 60           // 回包校验最长时间（秒）
 	DefaultTimeout = 30 * time.Second // HTTP 请求默认超时时间

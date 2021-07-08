@@ -206,6 +206,7 @@ func (mgr *CertificateDownloaderMgr) RemoveDownloader(_ context.Context, mchID s
 	return downloader
 }
 
+// HasDownloader 检查是否已经注册过 mchID 这个商户的下载器
 func (mgr *CertificateDownloaderMgr) HasDownloader(_ context.Context, mchID string) bool {
 	mgr.lock.RLock()
 	defer mgr.lock.RUnlock()
