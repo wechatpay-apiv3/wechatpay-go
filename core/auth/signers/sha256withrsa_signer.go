@@ -30,9 +30,10 @@ func (s *SHA256WithRSASigner) Sign(_ context.Context, message string) (*auth.Sig
 	if err != nil {
 		return nil, err
 	}
-	return &auth.SignatureResult{ MchID: s.MchID, CertificateSerialNo: s.CertificateSerialNo, Signature: signature}, nil
+	return &auth.SignatureResult{MchID: s.MchID, CertificateSerialNo: s.CertificateSerialNo, Signature: signature}, nil
 }
 
+// Algorithm 返回使用的签名算法：SHA256-RSA2048
 func (s *SHA256WithRSASigner) Algorithm() string {
 	return "SHA256-RSA2048"
 }
