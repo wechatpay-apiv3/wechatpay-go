@@ -412,10 +412,10 @@ func TestClient_Upload(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			if p.FormName() == "meta" {
-				body, _ = io.ReadAll(p)
+				body, _ = ioutil.ReadAll(p)
 				assert.Equal(t, metaByte, body)
 			} else if p.FormName() == "file" {
-				slurp, _ := io.ReadAll(p)
+				slurp, _ := ioutil.ReadAll(p)
 				assert.Equal(t, pictureBytes, slurp)
 			}
 		}
