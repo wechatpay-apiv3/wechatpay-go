@@ -13,5 +13,5 @@ type SignatureResult struct {
 // Signer 数字签名生成器
 type Signer interface {
 	Sign(ctx context.Context, message string) (*SignatureResult, error) // 对信息进行签名
-	Algorithm() string // 返回使用的签名算法
+	Algorithm() string                                                  // 返回使用的签名算法
 }
