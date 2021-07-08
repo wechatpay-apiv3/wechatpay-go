@@ -108,20 +108,11 @@ func parseAuthorization(t *testing.T, authorization string) (schema string, para
 	assert.Equal(t, len(s2), 5)
 
 	for _, v := range s2 {
-		s3 := strings.Split(v, "=")
-		assert.GreaterOrEqual(t, len(s3), 2)
+		s3 := strings.SplitN(v, "=", 2)
+		assert.Equal(t, len(s3), 2)
 		pk := s3[0]
-		// base64-ed signature may has '='
-		if pk != "signature" {
-			assert.Equal(t, len(s3), 2)
-			pv := strings.Trim(s3[1], "\"")
-			m[pk] = pv
-		} else {
-			// signature="base64"
-			assert.Greater(t, len(v), 12)
-			pv := v[11 : len(v)-1]
-			m[pk] = pv
-		}
+		pv := strings.Trim(s3[1], "\"")
+		m[pk] = pv
 	}
 
 	return s1[0], m
@@ -225,34 +216,143 @@ func TestRequest(t *testing.T) {
 		AppID:             "xxx",
 	}
 
+	tt := []struct {
+		method      string
+		uri         string
+		contentType string
+		body        interface{}
+		header      http.Header
+	}{
+		{
+			http.MethodGet,
+			"/v3/get",
+			"",
+			nil,
+			http.Header{"My-Id": {"1234"}},
+		},
+		{
+			http.MethodPost,
+			testRequestUri,
+			"application/json",
+			data,
+			http.Header{"My-Id": {"1234"}},
+		},
+		{
+			http.MethodDelete,
+			"/v3/delete",
+			"",
+			nil,
+			nil,
+		},
+		{
+			http.MethodPut,
+			"/v3/put",
+			"",
+			data,
+			http.Header{"My-Id": {"1234"}},
+		},
+		{
+			http.MethodPatch,
+			"/v3/patch",
+			"",
+			data,
+			nil,
+		},
+	}
+
+	for _, test := range tt {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assert.Equal(t, test.method, r.Method)
+			assert.Equal(t, test.uri, r.RequestURI)
+			if test.header != nil {
+				assert.Equal(t, "1234", r.Header.Get("My-Id"))
+			}
+
+			schema, params := parseAuthorization(t, r.Header.Get("Authorization"))
+			body, _ := ioutil.ReadAll(r.Body)
+			assertAuthorization(t, schema, r.Method, r.RequestURI, params, body)
+
+			if test.body != nil {
+				assert.Equal(t, "application/json", r.Header.Get("Content-Type"))
+
+				var req testData
+				err = json.Unmarshal(body, &req)
+				assert.NoError(t, err)
+				assert.Equal(t, data, &req)
+			}
+
+			writeResponse(w)
+		}))
+
+		testUrl, err := url.Parse(ts.URL + test.uri)
+		assert.NoError(t, err)
+
+		result, err := client.Request(
+			ctx,
+			test.method,
+			ts.URL+testUrl.Path,
+			test.header,
+			testUrl.Query(),
+			test.body,
+			test.contentType,
+		)
+		assert.NoError(t, err)
+		body, err := ioutil.ReadAll(result.Response.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusOK, result.Response.StatusCode)
+		assert.Equal(t, responseBody, string(body))
+		ts.Close()
+	}
+}
+
+func TestClientVerifyFail(t *testing.T) {
+	opts := []core.ClientOption{
+		option.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
+		option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
+	}
+	client, err := core.NewClient(ctx, opts...)
+	require.NoError(t, err)
+
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, r.Method, "POST")
-		assert.Equal(t, r.RequestURI, testRequestUri)
+		w.Header().Set("Request-Id", "0")
+		w.Header().Set("Wechatpay-Serial", utils.GetCertificateSerialNumber(*wechatPayCertificate))
 
-		schema, params := parseAuthorization(t, r.Header.Get("Authorization"))
-		body, _ := ioutil.ReadAll(r.Body)
-		assertAuthorization(t, schema, r.Method, r.RequestURI, params, body)
+		nonce := "this-is-a-nonce"
+		w.Header().Set("Wechatpay-Nonce", nonce)
 
-		writeResponse(w)
+		timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+		w.Header().Set("Wechatpay-Timestamp", timestamp)
+
+		w.Header().Set("Wechatpay-Signature", "AABB")
+		w.WriteHeader(http.StatusOK)
 	}))
 	defer ts.Close()
 
-	testUrl, err := url.Parse(ts.URL + testRequestUri)
-	assert.NoError(t, err)
+	_, err = client.Get(ctx, ts.URL+testRequestUri)
+	assert.Contains(t, err.Error(), "verify fail")
+}
 
-	var header http.Header
-	result, err := client.Request(
-		ctx,
-		http.MethodPost,
-		ts.URL+testUrl.Path,
-		header,
-		testUrl.Query(),
-		data,
-		"application/json",
-	)
-	assert.NoError(t, err)
-	body, err := ioutil.ReadAll(result.Response.Body)
-	assert.Equal(t, string(body), responseBody)
+func TestClientNoAuth(t *testing.T) {
+	opts := []core.ClientOption{
+		option.WithMerchantCredential(testMchID, testCertificateSerialNumber, privateKey),
+		option.WithWechatPayCertificate([]*x509.Certificate{wechatPayCertificate}),
+	}
+	client, err := core.NewClient(ctx, opts...)
+	require.NoError(t, err)
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(401)
+		w.Header().Set("Request-Id", "0")
+		fmt.Fprint(w, `{"code":"SIGN_ERROR","message":"sign error"}`)
+	}))
+	defer ts.Close()
+
+	_, err = client.Get(ctx, ts.URL+testRequestUri)
+	apiError, ok := err.(*core.APIError)
+	assert.True(t, ok)
+	assert.Equal(t, 401, apiError.StatusCode)
+	assert.Equal(t, "SIGN_ERROR", apiError.Code)
+	assert.Equal(t, "sign error", apiError.Message)
 }
 
 type meta struct {
@@ -312,10 +412,10 @@ func TestClient_Upload(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			if p.FormName() == "meta" {
-				body, _ = io.ReadAll(p)
+				body, _ = ioutil.ReadAll(p)
 				assert.Equal(t, metaByte, body)
 			} else if p.FormName() == "file" {
-				slurp, _ := io.ReadAll(p)
+				slurp, _ := ioutil.ReadAll(p)
 				assert.Equal(t, pictureBytes, slurp)
 			}
 		}
