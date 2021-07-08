@@ -43,12 +43,9 @@ func (e *APIError) Error() string {
 	return buf.String()
 }
 
-// ParameterError 请求参数错误
-type ParameterError struct {
-	FieldName string
-	Message   string
-}
-
-func (e *ParameterError) Error() string {
-	return fmt.Sprintf("`%s` %s", e.FieldName, e.Message)
+func IsAPIError(err error, code string) bool {
+	if ne, ok := err.(*APIError); ok {
+		return ne.Code == code
+	}
+	return false
 }
