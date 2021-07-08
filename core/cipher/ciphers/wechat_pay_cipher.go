@@ -119,7 +119,9 @@ func (c *WechatPayCipher) cipher(ctx context.Context, ty cipherType, v reflect.V
 }
 
 // cipherField 对字段进行加密/解密操作，无需操作则跳过
-func (c *WechatPayCipher) cipherField(ctx context.Context, ty cipherType, f reflect.StructField, t reflect.Type, v reflect.Value) error {
+func (c *WechatPayCipher) cipherField(
+	ctx context.Context, ty cipherType, f reflect.StructField, t reflect.Type, v reflect.Value,
+) error {
 	if t.Kind() == reflect.Struct {
 		if err := c.cipher(ctx, ty, v); err != nil {
 			return err
