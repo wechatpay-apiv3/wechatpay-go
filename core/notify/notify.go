@@ -20,7 +20,9 @@ type Handler struct {
 }
 
 // ParseNotifyRequest 从 HTTP 请求(http.Request) 中解析 微信支付通知(notify.Request)
-func (h *Handler) ParseNotifyRequest(ctx context.Context, request *http.Request, content interface{}) (*Request, error) {
+func (h *Handler) ParseNotifyRequest(ctx context.Context, request *http.Request, content interface{}) (
+	*Request, error,
+) {
 	if err := h.validator.Validate(ctx, request); err != nil {
 		return nil, fmt.Errorf("not valid wechatpay notify request: %v", err)
 	}
