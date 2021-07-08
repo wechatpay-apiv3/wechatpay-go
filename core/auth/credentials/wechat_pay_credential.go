@@ -18,8 +18,9 @@ type WechatPayCredentials struct {
 
 // GenerateAuthorizationHeader 生成请求报文头中的 Authorization 信息，详见：
 // https://wechatpay-api.gitbook.io/wechatpay-api-v3/qian-ming-zhi-nan-1/qian-ming-sheng-cheng
-func (c *WechatPayCredentials) GenerateAuthorizationHeader(ctx context.Context,
-	method, canonicalURL, signBody string) (authorization string, err error) {
+func (c *WechatPayCredentials) GenerateAuthorizationHeader(
+	ctx context.Context, method, canonicalURL, signBody string,
+) (string, error) {
 	if c.Signer == nil {
 		return "", fmt.Errorf("you must init WechatPayCredentials with signer")
 	}
@@ -33,8 +34,10 @@ func (c *WechatPayCredentials) GenerateAuthorizationHeader(ctx context.Context,
 	if err != nil {
 		return "", err
 	}
-	authorization = fmt.Sprintf(consts.HeaderAuthorizationFormat, c.getAuthorizationType(),
-		signatureResult.MchID, nonce, timestamp, signatureResult.CertificateSerialNo, signatureResult.Signature)
+	authorization := fmt.Sprintf(
+		consts.HeaderAuthorizationFormat, c.getAuthorizationType(),
+		signatureResult.MchID, nonce, timestamp, signatureResult.CertificateSerialNo, signatureResult.Signature,
+	)
 	return authorization, nil
 }
 
