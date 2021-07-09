@@ -9,4 +9,5 @@
 
 # Other
 .openapi-generator
+.openapi-generator-ignore
 .DS_Store
