@@ -11,7 +11,7 @@ const (
 
 // SDK 相关信息
 const (
-	Version         = "0.2.1"                      // SDK 版本
+	Version         = "0.2.2"                      // SDK 版本
 	UserAgentFormat = "WechatPay-Go/%s (%s) GO/%s" // UserAgent中的信息
 )
 
