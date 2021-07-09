@@ -35,7 +35,7 @@ func (a *NativeApiService) CloseOrder(ctx context.Context, req CloseOrderRequest
 		localVarHTTPMethod   = nethttp.MethodPost
 		localVarPostBody     interface{}
 		localVarQueryParams  neturl.Values
-		localVarHeaderParams nethttp.Header
+		localVarHeaderParams = nethttp.Header{}
 	)
 
 	// Make sure Path Params are properly set
@@ -76,7 +76,7 @@ func (a *NativeApiService) Prepay(ctx context.Context, req PrepayRequest) (resp 
 		localVarHTTPMethod   = nethttp.MethodPost
 		localVarPostBody     interface{}
 		localVarQueryParams  neturl.Values
-		localVarHeaderParams nethttp.Header
+		localVarHeaderParams = nethttp.Header{}
 	)
 
 	localVarPath := consts.WechatPayAPIServer + "/v3/pay/transactions/native"
@@ -113,7 +113,7 @@ func (a *NativeApiService) QueryOrderById(ctx context.Context, req QueryOrderByI
 		localVarHTTPMethod   = nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarQueryParams  neturl.Values
-		localVarHeaderParams nethttp.Header
+		localVarHeaderParams = nethttp.Header{}
 	)
 
 	// Make sure Path Params are properly set
@@ -162,7 +162,7 @@ func (a *NativeApiService) QueryOrderByOutTradeNo(ctx context.Context, req Query
 		localVarHTTPMethod   = nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarQueryParams  neturl.Values
-		localVarHeaderParams nethttp.Header
+		localVarHeaderParams = nethttp.Header{}
 	)
 
 	// Make sure Path Params are properly set

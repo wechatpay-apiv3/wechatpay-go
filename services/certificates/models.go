@@ -78,6 +78,31 @@ func (o Certificate) String() string {
 	return fmt.Sprintf("Certificate{%s}", ret)
 }
 
+func (o Certificate) Clone() *Certificate {
+	ret := Certificate{}
+
+	if o.SerialNo != nil {
+		ret.SerialNo = new(string)
+		*ret.SerialNo = *o.SerialNo
+	}
+
+	if o.EffectiveTime != nil {
+		ret.EffectiveTime = new(time.Time)
+		*ret.EffectiveTime = *o.EffectiveTime
+	}
+
+	if o.ExpireTime != nil {
+		ret.ExpireTime = new(time.Time)
+		*ret.ExpireTime = *o.ExpireTime
+	}
+
+	if o.EncryptCertificate != nil {
+		ret.EncryptCertificate = o.EncryptCertificate.Clone()
+	}
+
+	return &ret
+}
+
 // DownloadCertificatesResponse
 type DownloadCertificatesResponse struct {
 	// 平台证书列表
@@ -98,6 +123,19 @@ func (o DownloadCertificatesResponse) String() string {
 	ret += fmt.Sprintf("Data:%v", o.Data)
 
 	return fmt.Sprintf("DownloadCertificatesResponse{%s}", ret)
+}
+
+func (o DownloadCertificatesResponse) Clone() *DownloadCertificatesResponse {
+	ret := DownloadCertificatesResponse{}
+
+	if o.Data != nil {
+		ret.Data = make([]Certificate, len(o.Data))
+		for i, item := range o.Data {
+			ret.Data[i] = *item.Clone()
+		}
+	}
+
+	return &ret
 }
 
 // EncryptCertificate 为了保证安全性，微信支付在回调通知和平台证书下载接口中，对关键信息进行了AES-256-GCM加密
@@ -164,4 +202,30 @@ func (o EncryptCertificate) String() string {
 	}
 
 	return fmt.Sprintf("EncryptCertificate{%s}", ret)
+}
+
+func (o EncryptCertificate) Clone() *EncryptCertificate {
+	ret := EncryptCertificate{}
+
+	if o.Algorithm != nil {
+		ret.Algorithm = new(string)
+		*ret.Algorithm = *o.Algorithm
+	}
+
+	if o.Nonce != nil {
+		ret.Nonce = new(string)
+		*ret.Nonce = *o.Nonce
+	}
+
+	if o.AssociatedData != nil {
+		ret.AssociatedData = new(string)
+		*ret.AssociatedData = *o.AssociatedData
+	}
+
+	if o.Ciphertext != nil {
+		ret.Ciphertext = new(string)
+		*ret.Ciphertext = *o.Ciphertext
+	}
+
+	return &ret
 }

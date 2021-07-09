@@ -19,7 +19,7 @@ import (
 // Amount
 type Amount struct {
 	// 订单总金额，单位为分
-	Total *int32 `json:"total"`
+	Total *int64 `json:"total"`
 	// CNY：人民币，境内商户号仅支持人民币。
 	Currency *string `json:"currency,omitempty"`
 }
@@ -53,6 +53,22 @@ func (o Amount) String() string {
 	}
 
 	return fmt.Sprintf("Amount{%s}", ret)
+}
+
+func (o Amount) Clone() *Amount {
+	ret := Amount{}
+
+	if o.Total != nil {
+		ret.Total = new(int64)
+		*ret.Total = *o.Total
+	}
+
+	if o.Currency != nil {
+		ret.Currency = new(string)
+		*ret.Currency = *o.Currency
+	}
+
+	return &ret
 }
 
 // CloseOrderRequest
@@ -94,6 +110,22 @@ func (o CloseOrderRequest) String() string {
 	return fmt.Sprintf("CloseOrderRequest{%s}", ret)
 }
 
+func (o CloseOrderRequest) Clone() *CloseOrderRequest {
+	ret := CloseOrderRequest{}
+
+	if o.OutTradeNo != nil {
+		ret.OutTradeNo = new(string)
+		*ret.OutTradeNo = *o.OutTradeNo
+	}
+
+	if o.Mchid != nil {
+		ret.Mchid = new(string)
+		*ret.Mchid = *o.Mchid
+	}
+
+	return &ret
+}
+
 // CloseRequest
 type CloseRequest struct {
 	// 直连商户号
@@ -121,10 +153,21 @@ func (o CloseRequest) String() string {
 	return fmt.Sprintf("CloseRequest{%s}", ret)
 }
 
+func (o CloseRequest) Clone() *CloseRequest {
+	ret := CloseRequest{}
+
+	if o.Mchid != nil {
+		ret.Mchid = new(string)
+		*ret.Mchid = *o.Mchid
+	}
+
+	return &ret
+}
+
 // Detail 优惠功能
 type Detail struct {
 	// 1.商户侧一张小票订单可能被分多次支付，订单原价用于记录整张小票的交易金额。 2.当订单原价与支付金额不相等，则不享受优惠。 3.该字段主要用于防止同一张小票分多次支付，以享受多次优惠的情况，正常支付订单不必上传此参数。
-	CostPrice *int32 `json:"cost_price,omitempty"`
+	CostPrice *int64 `json:"cost_price,omitempty"`
 	// 商家小票ID。
 	InvoiceId   *string       `json:"invoice_id,omitempty"`
 	GoodsDetail []GoodsDetail `json:"goods_detail,omitempty"`
@@ -166,6 +209,29 @@ func (o Detail) String() string {
 	return fmt.Sprintf("Detail{%s}", ret)
 }
 
+func (o Detail) Clone() *Detail {
+	ret := Detail{}
+
+	if o.CostPrice != nil {
+		ret.CostPrice = new(int64)
+		*ret.CostPrice = *o.CostPrice
+	}
+
+	if o.InvoiceId != nil {
+		ret.InvoiceId = new(string)
+		*ret.InvoiceId = *o.InvoiceId
+	}
+
+	if o.GoodsDetail != nil {
+		ret.GoodsDetail = make([]GoodsDetail, len(o.GoodsDetail))
+		for i, item := range o.GoodsDetail {
+			ret.GoodsDetail[i] = *item.Clone()
+		}
+	}
+
+	return &ret
+}
+
 // GoodsDetail
 type GoodsDetail struct {
 	// 由半角的大小写字母、数字、中划线、下划线中的一种或几种组成。
@@ -175,9 +241,9 @@ type GoodsDetail struct {
 	// 商品的实际名称。
 	GoodsName *string `json:"goods_name,omitempty"`
 	// 用户购买的数量。
-	Quantity *int32 `json:"quantity"`
+	Quantity *int64 `json:"quantity"`
 	// 商品单价，单位为分。
-	UnitPrice *int32 `json:"unit_price"`
+	UnitPrice *int64 `json:"unit_price"`
 }
 
 func (o GoodsDetail) MarshalJSON() ([]byte, error) {
@@ -243,6 +309,37 @@ func (o GoodsDetail) String() string {
 	return fmt.Sprintf("GoodsDetail{%s}", ret)
 }
 
+func (o GoodsDetail) Clone() *GoodsDetail {
+	ret := GoodsDetail{}
+
+	if o.MerchantGoodsId != nil {
+		ret.MerchantGoodsId = new(string)
+		*ret.MerchantGoodsId = *o.MerchantGoodsId
+	}
+
+	if o.WechatpayGoodsId != nil {
+		ret.WechatpayGoodsId = new(string)
+		*ret.WechatpayGoodsId = *o.WechatpayGoodsId
+	}
+
+	if o.GoodsName != nil {
+		ret.GoodsName = new(string)
+		*ret.GoodsName = *o.GoodsName
+	}
+
+	if o.Quantity != nil {
+		ret.Quantity = new(int64)
+		*ret.Quantity = *o.Quantity
+	}
+
+	if o.UnitPrice != nil {
+		ret.UnitPrice = new(int64)
+		*ret.UnitPrice = *o.UnitPrice
+	}
+
+	return &ret
+}
+
 // PrepayRequest
 type PrepayRequest struct {
 	// 公众号ID
@@ -253,7 +350,7 @@ type PrepayRequest struct {
 	Description *string `json:"description"`
 	// 商户订单号
 	OutTradeNo *string `json:"out_trade_no"`
-	// 订单生成时间，格式为rfc3339格式
+	// 订单失效时间，格式为rfc3339格式
 	TimeExpire *time.Time `json:"time_expire,omitempty"`
 	// 附加数据
 	Attach *string `json:"attach,omitempty"`
@@ -407,6 +504,80 @@ func (o PrepayRequest) String() string {
 	return fmt.Sprintf("PrepayRequest{%s}", ret)
 }
 
+func (o PrepayRequest) Clone() *PrepayRequest {
+	ret := PrepayRequest{}
+
+	if o.Appid != nil {
+		ret.Appid = new(string)
+		*ret.Appid = *o.Appid
+	}
+
+	if o.Mchid != nil {
+		ret.Mchid = new(string)
+		*ret.Mchid = *o.Mchid
+	}
+
+	if o.Description != nil {
+		ret.Description = new(string)
+		*ret.Description = *o.Description
+	}
+
+	if o.OutTradeNo != nil {
+		ret.OutTradeNo = new(string)
+		*ret.OutTradeNo = *o.OutTradeNo
+	}
+
+	if o.TimeExpire != nil {
+		ret.TimeExpire = new(time.Time)
+		*ret.TimeExpire = *o.TimeExpire
+	}
+
+	if o.Attach != nil {
+		ret.Attach = new(string)
+		*ret.Attach = *o.Attach
+	}
+
+	if o.NotifyUrl != nil {
+		ret.NotifyUrl = new(string)
+		*ret.NotifyUrl = *o.NotifyUrl
+	}
+
+	if o.GoodsTag != nil {
+		ret.GoodsTag = new(string)
+		*ret.GoodsTag = *o.GoodsTag
+	}
+
+	if o.LimitPay != nil {
+		ret.LimitPay = make([]string, len(o.LimitPay))
+		for i, item := range o.LimitPay {
+			ret.LimitPay[i] = item
+		}
+	}
+
+	if o.SupportFapiao != nil {
+		ret.SupportFapiao = new(bool)
+		*ret.SupportFapiao = *o.SupportFapiao
+	}
+
+	if o.Amount != nil {
+		ret.Amount = o.Amount.Clone()
+	}
+
+	if o.Detail != nil {
+		ret.Detail = o.Detail.Clone()
+	}
+
+	if o.SettleInfo != nil {
+		ret.SettleInfo = o.SettleInfo.Clone()
+	}
+
+	if o.SceneInfo != nil {
+		ret.SceneInfo = o.SceneInfo.Clone()
+	}
+
+	return &ret
+}
+
 // PrepayResponse
 type PrepayResponse struct {
 	// 二维码链接
@@ -432,6 +603,17 @@ func (o PrepayResponse) String() string {
 	}
 
 	return fmt.Sprintf("PrepayResponse{%s}", ret)
+}
+
+func (o PrepayResponse) Clone() *PrepayResponse {
+	ret := PrepayResponse{}
+
+	if o.CodeUrl != nil {
+		ret.CodeUrl = new(string)
+		*ret.CodeUrl = *o.CodeUrl
+	}
+
+	return &ret
 }
 
 // QueryOrderByIdRequest
@@ -473,6 +655,22 @@ func (o QueryOrderByIdRequest) String() string {
 	return fmt.Sprintf("QueryOrderByIdRequest{%s}", ret)
 }
 
+func (o QueryOrderByIdRequest) Clone() *QueryOrderByIdRequest {
+	ret := QueryOrderByIdRequest{}
+
+	if o.TransactionId != nil {
+		ret.TransactionId = new(string)
+		*ret.TransactionId = *o.TransactionId
+	}
+
+	if o.Mchid != nil {
+		ret.Mchid = new(string)
+		*ret.Mchid = *o.Mchid
+	}
+
+	return &ret
+}
+
 // QueryOrderByOutTradeNoRequest
 type QueryOrderByOutTradeNoRequest struct {
 	OutTradeNo *string `json:"out_trade_no"`
@@ -510,6 +708,22 @@ func (o QueryOrderByOutTradeNoRequest) String() string {
 	}
 
 	return fmt.Sprintf("QueryOrderByOutTradeNoRequest{%s}", ret)
+}
+
+func (o QueryOrderByOutTradeNoRequest) Clone() *QueryOrderByOutTradeNoRequest {
+	ret := QueryOrderByOutTradeNoRequest{}
+
+	if o.OutTradeNo != nil {
+		ret.OutTradeNo = new(string)
+		*ret.OutTradeNo = *o.OutTradeNo
+	}
+
+	if o.Mchid != nil {
+		ret.Mchid = new(string)
+		*ret.Mchid = *o.Mchid
+	}
+
+	return &ret
 }
 
 // SceneInfo 支付场景描述
@@ -558,6 +772,26 @@ func (o SceneInfo) String() string {
 	return fmt.Sprintf("SceneInfo{%s}", ret)
 }
 
+func (o SceneInfo) Clone() *SceneInfo {
+	ret := SceneInfo{}
+
+	if o.PayerClientIp != nil {
+		ret.PayerClientIp = new(string)
+		*ret.PayerClientIp = *o.PayerClientIp
+	}
+
+	if o.DeviceId != nil {
+		ret.DeviceId = new(string)
+		*ret.DeviceId = *o.DeviceId
+	}
+
+	if o.StoreInfo != nil {
+		ret.StoreInfo = o.StoreInfo.Clone()
+	}
+
+	return &ret
+}
+
 // SettleInfo
 type SettleInfo struct {
 	// 是否指定分账
@@ -582,6 +816,17 @@ func (o SettleInfo) String() string {
 	}
 
 	return fmt.Sprintf("SettleInfo{%s}", ret)
+}
+
+func (o SettleInfo) Clone() *SettleInfo {
+	ret := SettleInfo{}
+
+	if o.ProfitSharing != nil {
+		ret.ProfitSharing = new(bool)
+		*ret.ProfitSharing = *o.ProfitSharing
+	}
+
+	return &ret
 }
 
 // StoreInfo 商户门店信息
@@ -645,4 +890,30 @@ func (o StoreInfo) String() string {
 	}
 
 	return fmt.Sprintf("StoreInfo{%s}", ret)
+}
+
+func (o StoreInfo) Clone() *StoreInfo {
+	ret := StoreInfo{}
+
+	if o.Id != nil {
+		ret.Id = new(string)
+		*ret.Id = *o.Id
+	}
+
+	if o.Name != nil {
+		ret.Name = new(string)
+		*ret.Name = *o.Name
+	}
+
+	if o.AreaCode != nil {
+		ret.AreaCode = new(string)
+		*ret.AreaCode = *o.AreaCode
+	}
+
+	if o.Address != nil {
+		ret.Address = new(string)
+		*ret.Address = *o.Address
+	}
+
+	return &ret
 }
