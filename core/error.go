@@ -43,6 +43,9 @@ func (e *APIError) Error() string {
 	return buf.String()
 }
 
+// IsAPIError 判断当前 error 是否为特定 Code 的 *APIError
+//
+// 类型为其他 error 或 Code 不匹配时均返回 false
 func IsAPIError(err error, code string) bool {
 	if ne, ok := err.(*APIError); ok {
 		return ne.Code == code
