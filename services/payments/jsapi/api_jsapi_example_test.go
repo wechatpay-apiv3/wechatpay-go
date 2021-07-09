@@ -59,18 +59,18 @@ func ExampleJsapiApiService_Prepay() {
 			SupportFapiao: core.Bool(false),
 			Amount: &jsapi.Amount{
 				Currency: core.String("CNY"),
-				Total:    core.Int32(100),
+				Total:    core.Int64(100),
 			},
 			Payer: &jsapi.Payer{
 				Openid: core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
 			},
 			Detail: &jsapi.Detail{
-				CostPrice: core.Int32(608800),
+				CostPrice: core.Int64(608800),
 				GoodsDetail: []jsapi.GoodsDetail{jsapi.GoodsDetail{
 					GoodsName:        core.String("iPhoneX 256G"),
 					MerchantGoodsId:  core.String("ABC"),
-					Quantity:         core.Int32(1),
-					UnitPrice:        core.Int32(828800),
+					Quantity:         core.Int64(1),
+					UnitPrice:        core.Int64(828800),
 					WechatpayGoodsId: core.String("1001"),
 				}},
 				InvoiceId: core.String("wx123"),

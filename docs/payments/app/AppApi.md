@@ -112,15 +112,15 @@ func main() {
 			SupportFapiao: core.Bool(false),
 			Amount: &app.Amount{
 				Currency: core.String("CNY"),
-				Total:    core.Int32(100),
+				Total:    core.Int64(100),
 			},
 			Detail: &app.Detail{
-				CostPrice: core.Int32(608800),
+				CostPrice: core.Int64(608800),
 				GoodsDetail: []app.GoodsDetail{app.GoodsDetail{
 					GoodsName:        core.String("iPhoneX 256G"),
 					MerchantGoodsId:  core.String("ABC"),
-					Quantity:         core.Int32(1),
-					UnitPrice:        core.Int32(828800),
+					Quantity:         core.Int64(1),
+					UnitPrice:        core.Int64(828800),
 					WechatpayGoodsId: core.String("1001"),
 				}},
 				InvoiceId: core.String("wx123"),
