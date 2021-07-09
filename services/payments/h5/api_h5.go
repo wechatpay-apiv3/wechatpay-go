@@ -35,7 +35,7 @@ func (a *H5ApiService) CloseOrder(ctx context.Context, req CloseOrderRequest) (r
 		localVarHTTPMethod   = nethttp.MethodPost
 		localVarPostBody     interface{}
 		localVarQueryParams  neturl.Values
-		localVarHeaderParams nethttp.Header
+		localVarHeaderParams = nethttp.Header{}
 	)
 
 	// Make sure Path Params are properly set
@@ -76,7 +76,7 @@ func (a *H5ApiService) Prepay(ctx context.Context, req PrepayRequest) (resp *Pre
 		localVarHTTPMethod   = nethttp.MethodPost
 		localVarPostBody     interface{}
 		localVarQueryParams  neturl.Values
-		localVarHeaderParams nethttp.Header
+		localVarHeaderParams = nethttp.Header{}
 	)
 
 	localVarPath := consts.WechatPayAPIServer + "/v3/pay/transactions/h5"
@@ -113,7 +113,7 @@ func (a *H5ApiService) QueryOrderById(ctx context.Context, req QueryOrderByIdReq
 		localVarHTTPMethod   = nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarQueryParams  neturl.Values
-		localVarHeaderParams nethttp.Header
+		localVarHeaderParams = nethttp.Header{}
 	)
 
 	// Make sure Path Params are properly set
@@ -162,7 +162,7 @@ func (a *H5ApiService) QueryOrderByOutTradeNo(ctx context.Context, req QueryOrde
 		localVarHTTPMethod   = nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarQueryParams  neturl.Values
-		localVarHeaderParams nethttp.Header
+		localVarHeaderParams = nethttp.Header{}
 	)
 
 	// Make sure Path Params are properly set

@@ -6,8 +6,8 @@
 ------------ | ------------- | ------------- | -------------
 **Currency** | **string** |  | [可选] 
 **PayerCurrency** | **string** |  | [可选] 
-**PayerTotal** | **int32** |  | [可选] 
-**Total** | **int32** |  | [可选] 
+**PayerTotal** | **int64** |  | [可选] 
+**Total** | **int64** |  | [可选] 
 
 [\[返回类型列表\]](README.md#类型列表)
 [\[返回接口列表\]](README.md#接口列表)

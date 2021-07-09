@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.2] - 2021-07-09
+
+### Added
+
++ 微信支付境内退款（refunddomestic）接口SDK
+
+### Changed
+
++ `BREAKING CHANGE` 将现有接口SDK中的整型参数统一为`int64`。受影响接口包括:
+  <details>
+  <summary>Click to expand!</summary>
+  
+    + payments/app
+    + payments/h5
+    + payments/jsapi
+    + payments/native
+  </details>
+
 ## [0.2.1] - 2021-06-25
 
 ### Added
