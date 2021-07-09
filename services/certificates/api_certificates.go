@@ -30,7 +30,7 @@ func (a *CertificatesApiService) DownloadCertificates(ctx context.Context) (resp
 		localVarHTTPMethod   = nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarQueryParams  neturl.Values
-		localVarHeaderParams nethttp.Header
+		localVarHeaderParams = nethttp.Header{}
 	)
 
 	localVarPath := consts.WechatPayAPIServer + "/v3/certificates"

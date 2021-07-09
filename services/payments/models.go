@@ -26,15 +26,15 @@ type PromotionDetail struct {
 	// CASH：充值；NOCASH：预充值。
 	Type *string `json:"type,omitempty"`
 	// 优惠券面额
-	Amount *int32 `json:"amount,omitempty"`
+	Amount *int64 `json:"amount,omitempty"`
 	// 活动ID，批次ID
 	StockId *string `json:"stock_id,omitempty"`
 	// 单位为分
-	WechatpayContribute *int32 `json:"wechatpay_contribute,omitempty"`
+	WechatpayContribute *int64 `json:"wechatpay_contribute,omitempty"`
 	// 单位为分
-	MerchantContribute *int32 `json:"merchant_contribute,omitempty"`
+	MerchantContribute *int64 `json:"merchant_contribute,omitempty"`
 	// 单位为分
-	OtherContribute *int32 `json:"other_contribute,omitempty"`
+	OtherContribute *int64 `json:"other_contribute,omitempty"`
 	// CNY：人民币，境内商户号仅支持人民币。
 	Currency    *string                `json:"currency,omitempty"`
 	GoodsDetail []PromotionGoodsDetail `json:"goods_detail,omitempty"`
@@ -156,16 +156,79 @@ func (o PromotionDetail) String() string {
 	return fmt.Sprintf("PromotionDetail{%s}", ret)
 }
 
+func (o PromotionDetail) Clone() *PromotionDetail {
+	ret := PromotionDetail{}
+
+	if o.CouponId != nil {
+		ret.CouponId = new(string)
+		*ret.CouponId = *o.CouponId
+	}
+
+	if o.Name != nil {
+		ret.Name = new(string)
+		*ret.Name = *o.Name
+	}
+
+	if o.Scope != nil {
+		ret.Scope = new(string)
+		*ret.Scope = *o.Scope
+	}
+
+	if o.Type != nil {
+		ret.Type = new(string)
+		*ret.Type = *o.Type
+	}
+
+	if o.Amount != nil {
+		ret.Amount = new(int64)
+		*ret.Amount = *o.Amount
+	}
+
+	if o.StockId != nil {
+		ret.StockId = new(string)
+		*ret.StockId = *o.StockId
+	}
+
+	if o.WechatpayContribute != nil {
+		ret.WechatpayContribute = new(int64)
+		*ret.WechatpayContribute = *o.WechatpayContribute
+	}
+
+	if o.MerchantContribute != nil {
+		ret.MerchantContribute = new(int64)
+		*ret.MerchantContribute = *o.MerchantContribute
+	}
+
+	if o.OtherContribute != nil {
+		ret.OtherContribute = new(int64)
+		*ret.OtherContribute = *o.OtherContribute
+	}
+
+	if o.Currency != nil {
+		ret.Currency = new(string)
+		*ret.Currency = *o.Currency
+	}
+
+	if o.GoodsDetail != nil {
+		ret.GoodsDetail = make([]PromotionGoodsDetail, len(o.GoodsDetail))
+		for i, item := range o.GoodsDetail {
+			ret.GoodsDetail[i] = *item.Clone()
+		}
+	}
+
+	return &ret
+}
+
 // PromotionGoodsDetail
 type PromotionGoodsDetail struct {
 	// 商品编码
 	GoodsId *string `json:"goods_id"`
 	// 商品数量
-	Quantity *int32 `json:"quantity"`
+	Quantity *int64 `json:"quantity"`
 	// 商品价格
-	UnitPrice *int32 `json:"unit_price"`
+	UnitPrice *int64 `json:"unit_price"`
 	// 商品优惠金额
-	DiscountAmount *int32 `json:"discount_amount"`
+	DiscountAmount *int64 `json:"discount_amount"`
 	// 商品备注
 	GoodsRemark *string `json:"goods_remark,omitempty"`
 }
@@ -232,6 +295,37 @@ func (o PromotionGoodsDetail) String() string {
 	}
 
 	return fmt.Sprintf("PromotionGoodsDetail{%s}", ret)
+}
+
+func (o PromotionGoodsDetail) Clone() *PromotionGoodsDetail {
+	ret := PromotionGoodsDetail{}
+
+	if o.GoodsId != nil {
+		ret.GoodsId = new(string)
+		*ret.GoodsId = *o.GoodsId
+	}
+
+	if o.Quantity != nil {
+		ret.Quantity = new(int64)
+		*ret.Quantity = *o.Quantity
+	}
+
+	if o.UnitPrice != nil {
+		ret.UnitPrice = new(int64)
+		*ret.UnitPrice = *o.UnitPrice
+	}
+
+	if o.DiscountAmount != nil {
+		ret.DiscountAmount = new(int64)
+		*ret.DiscountAmount = *o.DiscountAmount
+	}
+
+	if o.GoodsRemark != nil {
+		ret.GoodsRemark = new(string)
+		*ret.GoodsRemark = *o.GoodsRemark
+	}
+
+	return &ret
 }
 
 // Transaction
@@ -379,12 +473,83 @@ func (o Transaction) String() string {
 	return fmt.Sprintf("Transaction{%s}", ret)
 }
 
+func (o Transaction) Clone() *Transaction {
+	ret := Transaction{}
+
+	if o.Amount != nil {
+		ret.Amount = o.Amount.Clone()
+	}
+
+	if o.Appid != nil {
+		ret.Appid = new(string)
+		*ret.Appid = *o.Appid
+	}
+
+	if o.Attach != nil {
+		ret.Attach = new(string)
+		*ret.Attach = *o.Attach
+	}
+
+	if o.BankType != nil {
+		ret.BankType = new(string)
+		*ret.BankType = *o.BankType
+	}
+
+	if o.Mchid != nil {
+		ret.Mchid = new(string)
+		*ret.Mchid = *o.Mchid
+	}
+
+	if o.OutTradeNo != nil {
+		ret.OutTradeNo = new(string)
+		*ret.OutTradeNo = *o.OutTradeNo
+	}
+
+	if o.Payer != nil {
+		ret.Payer = o.Payer.Clone()
+	}
+
+	if o.PromotionDetail != nil {
+		ret.PromotionDetail = make([]PromotionDetail, len(o.PromotionDetail))
+		for i, item := range o.PromotionDetail {
+			ret.PromotionDetail[i] = *item.Clone()
+		}
+	}
+
+	if o.SuccessTime != nil {
+		ret.SuccessTime = new(string)
+		*ret.SuccessTime = *o.SuccessTime
+	}
+
+	if o.TradeState != nil {
+		ret.TradeState = new(string)
+		*ret.TradeState = *o.TradeState
+	}
+
+	if o.TradeStateDesc != nil {
+		ret.TradeStateDesc = new(string)
+		*ret.TradeStateDesc = *o.TradeStateDesc
+	}
+
+	if o.TradeType != nil {
+		ret.TradeType = new(string)
+		*ret.TradeType = *o.TradeType
+	}
+
+	if o.TransactionId != nil {
+		ret.TransactionId = new(string)
+		*ret.TransactionId = *o.TransactionId
+	}
+
+	return &ret
+}
+
 // TransactionAmount
 type TransactionAmount struct {
 	Currency      *string `json:"currency,omitempty"`
 	PayerCurrency *string `json:"payer_currency,omitempty"`
-	PayerTotal    *int32  `json:"payer_total,omitempty"`
-	Total         *int32  `json:"total,omitempty"`
+	PayerTotal    *int64  `json:"payer_total,omitempty"`
+	Total         *int64  `json:"total,omitempty"`
 }
 
 func (o TransactionAmount) MarshalJSON() ([]byte, error) {
@@ -437,6 +602,32 @@ func (o TransactionAmount) String() string {
 	return fmt.Sprintf("TransactionAmount{%s}", ret)
 }
 
+func (o TransactionAmount) Clone() *TransactionAmount {
+	ret := TransactionAmount{}
+
+	if o.Currency != nil {
+		ret.Currency = new(string)
+		*ret.Currency = *o.Currency
+	}
+
+	if o.PayerCurrency != nil {
+		ret.PayerCurrency = new(string)
+		*ret.PayerCurrency = *o.PayerCurrency
+	}
+
+	if o.PayerTotal != nil {
+		ret.PayerTotal = new(int64)
+		*ret.PayerTotal = *o.PayerTotal
+	}
+
+	if o.Total != nil {
+		ret.Total = new(int64)
+		*ret.Total = *o.Total
+	}
+
+	return &ret
+}
+
 // TransactionPayer
 type TransactionPayer struct {
 	Openid *string `json:"openid,omitempty"`
@@ -460,4 +651,15 @@ func (o TransactionPayer) String() string {
 	}
 
 	return fmt.Sprintf("TransactionPayer{%s}", ret)
+}
+
+func (o TransactionPayer) Clone() *TransactionPayer {
+	ret := TransactionPayer{}
+
+	if o.Openid != nil {
+		ret.Openid = new(string)
+		*ret.Openid = *o.Openid
+	}
+
+	return &ret
 }
