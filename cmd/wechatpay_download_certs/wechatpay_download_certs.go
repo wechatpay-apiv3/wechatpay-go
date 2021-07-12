@@ -24,6 +24,9 @@ var (
 	outputPath               string
 )
 
+const errCodeParamError = 1
+const errCodeRunError = 2
+
 func init() {
 	flag.StringVar(&mchID, "m", "", "【必传】`商户号`")
 	flag.StringVar(&mchSerialNo, "s", "", "【必传】`商户证书序列号`")
@@ -36,30 +39,30 @@ func init() {
 
 func main() {
 	flag.Parse()
-	flag.Usage = usage
+	flag.Usage = printUsageAndExit
 
 	if err := checkArgs(); err != nil {
 		reportError("参数有误：%v", err)
-		usage()
-		os.Exit(2)
+		printUsageAndExit()
 	}
 
 	ctx := context.Background()
 	client, err := createClient(ctx)
 	if err != nil {
 		reportError("%v", err)
-		os.Exit(2)
+		os.Exit(errCodeRunError)
 	}
 
 	d, err := downloader.NewCertificateDownloaderWithClient(ctx, client, mchAPIv3Key)
 	if err != nil {
 		reportError("下载证书失败：%v", err)
-		os.Exit(2)
+		os.Exit(errCodeRunError)
 	}
 
 	err = saveCertificates(ctx, d)
 	if err != nil {
 		reportError("%v", err)
+		os.Exit(errCodeRunError)
 	}
 
 	os.Exit(0)
@@ -69,10 +72,10 @@ func reportError(format string, a ...interface{}) {
 	_, _ = fmt.Fprintf(os.Stderr, format+"\n", a...)
 }
 
-func usage() {
+func printUsageAndExit() {
 	_, _ = fmt.Fprintf(os.Stderr, "usage of wechatpay_download_certs:\n")
 	flag.PrintDefaults()
-	os.Exit(2)
+	os.Exit(errCodeParamError)
 }
 
 type paramError struct {
