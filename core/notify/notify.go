@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 // Package notify 微信支付 API v3 Go SDK 商户通知处理库
 package notify
 

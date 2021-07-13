@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 // Package credentials 微信支付 API v3 Go SDK 请求报文头 Authorization 信息生成器
 package credentials
 
