@@ -1,4 +1,4 @@
-// Copyright 2021 Tencent Inc.  All rights reserved.
+// Copyright 2021 Tencent Inc. All rights reserved.
 
 // Package core 微信支付 API v3 Go SDK HTTPClient 基础库，你可以使用它来创建一个 Client，并向微信支付发送 HTTP 请求
 //

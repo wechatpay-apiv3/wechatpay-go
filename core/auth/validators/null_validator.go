@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 // Package validators 微信支付 API v3 Go SDK 应答报文签名验证器
 package validators
 
