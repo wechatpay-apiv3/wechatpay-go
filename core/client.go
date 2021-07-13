@@ -331,24 +331,20 @@ func CheckResponse(resp *http.Response) error {
 		return nil
 	}
 	slurp, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("invalid response, read body error: %w", err)
+	}
 	_ = resp.Body.Close()
-	if err == nil {
-		resp.Body = ioutil.NopCloser(bytes.NewBuffer(slurp))
-		apiError := &APIError{
-			StatusCode: resp.StatusCode,
-			Header:     resp.Header,
-			Body:       string(slurp),
-		}
-		err = json.Unmarshal(slurp, apiError)
-		if err == nil {
-			return apiError
-		}
-	}
-	return &APIError{
+
+	resp.Body = ioutil.NopCloser(bytes.NewBuffer(slurp))
+	apiError := &APIError{
 		StatusCode: resp.StatusCode,
-		Body:       string(slurp),
 		Header:     resp.Header,
+		Body:       string(slurp),
 	}
+	// 忽略 JSON 解析错误，均返回 apiError
+	_ = json.Unmarshal(slurp, apiError)
+	return apiError
 }
 
 // UnMarshalResponse 将回包组织成结构化数据
@@ -371,7 +367,7 @@ func UnMarshalResponse(httpResp *http.Response, resp interface{}) error {
 
 // CreateFormField 设置form-data 中的普通属性
 //
-//示例内容
+// 示例内容
 //	Content-Disposition: form-data; name="meta";
 //	Content-Type: application/json
 //
