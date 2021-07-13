@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -23,8 +24,7 @@ func Test_getRequestBody(t *testing.T) {
 	bodyBuf := &bytes.Buffer{}
 	bodyBuf.WriteString(body)
 
-	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1", bodyBuf)
-	require.NoError(t, err)
+	req := httptest.NewRequest(http.MethodGet, "http://127.0.0.1", bodyBuf)
 
 	bodyBytes, err := getRequestBody(req)
 	require.NoError(t, err)
@@ -129,8 +129,7 @@ cTJOU9TxuGvNASMtjj7pYIerTx+xgZDXEVBWFW9PjJ0TV06tCRsgSHItgg==
 	bodyBuf := &bytes.Buffer{}
 	bodyBuf.WriteString(body)
 
-	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1", bodyBuf)
-	require.NoError(t, err)
+	req := httptest.NewRequest(http.MethodGet, "http://127.0.0.1", bodyBuf)
 
 	for key, value := range headers {
 		req.Header.Set(key, value)
