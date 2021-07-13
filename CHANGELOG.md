@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.3] - 2021-07-13
+
+### Fixed
+
++ 修复`notify.Handler`读取服务端`Request`的错误
+
 ## [0.2.2] - 2021-07-09
 
 ### Added
