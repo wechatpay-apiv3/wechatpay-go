@@ -118,7 +118,6 @@ cTJOU9TxuGvNASMtjj7pYIerTx+xgZDXEVBWFW9PjJ0TV06tCRsgSHItgg==
 
 	headers := map[string]string{
 		"Content-Type":        "application/json",
-		"Request-Id":          "0885F2CF8606108F0518E29E944820F10B28E24A",
 		"Wechatpay-Nonce":     "EcZ9Cmy4Xyx1i6RlJQzLcCyEqDa26NBz",
 		"Wechatpay-Timestamp": "1624523846",
 		"Wechatpay-Serial":    "D7CE59D1F522D701",
