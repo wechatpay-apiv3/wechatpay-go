@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -23,8 +24,7 @@ func Test_getRequestBody(t *testing.T) {
 	bodyBuf := &bytes.Buffer{}
 	bodyBuf.WriteString(body)
 
-	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1", bodyBuf)
-	require.NoError(t, err)
+	req := httptest.NewRequest(http.MethodGet, "http://127.0.0.1", bodyBuf)
 
 	bodyBytes, err := getRequestBody(req)
 	require.NoError(t, err)
@@ -118,7 +118,6 @@ cTJOU9TxuGvNASMtjj7pYIerTx+xgZDXEVBWFW9PjJ0TV06tCRsgSHItgg==
 
 	headers := map[string]string{
 		"Content-Type":        "application/json",
-		"Request-Id":          "0885F2CF8606108F0518E29E944820F10B28E24A",
 		"Wechatpay-Nonce":     "EcZ9Cmy4Xyx1i6RlJQzLcCyEqDa26NBz",
 		"Wechatpay-Timestamp": "1624523846",
 		"Wechatpay-Serial":    "D7CE59D1F522D701",
@@ -129,8 +128,7 @@ cTJOU9TxuGvNASMtjj7pYIerTx+xgZDXEVBWFW9PjJ0TV06tCRsgSHItgg==
 	bodyBuf := &bytes.Buffer{}
 	bodyBuf.WriteString(body)
 
-	req, err := http.NewRequest(http.MethodGet, "http://127.0.0.1", bodyBuf)
-	require.NoError(t, err)
+	req := httptest.NewRequest(http.MethodGet, "http://127.0.0.1", bodyBuf)
 
 	for key, value := range headers {
 		req.Header.Set(key, value)
