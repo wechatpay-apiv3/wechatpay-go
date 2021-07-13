@@ -32,7 +32,8 @@ type PrepayWithRequestPaymentResponse struct {
 
 // PrepayWithRequestPayment Jsapi支付下单，并返回调起支付的请求参数
 func (a *JsapiApiService) PrepayWithRequestPayment(
-	ctx context.Context, req PrepayRequest) (resp *PrepayWithRequestPaymentResponse, result *core.APIResult, err error) {
+	ctx context.Context, req PrepayRequest,
+) (resp *PrepayWithRequestPaymentResponse, result *core.APIResult, err error) {
 	prepayResp, result, err := a.Prepay(ctx, req)
 	if err != nil {
 		return nil, result, err

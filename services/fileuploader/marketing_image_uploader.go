@@ -23,8 +23,12 @@ type MarketingImageUploadResponse struct {
 type MarketingImageUploader services.Service
 
 // Upload 上传图片至微信支付营销系统
-func (u *MarketingImageUploader) Upload(ctx context.Context, fileReader io.Reader, filename string, contentType string) (*MarketingImageUploadResponse, *core.APIResult, error) {
-	result, err := (*baseFileUploader)(u).upload(ctx, "/v3/marketing/favor/media/image-upload", fileReader, filename, contentType, map[string]interface{}{})
+func (u *MarketingImageUploader) Upload(
+	ctx context.Context, fileReader io.Reader, filename string, contentType string,
+) (*MarketingImageUploadResponse, *core.APIResult, error) {
+	result, err := (*baseFileUploader)(u).upload(
+		ctx, "/v3/marketing/favor/media/image-upload", fileReader, filename, contentType, map[string]interface{}{},
+	)
 	if err != nil {
 		return nil, result, err
 	}

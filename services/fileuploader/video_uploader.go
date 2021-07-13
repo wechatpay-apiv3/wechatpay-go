@@ -22,8 +22,12 @@ type VideoUploadResponse struct {
 type VideoUploader services.Service
 
 // Upload 上传视频至微信支付
-func (u *VideoUploader) Upload(ctx context.Context, fileReader io.Reader, filename, contentType string) (*VideoUploadResponse, *core.APIResult, error) {
-	result, err := (*baseFileUploader)(u).upload(ctx, "/v3/merchant/media/video_upload", fileReader, filename, contentType, map[string]interface{}{})
+func (u *VideoUploader) Upload(
+	ctx context.Context, fileReader io.Reader, filename, contentType string,
+) (*VideoUploadResponse, *core.APIResult, error) {
+	result, err := (*baseFileUploader)(u).upload(
+		ctx, "/v3/merchant/media/video_upload", fileReader, filename, contentType, map[string]interface{}{},
+	)
 	if err != nil {
 		return nil, result, err
 	}
