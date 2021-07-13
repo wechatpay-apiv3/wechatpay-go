@@ -45,9 +45,6 @@ func checkParameters(ctx context.Context, header http.Header, body []byte) error
 	_ = body
 
 	requestID := strings.TrimSpace(header.Get(consts.RequestID))
-	if requestID == "" {
-		return fmt.Errorf("empty %s", consts.RequestID)
-	}
 
 	if strings.TrimSpace(header.Get(consts.WechatPaySerial)) == "" {
 		return fmt.Errorf("empty %s, request-id=[%s]", consts.WechatPaySerial, requestID)
