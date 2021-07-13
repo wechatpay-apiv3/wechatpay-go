@@ -43,9 +43,12 @@ jWNRBmvvftZhY59PILHO2X5vO4FXh7suEjy6VIh0gsnK36mmRboYIBGsNuDHjXLe
 BDa+8mDLkWu5nHEhOxy2JJZl
 -----END PRIVATE KEY-----`
 	testCertificateSerial = `F5765756002FDD77`
-	testExpectedSignature = "BKyAfU4iMCuvXMXS0Wzam3V/cnxZ+JaqigPM5OhljS2iOT95OO6Fsuml2JkFANJU9K6q9bLlDhPXuoVz+pp4hAm6pHU4ld815U4jsKu1RkyaII+1CYBUYC8TK0XtJ8FwUXXz8vZHh58rrAVN1XwNyvD1vfpxrMT4SL536GLwvpUHlCqIMzoZUguLli/K8V29QiOhuH6IEqLNJn8e9b3nwNcQ7be3CzYGpDAKBfDGPCqCv8Rw5zndhlffk2FEA70G4hvMwe51qMN/RAJbknXG23bSlObuTCN7Ndj1aJGH6/L+hdwfLpUtJm4QYVazzW7DFD27EpSQEqA8bX9+8m1rLg=="
-	testMessage           = "source"
-	testMchID             = "1234567890"
+	testExpectedSignature = "BKyAfU4iMCuvXMXS0Wzam3V/cnxZ+JaqigPM5OhljS2iOT95OO6Fsuml2JkFANJU9K6q9bLlDhPXuoVz+pp4hAm6" +
+		"pHU4ld815U4jsKu1RkyaII+1CYBUYC8TK0XtJ8FwUXXz8vZHh58rrAVN1XwNyvD1vfpxrMT4SL536GLwvpUHlCqIMzoZUguLli/K8V29QiOh" +
+		"uH6IEqLNJn8e9b3nwNcQ7be3CzYGpDAKBfDGPCqCv8Rw5zndhlffk2FEA70G4hvMwe51qMN/RAJbknXG23bSlObuTCN7Ndj1aJGH6/L+hdwf" +
+		"LpUtJm4QYVazzW7DFD27EpSQEqA8bX9+8m1rLg=="
+	testMessage = "source"
+	testMchID   = "1234567890"
 )
 
 func TestSha256WithRSASigner_Sign(t *testing.T) {

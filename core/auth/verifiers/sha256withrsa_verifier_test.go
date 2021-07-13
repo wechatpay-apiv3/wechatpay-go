@@ -33,6 +33,11 @@ t3Rg8WXO6Gs66JJ4JR+rD01o3FiSOQCRWhn19NSyDydsgPlOR2t9B9L+MkJwlsMG
 Krn85TnwL3qcInzRnU8X86faXXJrI0IJi44tECKw8ftngCl6vyNwNNKPDwdkcuuV
 8y3iBixO5IuKxEKEp2wGPV/4W1AXO73Z3Gb7z/1oxdgeO0hVqz1hBasTCQ==
 -----END CERTIFICATE-----`
+	testExpectedSignature = "BKyAfU4iMCuvXMXS0Wzam3V/cnxZ+JaqigPM5OhljS2iOT95OO6Fsuml2JkFANJU9" +
+		"K6q9bLlDhPXuoVz+pp4hAm6pHU4ld815U4jsKu1RkyaII+1CYBUYC8TK0XtJ8FwUXXz8vZHh58rrAVN1XwNyv" +
+		"D1vfpxrMT4SL536GLwvpUHlCqIMzoZUguLli/K8V29QiOhuH6IEqLNJn8e9b3nwNcQ7be3CzYGpDAKBfDGPCq" +
+		"Cv8Rw5zndhlffk2FEA70G4hvMwe51qMN/RAJbknXG23bSlObuTCN7Ndj1aJGH6/L+hdwfLpUtJm4QYVazzW7D" +
+		"FD27EpSQEqA8bX9+8m1rLg=="
 )
 
 var (
@@ -60,23 +65,27 @@ func TestWechatPayVerifier_Verify(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:   "verify success",
-			fields: fields{Certificates: map[string]*x509.Certificate{testWechatPayVerifierPlatformSerialNumber: certificate}},
+			name: "verify success",
+			fields: fields{
+				Certificates: map[string]*x509.Certificate{testWechatPayVerifierPlatformSerialNumber: certificate},
+			},
 			args: args{
 				ctx:          context.Background(),
 				serialNumber: testWechatPayVerifierPlatformSerialNumber,
-				signature:    "BKyAfU4iMCuvXMXS0Wzam3V/cnxZ+JaqigPM5OhljS2iOT95OO6Fsuml2JkFANJU9K6q9bLlDhPXuoVz+pp4hAm6pHU4ld815U4jsKu1RkyaII+1CYBUYC8TK0XtJ8FwUXXz8vZHh58rrAVN1XwNyvD1vfpxrMT4SL536GLwvpUHlCqIMzoZUguLli/K8V29QiOhuH6IEqLNJn8e9b3nwNcQ7be3CzYGpDAKBfDGPCqCv8Rw5zndhlffk2FEA70G4hvMwe51qMN/RAJbknXG23bSlObuTCN7Ndj1aJGH6/L+hdwfLpUtJm4QYVazzW7DFD27EpSQEqA8bX9+8m1rLg==",
+				signature:    testExpectedSignature,
 				message:      "source",
 			},
 			wantErr: false,
 		},
 		{
-			name:   "verify failed",
-			fields: fields{Certificates: map[string]*x509.Certificate{testWechatPayVerifierPlatformSerialNumber: certificate}},
+			name: "verify failed",
+			fields: fields{
+				Certificates: map[string]*x509.Certificate{testWechatPayVerifierPlatformSerialNumber: certificate},
+			},
 			args: args{
 				ctx:          context.Background(),
 				serialNumber: testWechatPayVerifierPlatformSerialNumber,
-				signature:    "BKyAfU4iMCuvXMXS0Wzam3V/cnxZ+JaqigPM5OhljS2iOT95OO6Fsuml2JkFANJU9K6q9bLlDhPXuoVz+pp4hAm6pHU4ld815U4jsKu1RkyaII+1CYBUYC8TK0XtJ8FwUXXz8vZHh58rrAVN1XwNyvD1vfpxrMT4SL536GLwvpUHlCqIMzoZUguLli/K8V29QiOhuH6IEqLNJn8e9b3nwNcQ7be3CzYGpDAKBfDGPCqCv8Rw5zndhlffk2FEA70G4hvMwe51qMN/RAJbknXG23bSlObuTCN7Ndj1aJGH6/L+hdwfLpUtJm4QYVazzW7DFD27EpSQEqA8bX9+8m1rLg==",
+				signature:    testExpectedSignature,
 				message:      "wrong source",
 			},
 			wantErr: true,
@@ -87,7 +96,7 @@ func TestWechatPayVerifier_Verify(t *testing.T) {
 			args: args{
 				ctx:          context.Background(),
 				serialNumber: testWechatPayVerifierPlatformSerialNumber,
-				signature:    "BKyAfU4iMCuvXMXS0Wzam3V/cnxZ+JaqigPM5OhljS2iOT95OO6Fsuml2JkFANJU9K6q9bLlDhPXuoVz+pp4hAm6pHU4ld815U4jsKu1RkyaII+1CYBUYC8TK0XtJ8FwUXXz8vZHh58rrAVN1XwNyvD1vfpxrMT4SL536GLwvpUHlCqIMzoZUguLli/K8V29QiOhuH6IEqLNJn8e9b3nwNcQ7be3CzYGpDAKBfDGPCqCv8Rw5zndhlffk2FEA70G4hvMwe51qMN/RAJbknXG23bSlObuTCN7Ndj1aJGH6/L+hdwfLpUtJm4QYVazzW7DFD27EpSQEqA8bX9+8m1rLg==",
+				signature:    testExpectedSignature,
 				message:      "source",
 			},
 			wantErr: true,
