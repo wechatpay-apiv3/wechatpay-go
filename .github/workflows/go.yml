@@ -40,7 +40,7 @@ jobs:
     - name: staticcheck
       run: |
         go get -u honnef.co/go/tools/cmd/staticcheck@latest &&
-        $HOME/go/bin/staticcheck -tests=false ./...
+        $HOME/go/bin/staticcheck ./...
 
   test:
     runs-on: ubuntu-latest
@@ -58,4 +58,4 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
       - name: Test
-        run: go test -gcflags=all=-l ./core/... ./utils/...
+        run: go test -gcflags=all=-l ./...
