@@ -42,19 +42,31 @@ func (c *WechatPayCipher) Encrypt(ctx context.Context, in interface{}) (string, 
 
 	ctx = setEncryptSerial(ctx, serial)
 	if v, ok := in.(reflect.Value); ok {
-		return serial, c.cipher(ctx, cipherTypeEncrypt, v)
+		err = c.cipher(ctx, cipherTypeEncrypt, v)
 	} else {
-		return serial, c.cipher(ctx, cipherTypeEncrypt, reflect.ValueOf(in))
+		err = c.cipher(ctx, cipherTypeEncrypt, reflect.ValueOf(in))
 	}
+	if err != nil {
+		return "", fmt.Errorf("encrypt struct failed: %w", err)
+	}
+
+	return serial, nil
 }
 
 // Decrypt 对结构中的敏感字段进行解密
 func (c *WechatPayCipher) Decrypt(ctx context.Context, in interface{}) error {
+	var err error
 	if v, ok := in.(reflect.Value); ok {
-		return c.cipher(ctx, cipherTypeDecrypt, v)
+		err = c.cipher(ctx, cipherTypeDecrypt, v)
 	} else {
-		return c.cipher(ctx, cipherTypeDecrypt, reflect.ValueOf(in))
+		err = c.cipher(ctx, cipherTypeDecrypt, reflect.ValueOf(in))
 	}
+
+	if err != nil {
+		return fmt.Errorf("decrypt struct failed: %w", err)
+	}
+
+	return nil
 }
 
 // cipher 递归进行加密/解密操作
