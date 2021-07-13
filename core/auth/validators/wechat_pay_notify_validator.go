@@ -1,6 +1,7 @@
 package validators
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io/ioutil"
@@ -16,15 +17,13 @@ type WechatPayNotifyValidator struct {
 
 // Validate 对接收到的微信支付 API v3 通知请求报文进行验证
 func (v *WechatPayNotifyValidator) Validate(ctx context.Context, request *http.Request) error {
-	reqBody, err := request.GetBody()
-	if err != nil {
-		return fmt.Errorf("get request body err: %v", err)
-	}
-
-	body, err := ioutil.ReadAll(reqBody)
+	body, err := ioutil.ReadAll(request.Body)
 	if err != nil {
 		return fmt.Errorf("read request body err: %v", err)
 	}
+
+	_ = request.Body.Close()
+	request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 	return v.validateHTTPMessage(ctx, request.Header, body)
 }
