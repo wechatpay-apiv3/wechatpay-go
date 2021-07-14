@@ -41,6 +41,10 @@ jobs:
       run: |
         go get -u honnef.co/go/tools/cmd/staticcheck@latest &&
         $HOME/go/bin/staticcheck ./...
+    - name: Revive Action
+      uses: morphy2k/revive-action@v2.1.1
+      with:
+        config: .revive.toml
 
   test:
     runs-on: ubuntu-latest
