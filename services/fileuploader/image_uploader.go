@@ -12,7 +12,7 @@ import (
 
 // ImageUploadResponse 图片上传API返回结果
 type ImageUploadResponse struct {
-	MediaId *string `json:"media_id"`
+	MediaId *string `json:"media_id"` // revive:disable-line:var-naming
 }
 
 // ImageUploader 图片上传API
