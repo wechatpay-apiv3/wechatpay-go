@@ -30,3 +30,5 @@ warningCode = 0
 Arguments = [120]
 [rule.function-result-limit]
 Arguments = [3]
+[rule.cyclomatic]
+Arguments = [10]
