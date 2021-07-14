@@ -4,6 +4,9 @@ package ciphers
 
 import "context"
 
+// contextKey WechatPayCipher Context Key Type
+//
+// 使用强类型避免与其他 Context Key 冲突
 type contextKey string
 
 func (c contextKey) String() string {
