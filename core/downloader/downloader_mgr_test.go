@@ -25,7 +25,7 @@ func TestAutoCertificateDownloader(t *testing.T) {
 	require.NotNil(t, mgr)
 	defer mgr.Stop()
 
-	privateKey, err := utils.LoadPrivateKey(mockMchPrivateKey)
+	privateKey, err := utils.LoadPrivateKey(testingKey(mockMchPrivateKey))
 	require.NoError(t, err)
 	opts := []core.ClientOption{
 		option.WithMerchantCredential(mockMchID, mockMchCertificateSerial, privateKey),
