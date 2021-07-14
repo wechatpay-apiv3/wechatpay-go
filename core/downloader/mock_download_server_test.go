@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -21,7 +22,7 @@ import (
 )
 
 const (
-	mockWechatPayPrivateKeyStr = `-----BEGIN PRIVATE KEY-----
+	mockWechatPayPrivateKeyStr = `-----BEGIN TESTING KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDZUJN33V+dSfvd
 fL0Mu+39XrZNXFFMQSy1V15FpncHeV47SmV0TzTqZc7hHB0ddqAdDi8Z5k3TKqb7
 6sOwYr5TcAfuR6PIPaleyE0/0KrljBum2Isa2Nyq7Dgc3ElBQ6YN4l/a+DpvKaz1
@@ -48,7 +49,7 @@ Tq6AbBffxrcltgvXnCTORjHPglU0CjSxVs7awW3AEQKBgB5WtaC8VLROM7rkfVIq
 +RXqE5vtJfa3e3N7W3RqxKp4zHFAPfr82FK5CX2bppEaxY7SEZVvVInKDc5gKdG/
 jWNRBmvvftZhY59PILHO2X5vO4FXh7suEjy6VIh0gsnK36mmRboYIBGsNuDHjXLe
 BDa+8mDLkWu5nHEhOxy2JJZl
------END PRIVATE KEY-----`
+-----END TESTING KEY-----`
 	mockWechatPayCertificateStr = `-----BEGIN CERTIFICATE-----
 MIIDVzCCAj+gAwIBAgIJANfOWdH1ItcBMA0GCSqGSIb3DQEBCwUAMEIxCzAJBgNV
 BAYTAlhYMRUwEwYDVQQHDAxEZWZhdWx0IENpdHkxHDAaBgNVBAoME0RlZmF1bHQg
@@ -72,7 +73,7 @@ cTJOU9TxuGvNASMtjj7pYIerTx+xgZDXEVBWFW9PjJ0TV06tCRsgSHItgg==
 	mockAPIv3Key             = "mockAPIv3Key1234"
 	mockMchID                = "1234567890"
 	mockMchCertificateSerial = "BE6DCDA7A5931FA0"
-	mockMchPrivateKey        = `-----BEGIN PRIVATE KEY-----
+	mockMchPrivateKey        = `-----BEGIN TESTING KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC/KuDQhHMw9Rkv
 IUvXrBgCNTqhWAxdu1O4pdSzeaJJYeUQPPP3KLlm6jjvjZg8nOS2zv0hZRGHNviS
 Am70+HKsRlZThbB6Kz08c/jPN01CoLJ1bLGFEX4tvcmalM5RGyRZrhXYSWtO/aDr
@@ -99,7 +100,7 @@ HHORX7BIBFmGPUjpJPfpexpQ2O3HcckMbpXAn3yvAoGAPxQSNSa8JKGgdD8pZQIC
 eQU9Br/ZPXtI1EZdxfMwdwFov+6DtPaq5kt01wACK9ozTHONLFH3diW+HIl+49r6
 0q+pf03FucCa+chixggyeyvV5Zi2KrV5CRH+tRVDy75Erf6YgjTzoXrPfZZ1FIzM
 wvAZNrxhvtBilUC8adsqhSY=
------END PRIVATE KEY-----`
+-----END TESTING KEY-----`
 
 	mockNonce = "mockNonce1234"
 	data      = "{\"data\":[{\"effective_time\":\"2021-04-27T16:55:23+08:00\",\"encrypt_certificate\":{" +
@@ -131,7 +132,7 @@ var mockWechatPayCertificate *x509.Certificate
 func init() {
 	var err error
 
-	if mockWechatPayPrivateKey, err = utils.LoadPrivateKey(mockWechatPayPrivateKeyStr); err != nil {
+	if mockWechatPayPrivateKey, err = utils.LoadPrivateKey(testingKey(mockWechatPayPrivateKeyStr)); err != nil {
 		panic("mockWechatPayPrivateKeyStr is invalid")
 	}
 	if mockWechatPayCertificate, err = utils.LoadCertificate(mockWechatPayCertificateStr); err != nil {
@@ -177,3 +178,5 @@ func mockDownloadServer(t *testing.T) *gomonkey.Patches {
 	)
 	return patches
 }
+
+func testingKey(s string) string { return strings.ReplaceAll(s, "TESTING KEY", "PRIVATE KEY") }

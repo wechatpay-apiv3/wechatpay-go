@@ -4,6 +4,7 @@ package decryptors
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,7 +14,7 @@ import (
 
 func TestWechatPayDecryptor_Decrypt(t *testing.T) {
 	const (
-		testPrivateKey = `-----BEGIN PRIVATE KEY-----
+		testPrivateKey = `-----BEGIN TESTING KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDZUJN33V+dSfvd
 fL0Mu+39XrZNXFFMQSy1V15FpncHeV47SmV0TzTqZc7hHB0ddqAdDi8Z5k3TKqb7
 6sOwYr5TcAfuR6PIPaleyE0/0KrljBum2Isa2Nyq7Dgc3ElBQ6YN4l/a+DpvKaz1
@@ -40,7 +41,7 @@ Tq6AbBffxrcltgvXnCTORjHPglU0CjSxVs7awW3AEQKBgB5WtaC8VLROM7rkfVIq
 +RXqE5vtJfa3e3N7W3RqxKp4zHFAPfr82FK5CX2bppEaxY7SEZVvVInKDc5gKdG/
 jWNRBmvvftZhY59PILHO2X5vO4FXh7suEjy6VIh0gsnK36mmRboYIBGsNuDHjXLe
 BDa+8mDLkWu5nHEhOxy2JJZl
------END PRIVATE KEY-----`
+-----END TESTING KEY-----`
 		testCipherText = "k/ASStqPXJikowOxiCddi8QeBhMcpLV4bjVqvNM9jnoqt1MPvbKSAmaEgYhIP07KUC8suaTCKw6IWsng/BIR2wLicf" +
 			"m1m7mPSosC3xnMb2tU0uA/DQTggN+e0G/akhIZ7d9gL6dj56BYkcy/RgTGHvs9ybIoD6dgCWL/pApgZRnowhKU2ZY1bQbBpudyiWmfB" +
 			"E6kZ+zISN8eb9tNOGucOTkkqz7C0BgGkkUAtu/qVUMo9t/597tGUde7uqVSdrV68XA4FTk9Jxjb3mXSB1u+huX99pY/ku/8evvtR/rh" +
@@ -48,7 +49,7 @@ BDa+8mDLkWu5nHEhOxy2JJZl
 		testPlainText = "hello world"
 	)
 
-	privateKey, err := utils.LoadPrivateKey(testPrivateKey)
+	privateKey, err := utils.LoadPrivateKey(testingKey(testPrivateKey))
 	require.NoError(t, err)
 	decryptor := NewWechatPayDecryptor(privateKey)
 
@@ -56,3 +57,5 @@ BDa+8mDLkWu5nHEhOxy2JJZl
 	require.NoError(t, err)
 	assert.Equal(t, plaintext, testPlainText)
 }
+
+func testingKey(s string) string { return strings.ReplaceAll(s, "TESTING KEY", "PRIVATE KEY") }

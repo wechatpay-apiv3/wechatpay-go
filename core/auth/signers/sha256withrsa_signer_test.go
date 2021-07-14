@@ -5,6 +5,7 @@ package signers
 import (
 	"context"
 	"crypto/rsa"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,7 @@ import (
 )
 
 const (
-	testPrivateKeyStr = `-----BEGIN PRIVATE KEY-----
+	testPrivateKeyStr = `-----BEGIN TESTING KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDZUJN33V+dSfvd
 fL0Mu+39XrZNXFFMQSy1V15FpncHeV47SmV0TzTqZc7hHB0ddqAdDi8Z5k3TKqb7
 6sOwYr5TcAfuR6PIPaleyE0/0KrljBum2Isa2Nyq7Dgc3ElBQ6YN4l/a+DpvKaz1
@@ -41,7 +42,7 @@ Tq6AbBffxrcltgvXnCTORjHPglU0CjSxVs7awW3AEQKBgB5WtaC8VLROM7rkfVIq
 +RXqE5vtJfa3e3N7W3RqxKp4zHFAPfr82FK5CX2bppEaxY7SEZVvVInKDc5gKdG/
 jWNRBmvvftZhY59PILHO2X5vO4FXh7suEjy6VIh0gsnK36mmRboYIBGsNuDHjXLe
 BDa+8mDLkWu5nHEhOxy2JJZl
------END PRIVATE KEY-----`
+-----END TESTING KEY-----`
 	testCertificateSerial = `F5765756002FDD77`
 	testExpectedSignature = "BKyAfU4iMCuvXMXS0Wzam3V/cnxZ+JaqigPM5OhljS2iOT95OO6Fsuml2JkFANJU9K6q9bLlDhPXuoVz+pp4hAm6" +
 		"pHU4ld815U4jsKu1RkyaII+1CYBUYC8TK0XtJ8FwUXXz8vZHh58rrAVN1XwNyvD1vfpxrMT4SL536GLwvpUHlCqIMzoZUguLli/K8V29QiOh" +
@@ -51,8 +52,10 @@ BDa+8mDLkWu5nHEhOxy2JJZl
 	testMchID   = "1234567890"
 )
 
+func testingKey(s string) string { return strings.ReplaceAll(s, "TESTING KEY", "PRIVATE KEY") }
+
 func TestSha256WithRSASigner_Sign(t *testing.T) {
-	privateKey, err := utils.LoadPrivateKey(testPrivateKeyStr)
+	privateKey, err := utils.LoadPrivateKey(testingKey(testPrivateKeyStr))
 	require.NoError(t, err)
 
 	type args struct {
