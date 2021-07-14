@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 // Package signers 微信支付 API v3 Go SDK 数字签名生成器
 package signers
 

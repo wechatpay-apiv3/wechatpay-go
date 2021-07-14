@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 package fileuploader
 
 import (
@@ -20,7 +22,10 @@ type baseFileUploader services.Service
 // upload 将指定文件内容上传到指定地址
 //
 // 注意：urlpath 不要包含微信支付API服务地址，只包含路径即可，例如 `/v3/merchant/media/upload`
-func (s *baseFileUploader) upload(ctx context.Context, urlpath string, fileReader io.Reader, filename, contentType string, extra map[string]interface{}) (*core.APIResult, error) {
+func (s *baseFileUploader) upload(
+	ctx context.Context, urlpath string, fileReader io.Reader, filename, contentType string,
+	extra map[string]interface{},
+) (*core.APIResult, error) {
 	urlpath = consts.WechatPayAPIServer + urlpath
 
 	content, err := ioutil.ReadAll(fileReader)

@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 package utils
 
 import (
@@ -81,10 +83,14 @@ func TestDecryptAes256Gcm(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			plaintext, err := DecryptAES256GCM(tt.args.apiv3Key, tt.args.associatedData, tt.args.nonce, tt.args.ciphertext)
-			require.Equal(t, tt.wantErr, err != nil)
-			assert.Equal(t, tt.plaintext, plaintext)
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				plaintext, err := DecryptAES256GCM(
+					tt.args.apiv3Key, tt.args.associatedData, tt.args.nonce, tt.args.ciphertext,
+				)
+				require.Equal(t, tt.wantErr, err != nil)
+				assert.Equal(t, tt.plaintext, plaintext)
+			},
+		)
 	}
 }

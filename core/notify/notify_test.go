@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 package notify
 
 import (
@@ -121,9 +123,26 @@ cTJOU9TxuGvNASMtjj7pYIerTx+xgZDXEVBWFW9PjJ0TV06tCRsgSHItgg==
 		"Wechatpay-Nonce":     "EcZ9Cmy4Xyx1i6RlJQzLcCyEqDa26NBz",
 		"Wechatpay-Timestamp": "1624523846",
 		"Wechatpay-Serial":    "D7CE59D1F522D701",
-		"Wechatpay-Signature": "tJHIiIS9eB2hAYstmAmbbD3ZE5LiIm/Ug5tuL4fC0YOFRWIHV39UFIZXC0e9Wl6lBu6sKvkqDkzpqzBsVHyXFlbYZTOQrVdG4b6LfTnK4mikv9++ixJMd3vTf2yCqvBkh98zs3Ds5zsYQakzbcwhmw4fMJs4nPLws28H0UW9FjDR//rxELLwXvV1VEA1IBLX70xptjL8hrfUjEE8kkry6yNJTHZRU8CAc7qHli2Ng1V1qb9ARbK8A3ThmFmPQvRGrapI/jS2laKKgYUmfdEdkNO6B2Cke5e8VTxY406ArAmQ90GAihDwIcb16TQMnzCMBoutnwZKNiKRACrFmtxw2Q==",
+		"Wechatpay-Signature": "tJHIiIS9eB2hAYstmAmbbD3ZE5LiIm/Ug5tuL4fC0YOFRWIHV39UFIZXC0e9Wl6lBu6sKvkqDkzpqzBsVHyXF" +
+			"lbYZTOQrVdG4b6LfTnK4mikv9++ixJMd3vTf2yCqvBkh98zs3Ds5zsYQakzbcwhmw4fMJs4nPLws28H0UW9FjDR//rxELLwXvV1VEA1I" +
+			"BLX70xptjL8hrfUjEE8kkry6yNJTHZRU8CAc7qHli2Ng1V1qb9ARbK8A3ThmFmPQvRGrapI/jS2laKKgYUmfdEdkNO6B2Cke5e8VTxY4" +
+			"06ArAmQ90GAihDwIcb16TQMnzCMBoutnwZKNiKRACrFmtxw2Q==",
 	}
-	body := `{"id":"3119dfba-e649-5eec-ab1e-3412bc4d2e17","create_time":"2021-06-24T16:37:26+08:00","resource_type":"encrypt-resource","event_type":"PAYSCORE.USER_OPEN_SERVICE","summary":"签约成功","resource":{"original_type":"payscore","algorithm":"AEAD_AES_256_GCM","ciphertext":"YDS3lKPaC4Y52Gf3uhft5qUBlIa8b428AWTtTauHQfQrRw+X1WpiuHIDy0vo1Vd6VEq67aVyqPdDYMkRVSDaZL3iZttevRMOoPKMifozg6XPWjIZumks/GpT48lI4NizyeaqLBokNebthah3o1H76qSlO9NkDjp9bzmKLEYYH9TEklFUpsvPqOTOcgSLgh21YJXYR7dEBXFgRLiNIKRgO5JdXh1hccRUAlyVWxE54PXpnQ==","associated_data":"payscore","nonce":"Kj7QIyUiYx1q"}}`
+	body := "{" +
+		"\"id\":\"3119dfba-e649-5eec-ab1e-3412bc4d2e17\"," +
+		"\"create_time\":\"2021-06-24T16:37:26+08:00\"," +
+		"\"resource_type\":\"encrypt-resource\"," +
+		"\"event_type\":\"PAYSCORE.USER_OPEN_SERVICE\"," +
+		"\"summary\":\"签约成功\"," +
+		"\"resource\":{" +
+		"\"original_type\":\"payscore\"," +
+		"\"algorithm\":\"AEAD_AES_256_GCM\"," +
+		"\"ciphertext\":\"YDS3lKPaC4Y52Gf3uhft5qUBlIa8b428AWTtTauHQfQrRw+X1WpiuHIDy0vo1Vd6VEq67aVyqPdDYMkRVSDaZL3iZt" +
+		"tevRMOoPKMifozg6XPWjIZumks/GpT48lI4NizyeaqLBokNebthah3o1H76qSlO9NkDjp9bzmKLEYYH9TEklFUpsvPqOTOcgSLgh21YJXYR" +
+		"7dEBXFgRLiNIKRgO5JdXh1hccRUAlyVWxE54PXpnQ==\"," +
+		"\"associated_data\":\"payscore\"," +
+		"\"nonce\":\"Kj7QIyUiYx1q\"}" +
+		"}"
 
 	bodyBuf := &bytes.Buffer{}
 	bodyBuf.WriteString(body)

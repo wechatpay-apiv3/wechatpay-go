@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 package ciphers
 
 import (
@@ -119,8 +121,7 @@ func TestWechatPayCipher_CipherValue(t *testing.T) {
 		decryptor: &decryptors.MockDecryptor{},
 	}
 
-	serial, err := c.Encrypt(context.Background(), s)
-	assert.Equal(t, "Mock Serial", serial)
+	_, err := c.Encrypt(context.Background(), s)
 	require.Error(t, err)
-	assert.Equal(t, "in-place cipher requires settable input, ptr for example", err.Error())
+	assert.Equal(t, "encrypt struct failed: in-place cipher requires settable input, ptr for example", err.Error())
 }
