@@ -15,7 +15,7 @@ import (
 // PrepayWithRequestPaymentResponse 预下单ID，并包含了调起支付的请求参数
 type PrepayWithRequestPaymentResponse struct {
 	// 预支付交易会话标识
-	PrepayId *string `json:"prepay_id"`
+	PrepayId *string `json:"prepay_id"` // revive:disable-line:var-naming
 	// 应用ID
 	Appid *string `json:"appId"`
 	// 时间戳

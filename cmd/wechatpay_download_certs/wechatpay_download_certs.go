@@ -93,6 +93,7 @@ func (e paramError) Error() string {
 	return fmt.Sprintf("%v %v", e.name, e.message)
 }
 
+// revive:disable:cyclomatic
 func checkArgs() error {
 	if mchID == "" {
 		return paramError{"商户号", mchID, "必传"}
@@ -135,6 +136,8 @@ func checkArgs() error {
 
 	return nil
 }
+
+// revive:enable:cyclomatic
 
 func saveCertificates(ctx context.Context, d *downloader.CertificateDownloader) error {
 	for serialNo, certContent := range d.ExportAll(ctx) {

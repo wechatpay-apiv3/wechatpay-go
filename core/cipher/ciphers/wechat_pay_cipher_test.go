@@ -26,8 +26,8 @@ type Address struct {
 	// Not EM_APIV3 encryption Tag
 	Province *string `encryption:"EM_APIV2"`
 	// EM_APIV3 encryption Tag
-	City   *string `encryption:"EM_APIV3"`
-	Street *string `encryption:"EM_APIV3"`
+	City   **string `encryption:"EM_APIV3"`
+	Street *string  `encryption:"EM_APIV3"`
 }
 
 type Parent struct {
@@ -36,6 +36,9 @@ type Parent struct {
 }
 
 func TestWechatPayCipher_Encrypt_Decrypt(t *testing.T) {
+	cityCD := core.String("成都")
+	cityLA := core.String("LA")
+
 	s := Student{
 		Name: "小可",
 		Age:  8,
@@ -43,13 +46,13 @@ func TestWechatPayCipher_Encrypt_Decrypt(t *testing.T) {
 			{
 				Country:  core.String("中国"),
 				Province: core.String("四川"),
-				City:     core.String("成都"),
+				City:     &cityCD,
 				Street:   core.String("春熙路"),
 			},
 			{
 				Country:  core.String("USA"),
 				Province: core.String("California"),
-				City:     core.String("LA"),
+				City:     &cityLA,
 				Street:   core.String("Nowhere"),
 			},
 		},
@@ -79,11 +82,11 @@ func TestWechatPayCipher_Encrypt_Decrypt(t *testing.T) {
 	assert.Equal(t, 8, s.Age)
 	assert.Equal(t, "中国", *(s.Addresses[0].Country))
 	assert.Equal(t, "四川", *(s.Addresses[0].Province))
-	assert.Equal(t, "Encrypted成都", *(s.Addresses[0].City))
+	assert.Equal(t, "Encrypted成都", **(s.Addresses[0].City))
 	assert.Equal(t, "Encrypted春熙路", *(s.Addresses[0].Street))
 	assert.Equal(t, "USA", *(s.Addresses[1].Country))
 	assert.Equal(t, "California", *(s.Addresses[1].Province))
-	assert.Equal(t, "EncryptedLA", *(s.Addresses[1].City))
+	assert.Equal(t, "EncryptedLA", **(s.Addresses[1].City))
 	assert.Equal(t, "EncryptedNowhere", *(s.Addresses[1].Street))
 	assert.Equal(t, "Encrypted爸", (*s.Parents)[0].Name)
 	assert.Equal(t, "Encrypted13000000000", *((*s.Parents)[0].PhoneNumber))
@@ -96,11 +99,11 @@ func TestWechatPayCipher_Encrypt_Decrypt(t *testing.T) {
 	assert.Equal(t, 8, s.Age)
 	assert.Equal(t, "中国", *(s.Addresses[0].Country))
 	assert.Equal(t, "四川", *(s.Addresses[0].Province))
-	assert.Equal(t, "成都", *(s.Addresses[0].City))
+	assert.Equal(t, "成都", **(s.Addresses[0].City))
 	assert.Equal(t, "春熙路", *(s.Addresses[0].Street))
 	assert.Equal(t, "USA", *(s.Addresses[1].Country))
 	assert.Equal(t, "California", *(s.Addresses[1].Province))
-	assert.Equal(t, "LA", *(s.Addresses[1].City))
+	assert.Equal(t, "LA", **(s.Addresses[1].City))
 	assert.Equal(t, "Nowhere", *(s.Addresses[1].Street))
 	assert.Equal(t, "爸", (*s.Parents)[0].Name)
 	assert.Equal(t, "13000000000", *((*s.Parents)[0].PhoneNumber))
