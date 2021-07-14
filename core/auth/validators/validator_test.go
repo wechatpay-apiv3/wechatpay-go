@@ -8,12 +8,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 )
 
@@ -21,7 +19,7 @@ type mockVerifier struct {
 }
 
 func (v *mockVerifier) Verify(ctx context.Context, serialNumber string, message string, signature string) error {
-	if serialNumber+"-"+message == signature {
+	if "["+serialNumber+"-"+message+"]" == signature {
 		return nil
 	}
 
@@ -50,7 +48,7 @@ func TestWechatPayResponseValidator_Validate(t *testing.T) {
 				response: &http.Response{
 					Header: http.Header{
 						consts.WechatPaySignature: {
-							"SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\nBODY\n",
+							"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\nBODY\n]",
 						},
 						consts.WechatPaySerial:    {"SERIAL1234567890"},
 						consts.WechatPayTimestamp: {mockTimestampStr},
@@ -68,7 +66,9 @@ func TestWechatPayResponseValidator_Validate(t *testing.T) {
 				ctx: context.Background(),
 				response: &http.Response{
 					Header: http.Header{
-						consts.WechatPaySignature: {"SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\n\n"},
+						consts.WechatPaySignature: {
+							"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\n\n]",
+						},
 						consts.WechatPaySerial:    {"SERIAL1234567890"},
 						consts.WechatPayTimestamp: {mockTimestampStr},
 						consts.WechatPayNonce:     {"NONCE1234567890"},
@@ -80,12 +80,30 @@ func TestWechatPayResponseValidator_Validate(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "response validate verify err",
+			name: "response validate success without RequestID",
 			args: args{
 				ctx: context.Background(),
 				response: &http.Response{
 					Header: http.Header{
-						consts.WechatPaySignature: {"SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\n"},
+						consts.WechatPaySignature: {
+							"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\n\n]",
+						},
+						consts.WechatPaySerial:    {"SERIAL1234567890"},
+						consts.WechatPayTimestamp: {mockTimestampStr},
+						consts.WechatPayNonce:     {"NONCE1234567890"},
+					},
+					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "response validate error with error signature",
+			args: args{
+				ctx: context.Background(),
+				response: &http.Response{
+					Header: http.Header{
+						consts.WechatPaySignature: {"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567\n\n]"},
 						consts.WechatPaySerial:    {"SERIAL1234567890"},
 						consts.WechatPayTimestamp: {mockTimestampStr},
 						consts.WechatPayNonce:     {"NONCE1234567890"},
@@ -97,15 +115,80 @@ func TestWechatPayResponseValidator_Validate(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "response validate decode check parameters err",
+			name: "response validate error missing signature",
 			args: args{
 				ctx: context.Background(),
 				response: &http.Response{
 					Header: http.Header{
-						consts.WechatPaySignature: {"SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\n"},
 						consts.WechatPaySerial:    {"SERIAL1234567890"},
 						consts.WechatPayTimestamp: {mockTimestampStr},
 						consts.WechatPayNonce:     {"NONCE1234567890"},
+						consts.RequestID:          {"any-request-id"},
+					},
+					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "response validate error missing serial",
+			args: args{
+				ctx: context.Background(),
+				response: &http.Response{
+					Header: http.Header{
+						consts.WechatPaySignature: {"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\n]"},
+						consts.WechatPayTimestamp: {mockTimestampStr},
+						consts.WechatPayNonce:     {"NONCE1234567890"},
+						consts.RequestID:          {"any-request-id"},
+					},
+					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "response validate error missing timestamp",
+			args: args{
+				ctx: context.Background(),
+				response: &http.Response{
+					Header: http.Header{
+						consts.WechatPaySignature: {"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\n]"},
+						consts.WechatPaySerial:    {"SERIAL1234567890"},
+						consts.WechatPayNonce:     {"NONCE1234567890"},
+						consts.RequestID:          {"any-request-id"},
+					},
+					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "response validate error invalid timestamp",
+			args: args{
+				ctx: context.Background(),
+				response: &http.Response{
+					Header: http.Header{
+						consts.WechatPaySignature: {"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\n]"},
+						consts.WechatPaySerial:    {"SERIAL1234567890"},
+						consts.WechatPayTimestamp: {"invalid timestamp"},
+						consts.WechatPayNonce:     {"NONCE1234567890"},
+						consts.RequestID:          {"any-request-id"},
+					},
+					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "response validate error missing nonce",
+			args: args{
+				ctx: context.Background(),
+				response: &http.Response{
+					Header: http.Header{
+						consts.WechatPaySignature: {"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\n]"},
+						consts.WechatPaySerial:    {"SERIAL1234567890"},
+						consts.WechatPayTimestamp: {mockTimestampStr},
+						consts.RequestID:          {"any-request-id"},
 					},
 					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
 				},
@@ -124,125 +207,27 @@ func TestWechatPayResponseValidator_Validate(t *testing.T) {
 	}
 }
 
-func Test_checkParameters(t *testing.T) {
-	type args struct {
-		response *http.Response
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{
-			name: "parameter is valid",
-			args: args{
-				response: &http.Response{
-					Header: map[string][]string{
-						consts.RequestID:          {"1"},
-						consts.WechatPaySerial:    {"1"},
-						consts.WechatPaySignature: {"1"},
-						consts.WechatPayTimestamp: {strconv.FormatInt(time.Now().Unix(), 10)},
-						consts.WechatPayNonce:     {"1"},
-					},
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "time is expire",
-			args: args{
-				response: &http.Response{
-					Header: map[string][]string{
-						consts.RequestID:          {"1"},
-						consts.WechatPaySerial:    {"1"},
-						consts.WechatPaySignature: {"1"},
-						consts.WechatPayTimestamp: {"0"},
-						consts.WechatPayNonce:     {"1"},
-					},
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "nonce is empty",
-			args: args{
-				response: &http.Response{
-					Header: map[string][]string{
-						consts.RequestID:          {"1"},
-						consts.WechatPaySerial:    {"1"},
-						consts.WechatPaySignature: {"1"},
-						consts.WechatPayTimestamp: {strconv.FormatInt(0, 10)},
-					},
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "timestamp is empty",
-			args: args{
-				response: &http.Response{
-					Header: map[string][]string{
-						consts.RequestID:          {"1"},
-						consts.WechatPaySerial:    {"1"},
-						consts.WechatPaySignature: {"1"},
-					},
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "signature is empty",
-			args: args{
-				response: &http.Response{
-					Header: map[string][]string{
-						consts.RequestID:          {"1"},
-						consts.WechatPaySerial:    {"1"},
-						consts.WechatPaySignature: {"1"},
-					},
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "serial number is empty",
-			args: args{
-				response: &http.Response{
-					Header: map[string][]string{
-						consts.RequestID: {"1"},
-					},
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "request id is empty",
-			args: args{
-				response: &http.Response{
-					Header: map[string][]string{},
-				},
-			},
-			wantErr: true,
-		},
-	}
-	ctx := context.Background()
-	for _, tt := range tests {
-		t.Run(
-			tt.name, func(t *testing.T) {
-				var (
-					body []byte
-					err  error
-				)
-				if tt.args.response.Body != nil {
-					body, err = ioutil.ReadAll(tt.args.response.Body)
-					require.NoError(t, err)
-				}
+func TestWechatPayResponseValidator_WithoutVerifierShouldFail(t *testing.T) {
+	mockTimestamp := time.Now().Unix()
+	mockTimestampStr := fmt.Sprintf("%d", mockTimestamp)
 
-				if err := checkParameters(ctx, tt.args.response.Header, body); (err != nil) != tt.wantErr {
-					t.Errorf("validateParameters() error = %v, wantErr %v", err, tt.wantErr)
-				}
+	invalidValidator := NewWechatPayResponseValidator(nil)
+
+	response := &http.Response{
+		Header: http.Header{
+			consts.WechatPaySignature: {
+				"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\nBODY\n]",
 			},
-		)
+			consts.WechatPaySerial:    {"SERIAL1234567890"},
+			consts.WechatPayTimestamp: {mockTimestampStr},
+			consts.WechatPayNonce:     {"NONCE1234567890"},
+			consts.RequestID:          {"any-request-id"},
+		},
+		Body: ioutil.NopCloser(bytes.NewBuffer([]byte("BODY"))),
 	}
+
+	err := invalidValidator.Validate(context.Background(), response)
+	assert.Error(t, err)
 }
 
 func TestNullValidator_Validate(t *testing.T) {
