@@ -12,7 +12,7 @@ import (
 
 // MarketingImageUploadResponse 图片上传API（营销专用）返回结果
 type MarketingImageUploadResponse struct {
-	MediaUrl *string `json:"media_url"`
+	MediaUrl *string `json:"media_url"` // revive:disable-line:var-naming
 }
 
 // MarketingImageUploader 图片上传API（营销专用）
