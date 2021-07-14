@@ -519,6 +519,37 @@ request = result.Request
 response = result.Response 
 ```
 
+### 证书和回调解密需要的AesGcm解密在哪里？
+
+请参考 [aes.go](https://github.com/wechatpay-apiv3/wechatpay-go/blob/main/utils/aes.go) 和 [aes_test.go](https://github.com/wechatpay-apiv3/wechatpay-go/blob/main/utils/aes_test.go)。
+
+## 如何参与开发
+
+我们欢迎来自社区的开发者贡献你们的想法和代码。请你在提交 PR 之前，先提一个对应的 issue 说明以下内容：
+
+- 背景（如，遇到的问题）和目的
+- **着重**说明你的想法
+- 通过代码或者其他方式，简要的说明是如何实现的，或者它会是如何使用
+- 是否影响现有的接口
+
+[#35](https://github.com/wechatpay-apiv3/wechatpay-go/issues/35) 是一个很好的参考。
+
+### 测试
+
+开发者提交的代码，应能通过我们所有的测试用例。
+
+我们在单元测试中使用了`gomonkey`和`require`，测试前请确认相关的依赖。你可以使用以下命令获取所有的依赖。
+
+```bash
+go get -t -v
+```
+
+由于`gomonkey`的原因，在执行测试用例时需要携带参数`-gcflags=all=-l`。你可以使用以下命令发起测试。
+
+```bash
+go test -gcflags=all=-l ./...
+```
+
 ## 联系我们
 如果你发现了BUG或者有任何疑问、建议，欢迎通过 [issue](https://github.com/wechatpay-apiv3/wechatpay-go/issues) 进行反馈
 
