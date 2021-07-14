@@ -22,6 +22,22 @@ const (
 	encryptionTypeAPIV3 = "EM_APIV3"
 )
 
+// fieldCipherFuncType 用于对特定类型字段进行加/解密的方法类型
+type fieldCipherFuncType func(*WechatPayCipher, context.Context, cipherType, reflect.StructField, reflect.Value) error
+
+// fieldCipherMap 对不同类型字段进行加/解密的方法字典
+var fieldCipherMap map[reflect.Kind]fieldCipherFuncType
+
+func init() {
+	// 初始化加/解密方法字典，使用 init 初始化而不是直接在声明时初始化的原因是为了避免初始化循环依赖
+	fieldCipherMap = map[reflect.Kind]fieldCipherFuncType{
+		reflect.Struct: (*WechatPayCipher).cipherStructField,
+		reflect.Array:  (*WechatPayCipher).cipherArrayField,
+		reflect.Slice:  (*WechatPayCipher).cipherArrayField,
+		reflect.String: (*WechatPayCipher).cipherStringField,
+	}
+}
+
 // WechatPayCipher 提供微信支付敏感信息加解密功能
 //
 // 为了保证通信过程中敏感信息字段（如用户的住址、银行卡号、手机号码等）的机密性，微信支付API v3要求：
@@ -69,114 +85,138 @@ func (c *WechatPayCipher) Decrypt(ctx context.Context, in interface{}) error {
 	return nil
 }
 
-// cipher 递归进行加密/解密操作
+// cipher 执行加/解密的入口函数
 func (c *WechatPayCipher) cipher(ctx context.Context, ty cipherType, v reflect.Value) error {
-	var t = v.Type()
-
-	if t.Kind() == reflect.Ptr {
-		if v.IsNil() {
-			return nil
-		}
-
-		t = t.Elem()
-		v = v.Elem()
+	var isNil bool
+	if v, isNil = derefPtrValue(v); isNil {
+		// No cipher required for nil ptr
+		return nil
 	}
 
-	// Only Struct can be ciphered
-	if t.Kind() != reflect.Struct {
-		return fmt.Errorf("only struct can be ciphered")
-	}
-
-	// if not settable, cannot do further process
 	if !v.CanSet() {
 		return fmt.Errorf("in-place cipher requires settable input, ptr for example")
 	}
 
+	if v.Type().Kind() != reflect.Struct {
+		return fmt.Errorf("only struct can be ciphered")
+	}
+
+	return c.cipherStruct(ctx, ty, v)
+}
+
+// cipherStruct 递归进行Struct的加/解密操作
+func (c *WechatPayCipher) cipherStruct(ctx context.Context, ty cipherType, v reflect.Value) error {
+	var t = v.Type()
+
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
-		fieldType := field.Type
 		fieldValue := v.Field(i)
 
-		if !fieldValue.CanInterface() {
-			// ignore unexported fields
-			return nil
-		}
-
-		if fieldType.Kind() == reflect.Ptr {
-			if fieldValue.IsNil() {
-				continue
-			}
-
-			fieldType = fieldType.Elem()
-			fieldValue = fieldValue.Elem()
-		}
-
-		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
-			elemType := fieldType.Elem()
-
-			if c.isFieldRequireCipher(field, elemType) {
-				for j := 0; j < fieldValue.Len(); j++ {
-					elemValue := fieldValue.Index(j)
-					if err := c.cipherField(ctx, ty, field, elemType, elemValue); err != nil {
-						return err
-					}
-				}
-			}
-		} else if c.isFieldRequireCipher(field, fieldType) {
-			if err := c.cipherField(ctx, ty, field, fieldType, fieldValue); err != nil {
-				return err
-			}
+		if err := c.cipherField(ctx, ty, field, fieldValue); err != nil {
+			return err
 		}
 	}
 
 	return nil
 }
 
-// cipherField 对字段进行加密/解密操作，无需操作则跳过
+// derefPtrValue 将 Ptr 类型的 Value 解引用，直到获得非指针内容。
+//
+// 如果输入的 Value 不是 Ptr，则返回其本身
+// 如果输入的 Value 最终指向 Nil，则返回最终指向 Nil 的 Value 对象，且 isNil 为 true
+func derefPtrValue(inValue reflect.Value) (outValue reflect.Value, isNil bool) {
+	v := inValue
+
+	for v.Type().Kind() == reflect.Ptr {
+		if v.IsNil() {
+			return v, true
+		}
+		v = v.Elem()
+	}
+
+	return v, false
+}
+
+// cipherField 对字段进行加/解密
 func (c *WechatPayCipher) cipherField(
-	ctx context.Context, ty cipherType, f reflect.StructField, t reflect.Type, v reflect.Value,
+	ctx context.Context, ty cipherType, field reflect.StructField, fieldValue reflect.Value,
 ) error {
-	if t.Kind() == reflect.Struct {
-		if err := c.cipher(ctx, ty, v); err != nil {
-			return err
-		}
-	} else if t.Kind() == reflect.String && f.Tag.Get(fieldTagEncryption) == encryptionTypeAPIV3 {
-		var cipherText string
-		var err error
+	if !fieldValue.CanInterface() {
+		// Skip Unexported Field
+		return nil
+	}
 
-		switch ty {
-		case cipherTypeEncrypt:
-			serial, ok := getEncryptSerial(ctx)
-			if !ok {
-				return fmt.Errorf("`getEncryptSerial` not provided in ctx")
-			}
-			cipherText, err = c.encryptor.Encrypt(ctx, serial, v.Interface().(string))
-		case cipherTypeDecrypt:
-			cipherText, err = c.decryptor.Decrypt(ctx, v.Interface().(string))
-		default:
-			return fmt.Errorf("invalid cipher type:%v", ty)
-		}
+	var isNil bool
+	if fieldValue, isNil = derefPtrValue(fieldValue); isNil {
+		// Skip Field with no data
+		return nil
+	}
 
-		if err != nil {
-			return err
-		}
-		v.SetString(cipherText)
+	if fieldCipherFunc, ok := fieldCipherMap[fieldValue.Type().Kind()]; ok {
+		return fieldCipherFunc(c, ctx, ty, field, fieldValue)
 	}
 
 	return nil
 }
 
-// isFieldRequireCipher 判断该字段是否需要加密/解密
-func (c *WechatPayCipher) isFieldRequireCipher(f reflect.StructField, t reflect.Type) bool {
-	if t.Kind() == reflect.Struct {
-		return true
+// cipherStructField 对Struct类型的字段进行加/解密
+func (c *WechatPayCipher) cipherStructField(
+	ctx context.Context, ty cipherType, field reflect.StructField, fieldValue reflect.Value,
+) error {
+	_ = field
+	return c.cipherStruct(ctx, ty, fieldValue)
+}
+
+// cipherArrayField 对Array/Slice类型的字段进行加/解密
+func (c *WechatPayCipher) cipherArrayField(
+	ctx context.Context, ty cipherType, field reflect.StructField, fieldValue reflect.Value,
+) error {
+	elemType := fieldValue.Type().Elem()
+	if _, ok := fieldCipherMap[elemType.Kind()]; !ok {
+		// Field Element Type Requires no encryption, skip
+		return nil
 	}
 
-	if t.Kind() == reflect.String && f.Tag.Get(fieldTagEncryption) == encryptionTypeAPIV3 {
-		return true
+	for j := 0; j < fieldValue.Len(); j++ {
+		elemValue := fieldValue.Index(j)
+		if err := c.cipherField(ctx, ty, field, elemValue); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// cipherStringField 对String类型的字段进行加/解密
+func (c *WechatPayCipher) cipherStringField(
+	ctx context.Context, ty cipherType, field reflect.StructField, fieldValue reflect.Value,
+) error {
+	if field.Tag.Get(fieldTagEncryption) != encryptionTypeAPIV3 {
+		return nil
 	}
 
-	return false
+	var cipherText string
+	var err error
+
+	switch ty {
+	case cipherTypeEncrypt:
+		serial, ok := getEncryptSerial(ctx)
+		if !ok {
+			// 前置逻辑已经设置了 EncryptSerial，这里正常来讲不会进入
+			return fmt.Errorf("`%s` not provided in ctx(should not happen)", contextKeyEncryptSerial)
+		}
+		cipherText, err = c.encryptor.Encrypt(ctx, serial, fieldValue.Interface().(string))
+	case cipherTypeDecrypt:
+		cipherText, err = c.decryptor.Decrypt(ctx, fieldValue.Interface().(string))
+	default:
+		// 前置逻辑不会设置其他类型，这里正常来讲不会进入
+		return fmt.Errorf("invalid cipher type:%v(should not happen)", ty)
+	}
+
+	if err != nil {
+		return err
+	}
+	fieldValue.SetString(cipherText)
+	return nil
 }
 
 // NewWechatPayCipher 使用 cipher.Encryptor + cipher.Decryptor 构建一个 WechatPayCipher
