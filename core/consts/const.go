@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 // Package consts 微信支付 API v3 Go SDK 常量
 package consts
 

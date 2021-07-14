@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 package utils
 
 import (
@@ -9,7 +11,7 @@ import (
 )
 
 const (
-	testAlgorithmPrivateKeyStr = `-----BEGIN PRIVATE KEY-----
+	testAlgorithmPrivateKeyStr = `-----BEGIN TESTING KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDZUJN33V+dSfvd
 fL0Mu+39XrZNXFFMQSy1V15FpncHeV47SmV0TzTqZc7hHB0ddqAdDi8Z5k3TKqb7
 6sOwYr5TcAfuR6PIPaleyE0/0KrljBum2Isa2Nyq7Dgc3ElBQ6YN4l/a+DpvKaz1
@@ -36,15 +38,18 @@ Tq6AbBffxrcltgvXnCTORjHPglU0CjSxVs7awW3AEQKBgB5WtaC8VLROM7rkfVIq
 +RXqE5vtJfa3e3N7W3RqxKp4zHFAPfr82FK5CX2bppEaxY7SEZVvVInKDc5gKdG/
 jWNRBmvvftZhY59PILHO2X5vO4FXh7suEjy6VIh0gsnK36mmRboYIBGsNuDHjXLe
 BDa+8mDLkWu5nHEhOxy2JJZl
------END PRIVATE KEY-----`
-	testAlgorithmExpectSignature = "BKyAfU4iMCuvXMXS0Wzam3V/cnxZ+JaqigPM5OhljS2iOT95OO6Fsuml2JkFANJU9K6q9bLlDhPXuoVz+pp4hAm6pHU4ld815U4jsKu1RkyaII+1CYBUYC8TK0XtJ8FwUXXz8vZHh58rrAVN1XwNyvD1vfpxrMT4SL536GLwvpUHlCqIMzoZUguLli/K8V29QiOhuH6IEqLNJn8e9b3nwNcQ7be3CzYGpDAKBfDGPCqCv8Rw5zndhlffk2FEA70G4hvMwe51qMN/RAJbknXG23bSlObuTCN7Ndj1aJGH6/L+hdwfLpUtJm4QYVazzW7DFD27EpSQEqA8bX9+8m1rLg=="
+-----END TESTING KEY-----`
+	testAlgorithmExpectSignature = "BKyAfU4iMCuvXMXS0Wzam3V/cnxZ+JaqigPM5OhljS2iOT95OO6Fsuml2JkFANJU9K6q9bLlDhPXuoV" +
+		"z+pp4hAm6pHU4ld815U4jsKu1RkyaII+1CYBUYC8TK0XtJ8FwUXXz8vZHh58rrAVN1XwNyvD1vfpxrMT4SL536GLwvpUHlCqIMzoZUguLl" +
+		"i/K8V29QiOhuH6IEqLNJn8e9b3nwNcQ7be3CzYGpDAKBfDGPCqCv8Rw5zndhlffk2FEA70G4hvMwe51qMN/RAJbknXG23bSlObuTCN7Ndj" +
+		"1aJGH6/L+hdwfLpUtJm4QYVazzW7DFD27EpSQEqA8bX9+8m1rLg=="
 )
 
 var testAlgorithmPrivateKey *rsa.PrivateKey
 var ok bool
 
 func init() {
-	block, _ := pem.Decode([]byte(testAlgorithmPrivateKeyStr))
+	block, _ := pem.Decode([]byte(testingKey(testAlgorithmPrivateKeyStr)))
 	if block == nil {
 		panic("decode private key err")
 	}
@@ -54,7 +59,7 @@ func init() {
 	}
 	testAlgorithmPrivateKey, ok = key.(*rsa.PrivateKey)
 	if !ok {
-		panic(fmt.Errorf("%s is not rsa private key", testAlgorithmPrivateKeyStr))
+		panic(fmt.Errorf("%s is not rsa private key", testingKey(testAlgorithmPrivateKeyStr)))
 	}
 }
 

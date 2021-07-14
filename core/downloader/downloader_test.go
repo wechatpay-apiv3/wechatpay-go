@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 package downloader_test
 
 import (
@@ -18,7 +20,7 @@ func TestNewCertificateDownloaderWithClient(t *testing.T) {
 
 	ctx := context.Background()
 
-	privateKey, err := utils.LoadPrivateKey(mockMchPrivateKey)
+	privateKey, err := utils.LoadPrivateKey(testingKey(mockMchPrivateKey))
 	require.NoError(t, err)
 	opts := []core.ClientOption{
 		option.WithMerchantCredential(mockMchID, mockMchCertificateSerial, privateKey),
@@ -49,7 +51,7 @@ func TestNewCertificateDownloader(t *testing.T) {
 	patches := mockDownloadServer(t)
 	defer patches.Reset()
 
-	privateKey, err := utils.LoadPrivateKey(mockMchPrivateKey)
+	privateKey, err := utils.LoadPrivateKey(testingKey(mockMchPrivateKey))
 	require.NoError(t, err)
 
 	ctx := context.Background()

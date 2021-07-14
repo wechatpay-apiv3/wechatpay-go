@@ -1,8 +1,11 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 package encryptors
 
 import (
 	"context"
 	"crypto/x509"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -56,7 +59,7 @@ Krn85TnwL3qcInzRnU8X86faXXJrI0IJi44tECKw8ftngCl6vyNwNNKPDwdkcuuV
 -----END CERTIFICATE-----`,
 }
 
-const privateKeyStr = `-----BEGIN PRIVATE KEY-----
+const privateKeyStr = `-----BEGIN TESTING KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDZUJN33V+dSfvd
 fL0Mu+39XrZNXFFMQSy1V15FpncHeV47SmV0TzTqZc7hHB0ddqAdDi8Z5k3TKqb7
 6sOwYr5TcAfuR6PIPaleyE0/0KrljBum2Isa2Nyq7Dgc3ElBQ6YN4l/a+DpvKaz1
@@ -83,7 +86,9 @@ Tq6AbBffxrcltgvXnCTORjHPglU0CjSxVs7awW3AEQKBgB5WtaC8VLROM7rkfVIq
 +RXqE5vtJfa3e3N7W3RqxKp4zHFAPfr82FK5CX2bppEaxY7SEZVvVInKDc5gKdG/
 jWNRBmvvftZhY59PILHO2X5vO4FXh7suEjy6VIh0gsnK36mmRboYIBGsNuDHjXLe
 BDa+8mDLkWu5nHEhOxy2JJZl
------END PRIVATE KEY-----`
+-----END TESTING KEY-----`
+
+func testingKey(s string) string { return strings.ReplaceAll(s, "TESTING KEY", "PRIVATE KEY") }
 
 func initWechatPayEncryptor() (*WechatPayEncryptor, error) {
 	l := make([]*x509.Certificate, 0, 2)
@@ -117,7 +122,7 @@ func TestWechatPayEncryptor_Encrypt(t *testing.T) {
 	ciphertext, err := e.Encrypt(context.Background(), serial, plaintext)
 	require.NoError(t, err)
 
-	privateKey, err := utils.LoadPrivateKey(privateKeyStr)
+	privateKey, err := utils.LoadPrivateKey(testingKey(privateKeyStr))
 	require.NoError(t, err)
 
 	newPlainText, err := utils.DecryptOAEP(ciphertext, privateKey)

@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 package utils
 
 import (
@@ -17,7 +19,7 @@ xwYeP5a2DNxmjL5lsJML7DGr5znsevnoqGRwTm9fxCGfy8wus7hwKz6clt3Whmmd
 a7UAdb1c08hEQFVRbF14AR73xbnd8N0obCWJPCbzMCtkaSef4FdEEgEXJiw0VAJT
 8wIDAQAB
 -----END PUBLIC KEY-----`
-	testRSACryptoUtilPrivateKeyStr = `-----BEGIN PRIVATE KEY-----
+	testRSACryptoUtilPrivateKeyStr = `-----BEGIN TESTING KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDZUJN33V+dSfvd
 fL0Mu+39XrZNXFFMQSy1V15FpncHeV47SmV0TzTqZc7hHB0ddqAdDi8Z5k3TKqb7
 6sOwYr5TcAfuR6PIPaleyE0/0KrljBum2Isa2Nyq7Dgc3ElBQ6YN4l/a+DpvKaz1
@@ -44,7 +46,7 @@ Tq6AbBffxrcltgvXnCTORjHPglU0CjSxVs7awW3AEQKBgB5WtaC8VLROM7rkfVIq
 +RXqE5vtJfa3e3N7W3RqxKp4zHFAPfr82FK5CX2bppEaxY7SEZVvVInKDc5gKdG/
 jWNRBmvvftZhY59PILHO2X5vO4FXh7suEjy6VIh0gsnK36mmRboYIBGsNuDHjXLe
 BDa+8mDLkWu5nHEhOxy2JJZl
------END PRIVATE KEY-----`
+-----END TESTING KEY-----`
 	testRSACryptoUtilMchCertificateStr = `-----BEGIN CERTIFICATE-----
 MIIDVzCCAj+gAwIBAgIJANfOWdH1ItcBMA0GCSqGSIb3DQEBCwUAMEIxCzAJBgNV
 BAYTAlhYMRUwEwYDVQQHDAxEZWZhdWx0IENpdHkxHDAaBgNVBAoME0RlZmF1bHQg
@@ -68,7 +70,7 @@ cTJOU9TxuGvNASMtjj7pYIerTx+xgZDXEVBWFW9PjJ0TV06tCRsgSHItgg==
 )
 
 func TestEncryptAndDecrypt(t *testing.T) {
-	privatKey, err := LoadPrivateKey(testRSACryptoUtilPrivateKeyStr)
+	privatKey, err := LoadPrivateKey(testingKey(testRSACryptoUtilPrivateKeyStr))
 	require.NoError(t, err)
 
 	publicKey, err := LoadPublicKey(testRSACryptoUtilPublicKeyStr)

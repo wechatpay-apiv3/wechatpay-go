@@ -1,3 +1,5 @@
+// Copyright 2021 Tencent Inc. All rights reserved.
+
 package validators
 
 import (
@@ -47,7 +49,9 @@ func TestWechatPayResponseValidator_Validate(t *testing.T) {
 				ctx: context.Background(),
 				response: &http.Response{
 					Header: http.Header{
-						consts.WechatPaySignature: {"SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\nBODY\n"},
+						consts.WechatPaySignature: {
+							"SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\nBODY\n",
+						},
 						consts.WechatPaySerial:    {"SERIAL1234567890"},
 						consts.WechatPayTimestamp: {mockTimestampStr},
 						consts.WechatPayNonce:     {"NONCE1234567890"},
