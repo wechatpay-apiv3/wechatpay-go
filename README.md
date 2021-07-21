@@ -3,7 +3,7 @@
 
 ## 版本信息
 
-版本号：`v0.2.3`
+版本号：`v0.2.4`
 
 版本功能：
 1. 支持微信支付 API v3 请求签名与应答验签能力的 HTTP Client: `core.Client`，该 HTTP Client 在执行请求时将自动携带身份认证信息，并检查应答的微信支付签名。
@@ -19,6 +19,11 @@
 兼容性：
 本版本为测试版本，因为接口重命名/代码结构调整等原因，与之前版本存在不兼容的情况。
 
+### 帮助我们改进SDK
+
+为了向广大开发者提供更好的使用体验，微信支付诚挚邀请您将使用微信支付 API v3 SDK中的感受反馈给我们。
+您的反馈将对我们改进SDK大有帮助，[点击参与问卷调查](https://wj.qq.com/s2/8774719/ef10/)
+
 ### 重大更新（Breaking Change）
 版本 `v0.2.2` 中我们包含了一个重大更新内容：将现有接口SDK中的整型参数统一为`int64`。
 这一行为的目的是规范SDK中对整型参数的实现，避免因为未来可能的`int32 -> int64`的字段升级导致大规模兼容性问题。
@@ -26,8 +31,8 @@
 此次升级会导致 `payments` 下4个API接口的SDK的兼容性问题，建议开发者以如下方式对自己的代码进行更新。
 #### SDK整型参数统一为`int64`代码修复步骤
 ##### 1. 升级依赖
-1. 在你的模块目录下执行 `go get -u github.com/wechatpay-apiv3/wechatpay-go@v0.2.3` 升级依赖。
-2. （正常情况下该步骤会自动完成）修改模块 `go.mod` 文件中依赖的 `github.com/wechatpay-apiv3/wechatpay-go` 至 `v0.2.3`版本。
+1. 在你的模块目录下执行 `go get -u github.com/wechatpay-apiv3/wechatpay-go@v0.2.4` 升级依赖。
+2. （正常情况下该步骤会自动完成）修改模块 `go.mod` 文件中依赖的 `github.com/wechatpay-apiv3/wechatpay-go` 至 `v0.2.4`版本。
 ##### 2. 定位需要修改的代码
 在项目根目录下执行`go build ./...`可以递归检查代码中的编译错误，即可快速定位到需要修改的代码。
 ##### 3. 对请求构建代码进行更新
@@ -74,14 +79,14 @@ go mod init
 在 `go.mod` 文件中加入对本SDK的依赖：
 ```
 require (
-    github.com/wechatpay-apiv3/wechatpay-go v0.2.3
+    github.com/wechatpay-apiv3/wechatpay-go v0.2.4
 )
 ```
 并使用`go mod tidy`进行下载。
 
 也可以直接在项目目录中执行： 
 ```shell
-go get -u github.com/wechatpay-apiv3/wechatpay-go@v0.2.3
+go get -u github.com/wechatpay-apiv3/wechatpay-go@v0.2.4
 ```
 来自动完成`go.mod`的修改与SDK的下载。
 
@@ -464,7 +469,7 @@ func NewCustomClient(ctx context.Context, mchID string) (*core.Client, error) {
 
 首先使用 `go` 指令下载命令行工具
 ```shell
-go get -u github.com/wechatpay-apiv3/wechatpay-go/cmd/wechatpay_download_certs@v0.2.3
+go get -u github.com/wechatpay-apiv3/wechatpay-go/cmd/wechatpay_download_certs@v0.2.4
 ```
 然后执行 `wechatpay_download_certs` 即可下载平台证书到当前目录
 ```shell
