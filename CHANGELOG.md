@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.4] - 2021-07-21
+
+### Added
+
++ 增加服务商支付接口`partnerpayments`
+
 ## [0.2.3] - 2021-07-13
 
 ### Fixed
