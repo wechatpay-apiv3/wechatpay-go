@@ -97,7 +97,7 @@ func LoadPublicKeyWithPath(path string) (publicKey *rsa.PublicKey, err error) {
 
 // GetCertificateSerialNumber 从证书中获取证书序列号
 func GetCertificateSerialNumber(certificate x509.Certificate) string {
-	return fmt.Sprintf("%X", certificate.SerialNumber)
+	return fmt.Sprintf("%X", certificate.SerialNumber.Bytes())
 }
 
 // IsCertExpired 判定证书在特定时间是否过期
