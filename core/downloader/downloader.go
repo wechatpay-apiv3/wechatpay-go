@@ -156,7 +156,7 @@ func (d *CertificateDownloader) DownloadCertificates(ctx context.Context) error 
 			return fmt.Errorf("parse downlaoded certificate failed: %v, certcontent:%v", err, certContent)
 		}
 
-		serialNo := utils.GetCertificateSerialNumber(*certificate)
+		serialNo := *rawCertificate.SerialNo
 
 		rawCertContentMap[serialNo] = certContent
 		certificateMap[serialNo] = certificate
