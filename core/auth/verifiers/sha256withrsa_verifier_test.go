@@ -5,6 +5,7 @@ package verifiers
 import (
 	"context"
 	"crypto/x509"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"testing"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
@@ -91,6 +92,84 @@ func TestWechatPayVerifier_Verify(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name: "verify failed with null context",
+			fields: fields{
+				Certificates: map[string]*x509.Certificate{testWechatPayVerifierPlatformSerialNumber: certificate},
+			},
+			args: args{
+				ctx:          nil,
+				serialNumber: testWechatPayVerifierPlatformSerialNumber,
+				signature:    testExpectedSignature,
+				message:      "source",
+			},
+			wantErr: true,
+		},
+		{
+			name: "verify failed with empty serialNumber",
+			fields: fields{
+				Certificates: map[string]*x509.Certificate{testWechatPayVerifierPlatformSerialNumber: certificate},
+			},
+			args: args{
+				ctx:          context.Background(),
+				serialNumber: "",
+				signature:    testExpectedSignature,
+				message:      "source",
+			},
+			wantErr: true,
+		},
+		{
+			name: "verify failed with empty message",
+			fields: fields{
+				Certificates: map[string]*x509.Certificate{testWechatPayVerifierPlatformSerialNumber: certificate},
+			},
+			args: args{
+				ctx:          context.Background(),
+				serialNumber: testWechatPayVerifierPlatformSerialNumber,
+				signature:    testExpectedSignature,
+				message:      "",
+			},
+			wantErr: true,
+		},
+		{
+			name: "verify failed with empty signature",
+			fields: fields{
+				Certificates: map[string]*x509.Certificate{testWechatPayVerifierPlatformSerialNumber: certificate},
+			},
+			args: args{
+				ctx:          context.Background(),
+				serialNumber: testWechatPayVerifierPlatformSerialNumber,
+				signature:    "",
+				message:      "source",
+			},
+			wantErr: true,
+		},
+		{
+			name: "verify failed with no cert getter",
+			fields: fields{
+				Certificates: nil,
+			},
+			args: args{
+				ctx:          context.Background(),
+				serialNumber: testWechatPayVerifierPlatformSerialNumber,
+				signature:    testExpectedSignature,
+				message:      "source",
+			},
+			wantErr: true,
+		},
+		{
+			name: "verify failed with non-base64 signature",
+			fields: fields{
+				Certificates: map[string]*x509.Certificate{testWechatPayVerifierPlatformSerialNumber: certificate},
+			},
+			args: args{
+				ctx:          context.Background(),
+				serialNumber: testWechatPayVerifierPlatformSerialNumber,
+				signature:    "invalid base64 signature",
+				message:      "source",
+			},
+			wantErr: true,
+		},
+		{
 			name:   "verify failed with no corresponding certificate",
 			fields: fields{Certificates: map[string]*x509.Certificate{}},
 			args: args{
@@ -104,7 +183,12 @@ func TestWechatPayVerifier_Verify(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			verifier := NewSHA256WithRSAVerifier(core.NewCertificateMap(tt.fields.Certificates))
+			var verifier auth.Verifier
+			if tt.fields.Certificates == nil {
+				verifier = NewSHA256WithRSAVerifier(nil)
+			} else {
+				verifier = NewSHA256WithRSAVerifier(core.NewCertificateMap(tt.fields.Certificates))
+			}
 			if err := verifier.Verify(tt.args.ctx, tt.args.serialNumber, tt.args.message,
 				tt.args.signature); (err != nil) != tt.wantErr {
 				t.Errorf("Verify() error = %v, wantErr %v", err, tt.wantErr)

@@ -4,6 +4,8 @@ package credentials
 
 import (
 	"context"
+	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 
@@ -29,6 +31,17 @@ func (s *mockSigner) Sign(_ context.Context, message string) (*auth.SignatureRes
 
 func (s *mockSigner) Algorithm() string {
 	return "Mock"
+}
+
+type mockErrorSigner struct {
+}
+
+func (s *mockErrorSigner) Sign(_ context.Context, message string) (*auth.SignatureResult, error) {
+	return nil, fmt.Errorf("mock sign error")
+}
+
+func (s *mockErrorSigner) Algorithm() string {
+	return "ErrorMock"
 }
 
 const (
@@ -128,4 +141,49 @@ func TestWechatPayCredentials_GenerateAuthorizationHeader(t *testing.T) {
 			},
 		)
 	}
+}
+
+func TestWechatPayCredentials_GenerateAuthorizationHeaderErrorGenerateNonce(t *testing.T) {
+	patches := gomonkey.NewPatches()
+	defer patches.Reset()
+
+	mockGenerateNonceErr := fmt.Errorf("generate nonce error")
+
+	patches.ApplyFunc(
+		utils.GenerateNonce, func() (string, error) {
+			return "", mockGenerateNonceErr
+		},
+	)
+
+	signer := mockSigner{
+		MchID:               testMchID,
+		CertificateSerialNo: testCertificateSerial,
+	}
+	credential := WechatPayCredentials{Signer: &signer}
+
+	authorization, err := credential.GenerateAuthorizationHeader(context.Background(), "GET", "/v3/certificates", "")
+	require.Error(t, err)
+	assert.Empty(t, authorization)
+}
+
+func TestWechatPayCredentials_GenerateAuthorizationHeaderErrorSigner(t *testing.T) {
+	patches := gomonkey.NewPatches()
+	defer patches.Reset()
+
+	patches.ApplyFunc(
+		utils.GenerateNonce, func() (string, error) {
+			return mockNonce, nil
+		},
+	)
+	patches.ApplyFunc(
+		time.Now, func() time.Time {
+			return time.Unix(mockTimestamp, 0)
+		},
+	)
+
+	signer := mockErrorSigner{}
+	credential := WechatPayCredentials{Signer: &signer}
+	authorization, err := credential.GenerateAuthorizationHeader(context.Background(), "GET", "/v3/certificates", "")
+	require.Error(t, err)
+	assert.Empty(t, authorization)
 }

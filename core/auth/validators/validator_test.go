@@ -6,8 +6,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/agiledragon/gomonkey"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -230,9 +233,88 @@ func TestWechatPayResponseValidator_WithoutVerifierShouldFail(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestWechatPayResponseValidator_ValidateReadBodyErrorShouldFail(t *testing.T) {
+	patches := gomonkey.NewPatches()
+	defer patches.Reset()
+
+	patches.ApplyFunc(ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
+		return nil, fmt.Errorf("read error")
+	})
+
+	mockTimestamp := time.Now().Unix()
+	mockTimestampStr := fmt.Sprintf("%d", mockTimestamp)
+
+	validator := NewWechatPayResponseValidator(&mockVerifier{})
+
+	response := &http.Response{
+		Header: http.Header{
+			consts.WechatPaySignature: {
+				"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\nBODY\n]",
+			},
+			consts.WechatPaySerial:    {"SERIAL1234567890"},
+			consts.WechatPayTimestamp: {mockTimestampStr},
+			consts.WechatPayNonce:     {"NONCE1234567890"},
+			consts.RequestID:          {"any-request-id"},
+		},
+		Body: ioutil.NopCloser(bytes.NewBuffer([]byte("BODY"))),
+	}
+
+	err := validator.Validate(context.Background(), response)
+	assert.Error(t, err)
+}
+
 func TestNullValidator_Validate(t *testing.T) {
 	nullValidator := NullValidator{}
 
 	assert.NoError(t, nullValidator.Validate(context.Background(), &http.Response{}))
 	assert.NoError(t, nullValidator.Validate(context.Background(), nil))
+}
+
+func TestWechatPayNotifyValidator_Validate(t *testing.T) {
+	mockTimestamp := time.Now().Unix()
+	mockTimestampStr := fmt.Sprintf("%d", mockTimestamp)
+
+	validator := NewWechatPayNotifyValidator(&mockVerifier{})
+
+	request := httptest.NewRequest("Post", "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("BODY"))))
+	request.Header = http.Header{
+		consts.WechatPaySignature: {
+			"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\nBODY\n]",
+		},
+		consts.WechatPaySerial:    {"SERIAL1234567890"},
+		consts.WechatPayTimestamp: {mockTimestampStr},
+		consts.WechatPayNonce:     {"NONCE1234567890"},
+		consts.RequestID:          {"any-request-id"},
+	}
+
+	err := validator.Validate(context.Background(), request)
+	assert.NoError(t, err)
+}
+
+func TestWechatPayNotifyValidator_ValidateReadBodyError(t *testing.T) {
+	patches := gomonkey.NewPatches()
+	defer patches.Reset()
+
+	patches.ApplyFunc(ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
+		return nil, fmt.Errorf("read error")
+	})
+
+	mockTimestamp := time.Now().Unix()
+	mockTimestampStr := fmt.Sprintf("%d", mockTimestamp)
+
+	validator := NewWechatPayNotifyValidator(&mockVerifier{})
+
+	request := httptest.NewRequest("Post", "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("BODY"))))
+	request.Header = http.Header{
+		consts.WechatPaySignature: {
+			"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\nBODY\n]",
+		},
+		consts.WechatPaySerial:    {"SERIAL1234567890"},
+		consts.WechatPayTimestamp: {mockTimestampStr},
+		consts.WechatPayNonce:     {"NONCE1234567890"},
+		consts.RequestID:          {"any-request-id"},
+	}
+
+	err := validator.Validate(context.Background(), request)
+	assert.Error(t, err)
 }
