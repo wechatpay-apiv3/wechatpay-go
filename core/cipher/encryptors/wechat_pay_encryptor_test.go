@@ -129,3 +129,41 @@ func TestWechatPayEncryptor_Encrypt(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, newPlainText, plaintext)
 }
+
+func TestWechatPayEncryptor_EncryptEmpty(t *testing.T) {
+	e, err := initWechatPayEncryptor()
+	require.NoError(t, err)
+
+	const serial = "F5765756002FDD77"
+	const plaintext = ""
+
+	ciphertext, err := e.Encrypt(context.Background(), serial, plaintext)
+	require.NoError(t, err)
+	assert.Equal(t, "", ciphertext)
+}
+
+func TestWechatPayEncryptor_EncryptWithWrongSerial(t *testing.T) {
+	e, err := initWechatPayEncryptor()
+	require.NoError(t, err)
+
+	const serial = "unknown serial"
+	const plaintext = ""
+
+	_, err = e.Encrypt(context.Background(), serial, plaintext)
+	require.Error(t, err)
+}
+
+func TestMockEncryptor_Encrypt(t *testing.T) {
+	e := MockEncryptor{Serial: "F5765756002FDD77"}
+
+	cipertext, err := e.Encrypt(context.Background(), "F5765756002FDD77", "hehe")
+	require.NoError(t, err)
+	assert.Equal(t, "Encryptedhehe", cipertext)
+}
+
+func TestMockEncryptor_EncryptWithWrontSerial(t *testing.T) {
+	e := MockEncryptor{Serial: "F5765756002FDD77"}
+
+	_, err := e.Encrypt(context.Background(), "wrong serial", "hehe")
+	require.Error(t, err)
+}
