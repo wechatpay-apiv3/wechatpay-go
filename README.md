@@ -1,4 +1,7 @@
 # 微信支付 API v3 Go SDK
+[![huntr](https://cdn.huntr.dev/huntr_security_badge_mono.svg)](https://huntr.dev)
+[![licence](https://badgen.net/github/license/wechatpay-apiv3/wechatpay-go)](https://github.com/wechatpay-apiv3/wechatpay-go/blob/main/LICENSE)
+
 [微信支付 API v3](https://wechatpay-api.gitbook.io/wechatpay-api-v3/) 官方Go语言客户端代码库。
 
 ## 版本信息
