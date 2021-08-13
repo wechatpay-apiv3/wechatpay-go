@@ -6,13 +6,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/agiledragon/gomonkey"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/agiledragon/gomonkey"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
@@ -29,7 +30,7 @@ func (v *mockVerifier) Verify(ctx context.Context, serialNumber string, message 
 	return fmt.Errorf("verification failed")
 }
 
-func TestWechatPayResponseValidator_Validate(t *testing.T) {
+func TestWechatPayResponseValidator_Validate_Success(t *testing.T) {
 	mockTimestamp := time.Now().Unix()
 	mockTimestampStr := fmt.Sprintf("%d", mockTimestamp)
 
@@ -100,6 +101,33 @@ func TestWechatPayResponseValidator_Validate(t *testing.T) {
 			},
 			wantErr: false,
 		},
+	}
+	for _, tt := range tests {
+		t.Run(
+			tt.name, func(t *testing.T) {
+				if err := validator.Validate(tt.args.ctx, tt.args.response); (err != nil) != tt.wantErr {
+					t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
+				}
+			},
+		)
+	}
+}
+
+func TestWechatPayResponseValidator_Validate_Failure(t *testing.T) {
+	mockTimestamp := time.Now().Unix()
+	mockTimestampStr := fmt.Sprintf("%d", mockTimestamp)
+
+	validator := NewWechatPayResponseValidator(&mockVerifier{})
+
+	type args struct {
+		ctx      context.Context
+		response *http.Response
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
 		{
 			name: "response validate error with error signature",
 			args: args{
