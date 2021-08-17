@@ -7,10 +7,14 @@ import (
 	"context"
 	"crypto/x509"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -41,6 +45,24 @@ func Test_getRequestBody(t *testing.T) {
 	bodyBytes, err = getRequestBody(req)
 	require.NoError(t, err)
 	assert.Equal(t, body, string(bodyBytes))
+}
+
+func Test_getRequestBodyReadAllError(t *testing.T) {
+	patch := gomonkey.ApplyFunc(
+		ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
+			return nil, fmt.Errorf("read buf error")
+		},
+	)
+	defer patch.Reset()
+
+	body := "fake req body"
+	bodyBuf := &bytes.Buffer{}
+	bodyBuf.WriteString(body)
+
+	req := httptest.NewRequest(http.MethodGet, "http://127.0.0.1", bodyBuf)
+
+	_, err := getRequestBody(req)
+	require.Error(t, err)
 }
 
 type contentType struct {
@@ -182,4 +204,156 @@ cTJOU9TxuGvNASMtjj7pYIerTx+xgZDXEVBWFW9PjJ0TV06tCRsgSHItgg==
 	assert.Equal(t, "21640bdbd08e473e828f3206a2741c6e", *content.OutContractCode)
 	createTime, _ := time.Parse(time.RFC3339, "2020-06-30T12:12:00+08:00")
 	assert.Zero(t, content.CreateTime.Sub(createTime))
+}
+
+func TestHandler_ParseNotifyRequestValidateError(t *testing.T) {
+	patch := gomonkey.ApplyFunc(
+		(*validators.WechatPayNotifyValidator).Validate,
+		func(v *validators.WechatPayNotifyValidator, ctx context.Context, request *http.Request) error {
+			return fmt.Errorf("validate error")
+		},
+	)
+	defer patch.Reset()
+
+	handler := NewNotifyHandler(
+		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
+	)
+	req := httptest.NewRequest(
+		http.MethodGet, "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
+	)
+
+	content := make(map[string]interface{})
+	_, err := handler.ParseNotifyRequest(context.Background(), req, content)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "validate error")
+}
+
+func TestHandler_ParseNotifyRequest_getRequestBodyError(t *testing.T) {
+	patches := gomonkey.NewPatches()
+	defer patches.Reset()
+	patches.ApplyFunc(
+		(*validators.WechatPayNotifyValidator).Validate,
+		func(v *validators.WechatPayNotifyValidator, ctx context.Context, request *http.Request) error {
+			return nil
+		},
+	)
+
+	patches.ApplyFunc(
+		getRequestBody, func(request *http.Request) ([]byte, error) {
+			return nil, fmt.Errorf("getRequestBody error")
+		},
+	)
+
+	handler := NewNotifyHandler(
+		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
+	)
+	req := httptest.NewRequest(
+		http.MethodGet, "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
+	)
+
+	content := make(map[string]interface{})
+	_, err := handler.ParseNotifyRequest(context.Background(), req, content)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "getRequestBody error")
+}
+
+func TestHandler_ParseNotifyRequest_UnmarshalRequestError(t *testing.T) {
+	patches := gomonkey.NewPatches()
+	defer patches.Reset()
+	patches.ApplyFunc(
+		(*validators.WechatPayNotifyValidator).Validate,
+		func(v *validators.WechatPayNotifyValidator, ctx context.Context, request *http.Request) error {
+			return nil
+		},
+	)
+
+	patches.ApplyFunc(
+		getRequestBody, func(request *http.Request) ([]byte, error) {
+			return []byte("invalid json"), nil
+		},
+	)
+	// gonna cause unmarshal error
+
+	handler := NewNotifyHandler(
+		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
+	)
+	req := httptest.NewRequest(
+		http.MethodGet, "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
+	)
+
+	content := make(map[string]interface{})
+	_, err := handler.ParseNotifyRequest(context.Background(), req, content)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "parse request body error")
+}
+
+func TestHandler_ParseNotifyRequest_DecryptError(t *testing.T) {
+	patches := gomonkey.NewPatches()
+	defer patches.Reset()
+	patches.ApplyFunc(
+		(*validators.WechatPayNotifyValidator).Validate,
+		func(v *validators.WechatPayNotifyValidator, ctx context.Context, request *http.Request) error {
+			return nil
+		},
+	)
+
+	patches.ApplyFunc(
+		getRequestBody, func(request *http.Request) ([]byte, error) {
+			return []byte("{\"resource\": {}}"), nil
+		},
+	)
+
+	patches.ApplyFunc(
+		utils.DecryptAES256GCM, func(aesKey, associatedData, nonce, ciphertext string) (plaintext string, err error) {
+			return "", fmt.Errorf("decrypt error")
+		},
+	)
+
+	handler := NewNotifyHandler(
+		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
+	)
+	req := httptest.NewRequest(
+		http.MethodGet, "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
+	)
+
+	content := make(map[string]interface{})
+	_, err := handler.ParseNotifyRequest(context.Background(), req, content)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "decrypt error")
+}
+
+func TestHandler_ParseNotifyRequest_UnmarshalContentError(t *testing.T) {
+	patches := gomonkey.NewPatches()
+	defer patches.Reset()
+	patches.ApplyFunc(
+		(*validators.WechatPayNotifyValidator).Validate,
+		func(v *validators.WechatPayNotifyValidator, ctx context.Context, request *http.Request) error {
+			return nil
+		},
+	)
+
+	patches.ApplyFunc(
+		getRequestBody, func(request *http.Request) ([]byte, error) {
+			return []byte("{\"resource\": {}}"), nil
+		},
+	)
+
+	patches.ApplyFunc(
+		utils.DecryptAES256GCM, func(aesKey, associatedData, nonce, ciphertext string) (plaintext string, err error) {
+			return "invalid content", nil
+		},
+	)
+	// gonna cause unmarshal error
+
+	handler := NewNotifyHandler(
+		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
+	)
+	req := httptest.NewRequest(
+		http.MethodGet, "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
+	)
+
+	content := make(map[string]interface{})
+	_, err := handler.ParseNotifyRequest(context.Background(), req, content)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unmarshal plaintext to content failed")
 }

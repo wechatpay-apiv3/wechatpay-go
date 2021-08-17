@@ -5,8 +5,11 @@ package signers
 import (
 	"context"
 	"crypto/rsa"
+	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/agiledragon/gomonkey"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -89,6 +92,17 @@ func TestSha256WithRSASigner_Sign(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "Sha256WithRSASigner_Sign err when unset certificateSerialNo",
+			args: args{
+				mchID:      testMchID,
+				certSerial: "    ",
+				privateKey: privateKey,
+
+				message: testMessage,
+			},
+			wantErr: true,
+		},
+		{
 			name: "Sha256WithRSASigner_Sign err when unset privateKey",
 			args: args{
 				mchID:      testMchID,
@@ -101,22 +115,61 @@ func TestSha256WithRSASigner_Sign(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &SHA256WithRSASigner{
-				MchID:               tt.args.mchID,
-				CertificateSerialNo: tt.args.certSerial,
-				PrivateKey:          tt.args.privateKey,
-			}
-			got, err := s.Sign(context.Background(), tt.args.message)
-			require.Equal(t, tt.wantErr, err != nil)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				s := &SHA256WithRSASigner{
+					MchID:               tt.args.mchID,
+					CertificateSerialNo: tt.args.certSerial,
+					PrivateKey:          tt.args.privateKey,
+				}
+				got, err := s.Sign(context.Background(), tt.args.message)
+				require.Equal(t, tt.wantErr, err != nil)
 
-			if err == nil {
-				require.NotNil(t, got)
+				if err == nil {
+					require.NotNil(t, got)
 
-				assert.Equal(t, tt.want.MchID, got.MchID)
-				assert.Equal(t, tt.want.CertificateSerialNo, got.CertificateSerialNo)
-				assert.Equal(t, tt.want.Signature, got.Signature)
-			}
-		})
+					assert.Equal(t, tt.want.MchID, got.MchID)
+					assert.Equal(t, tt.want.CertificateSerialNo, got.CertificateSerialNo)
+					assert.Equal(t, tt.want.Signature, got.Signature)
+				}
+			},
+		)
 	}
+}
+
+func TestSha256WithRSASigner_SignErrorSignSHA256WithRSA(t *testing.T) {
+	patches := gomonkey.NewPatches()
+	defer patches.Reset()
+
+	patches.ApplyFunc(
+		utils.SignSHA256WithRSA, func(source string, privateKey *rsa.PrivateKey) (signature string, err error) {
+			return "", fmt.Errorf("sign error")
+		},
+	)
+
+	privateKey, err := utils.LoadPrivateKey(testingKey(testPrivateKeyStr))
+	require.NoError(t, err)
+
+	s := &SHA256WithRSASigner{
+		MchID:               testMchID,
+		CertificateSerialNo: testCertificateSerial,
+		PrivateKey:          privateKey,
+	}
+
+	result, err := s.Sign(context.Background(), testMessage)
+	require.Error(t, err)
+	assert.Nil(t, result)
+}
+
+func TestWechatPayVerifier_Algorithm(t *testing.T) {
+	privateKey, err := utils.LoadPrivateKey(testingKey(testPrivateKeyStr))
+	require.NoError(t, err)
+
+	s := &SHA256WithRSASigner{
+		MchID:               testMchID,
+		CertificateSerialNo: testCertificateSerial,
+		PrivateKey:          privateKey,
+	}
+
+	assert.Equal(t, "SHA256-RSA2048", s.Algorithm())
 }
