@@ -29,23 +29,6 @@ const (
 	ACCOUNT_UNAVAILABLE Account = "UNAVAILABLE"
 )
 
-func (v *Account) UnmarshalJSON(src []byte) error {
-	var value string
-	err := json.Unmarshal(src, &value)
-	if err != nil {
-		return err
-	}
-	enumTypeValue := Account(value)
-	for _, existing := range []Account{"AVAILABLE", "UNAVAILABLE"} {
-		if existing == enumTypeValue {
-			*v = enumTypeValue
-			return nil
-		}
-	}
-
-	return fmt.Errorf("%+v is not a valid Account", value)
-}
-
 // Amount
 type Amount struct {
 	// 订单总金额，单位为分
@@ -329,23 +312,6 @@ const (
 	CHANNEL_OTHER_BANKCARD Channel = "OTHER_BANKCARD"
 )
 
-func (v *Channel) UnmarshalJSON(src []byte) error {
-	var value string
-	err := json.Unmarshal(src, &value)
-	if err != nil {
-		return err
-	}
-	enumTypeValue := Channel(value)
-	for _, existing := range []Channel{"ORIGINAL", "BALANCE", "OTHER_BALANCE", "OTHER_BANKCARD"} {
-		if existing == enumTypeValue {
-			*v = enumTypeValue
-			return nil
-		}
-	}
-
-	return fmt.Errorf("%+v is not a valid Channel", value)
-}
-
 // CreateRequest
 type CreateRequest struct {
 	// 子商户的商户号，由微信支付生成并下发。服务商模式下必须传递此参数
@@ -529,23 +495,6 @@ const (
 	FUNDSACCOUNT_OPERATION   FundsAccount = "OPERATION"
 	FUNDSACCOUNT_BASIC       FundsAccount = "BASIC"
 )
-
-func (v *FundsAccount) UnmarshalJSON(src []byte) error {
-	var value string
-	err := json.Unmarshal(src, &value)
-	if err != nil {
-		return err
-	}
-	enumTypeValue := FundsAccount(value)
-	for _, existing := range []FundsAccount{"UNSETTLED", "AVAILABLE", "UNAVAILABLE", "OPERATION", "BASIC"} {
-		if existing == enumTypeValue {
-			*v = enumTypeValue
-			return nil
-		}
-	}
-
-	return fmt.Errorf("%+v is not a valid FundsAccount", value)
-}
 
 // FundsFromItem
 type FundsFromItem struct {
@@ -1147,23 +1096,6 @@ const (
 	REQFUNDSACCOUNT_AVAILABLE ReqFundsAccount = "AVAILABLE"
 )
 
-func (v *ReqFundsAccount) UnmarshalJSON(src []byte) error {
-	var value string
-	err := json.Unmarshal(src, &value)
-	if err != nil {
-		return err
-	}
-	enumTypeValue := ReqFundsAccount(value)
-	for _, existing := range []ReqFundsAccount{"AVAILABLE"} {
-		if existing == enumTypeValue {
-			*v = enumTypeValue
-			return nil
-		}
-	}
-
-	return fmt.Errorf("%+v is not a valid ReqFundsAccount", value)
-}
-
 // Scope * `GLOBAL` - 全场代金券, 全场优惠类型 * `SINGLE` - 单品优惠, 单品优惠类型
 type Scope string
 
@@ -1176,23 +1108,6 @@ const (
 	SCOPE_GLOBAL Scope = "GLOBAL"
 	SCOPE_SINGLE Scope = "SINGLE"
 )
-
-func (v *Scope) UnmarshalJSON(src []byte) error {
-	var value string
-	err := json.Unmarshal(src, &value)
-	if err != nil {
-		return err
-	}
-	enumTypeValue := Scope(value)
-	for _, existing := range []Scope{"GLOBAL", "SINGLE"} {
-		if existing == enumTypeValue {
-			*v = enumTypeValue
-			return nil
-		}
-	}
-
-	return fmt.Errorf("%+v is not a valid Scope", value)
-}
 
 // Status * `SUCCESS` - 退款成功, 退款状态 * `CLOSED` - 退款关闭, 退款状态 * `PROCESSING` - 退款处理中, 退款状态 * `ABNORMAL` - 退款异常, 退款状态
 type Status string
@@ -1209,23 +1124,6 @@ const (
 	STATUS_ABNORMAL   Status = "ABNORMAL"
 )
 
-func (v *Status) UnmarshalJSON(src []byte) error {
-	var value string
-	err := json.Unmarshal(src, &value)
-	if err != nil {
-		return err
-	}
-	enumTypeValue := Status(value)
-	for _, existing := range []Status{"SUCCESS", "CLOSED", "PROCESSING", "ABNORMAL"} {
-		if existing == enumTypeValue {
-			*v = enumTypeValue
-			return nil
-		}
-	}
-
-	return fmt.Errorf("%+v is not a valid Status", value)
-}
-
 // Type * `COUPON` - 代金券, 代金券类型，需要走结算资金的充值型代金券 * `DISCOUNT` - 优惠券, 优惠券类型，不走结算资金的免充值型优惠券
 type Type string
 
@@ -1238,20 +1136,3 @@ const (
 	TYPE_COUPON   Type = "COUPON"
 	TYPE_DISCOUNT Type = "DISCOUNT"
 )
-
-func (v *Type) UnmarshalJSON(src []byte) error {
-	var value string
-	err := json.Unmarshal(src, &value)
-	if err != nil {
-		return err
-	}
-	enumTypeValue := Type(value)
-	for _, existing := range []Type{"COUPON", "DISCOUNT"} {
-		if existing == enumTypeValue {
-			*v = enumTypeValue
-			return nil
-		}
-	}
-
-	return fmt.Errorf("%+v is not a valid Type", value)
-}
