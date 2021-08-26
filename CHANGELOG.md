@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.6] - 2021-08-26
+
+### Added
+
++ 增加分账接口`profitsharing`
+
+### Changed
+
++ 移除 Enum 类型的 UnmarshalJSON 对数据的检查，避免因为增加枚举值导致的不兼容问题
+
 ## [0.2.5] - 2021-07-22
 
 ### Fixed
