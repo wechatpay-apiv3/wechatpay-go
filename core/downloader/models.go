@@ -20,6 +20,7 @@ type rawCertificate struct {
 	EncryptCertificate *encryptCertificate `json:"encrypt_certificate"`
 }
 
+// MarshalJSON 自定义JSON序列化
 func (o rawCertificate) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 
@@ -45,6 +46,7 @@ func (o rawCertificate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+// String 自定义字符串表达
 func (o rawCertificate) String() string {
 	var ret string
 	if o.SerialNo == nil {
@@ -75,6 +77,7 @@ type downloadCertificatesResponse struct {
 	Data []rawCertificate `json:"data,omitempty"`
 }
 
+// MarshalJSON 自定义JSON序列化
 func (o downloadCertificatesResponse) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 
@@ -84,6 +87,7 @@ func (o downloadCertificatesResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+// String 自定义字符串表达
 func (o downloadCertificatesResponse) String() string {
 	var ret string
 	ret += fmt.Sprintf("Data:%v", o.Data)
@@ -103,6 +107,7 @@ type encryptCertificate struct {
 	Ciphertext *string `json:"ciphertext"`
 }
 
+// MarshalJSON 自定义JSON序列化
 func (o encryptCertificate) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 
@@ -128,6 +133,7 @@ func (o encryptCertificate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
+// String 自定义字符串表达
 func (o encryptCertificate) String() string {
 	var ret string
 	if o.Algorithm == nil {

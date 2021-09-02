@@ -9,6 +9,7 @@ import "context"
 // 使用强类型避免与其他 Context Key 冲突
 type contextKey string
 
+// String contextKey 的字符串描述，区分普通字符串
 func (c contextKey) String() string {
 	return "WPCipherContext(" + string(c) + ")"
 }
