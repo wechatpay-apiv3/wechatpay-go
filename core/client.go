@@ -47,6 +47,7 @@ type APIResult struct {
 
 // ClientOption 微信支付 API v3 HTTPClient core.Client 初始化参数
 type ClientOption interface {
+	// Apply 将初始化参数应用到 DialSettings 中
 	Apply(settings *DialSettings) error
 }
 
