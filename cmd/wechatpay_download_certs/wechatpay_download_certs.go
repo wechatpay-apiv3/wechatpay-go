@@ -86,6 +86,7 @@ type paramError struct {
 	message string
 }
 
+// Error 输出 paramError
 func (e paramError) Error() string {
 	if e.value != "" {
 		return fmt.Sprintf("%v(%v) %v", e.name, e.value, e.message)

@@ -20,6 +20,7 @@ type APIError struct {
 	Detail     interface{} `json:"detail,omitempty"` // 应答报文的 Body 解析后的详细信息，仅不符合预期/发生系统错误时存在
 }
 
+// Error 输出 APIError
 func (e *APIError) Error() string {
 	var buf bytes.Buffer
 	_, _ = fmt.Fprintf(&buf, "error http response:[StatusCode: %d Code: \"%s\"", e.StatusCode, e.Code)
