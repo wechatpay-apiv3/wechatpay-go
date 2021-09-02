@@ -44,34 +44,34 @@ func main() {
 	flag.Usage = printUsageAndExit
 
 	if err := checkArgs(); err != nil {
-		reportError("参数有误：%v", err)
+		reportError("参数有误：", err)
 		printUsageAndExit()
 	}
 
 	ctx := context.Background()
 	client, err := createClient(ctx)
 	if err != nil {
-		reportError("%v", err)
+		reportError("初始化失败：", err)
 		os.Exit(errCodeRunError)
 	}
 
 	d, err := downloader.NewCertificateDownloaderWithClient(ctx, client, mchAPIv3Key)
 	if err != nil {
-		reportError("下载证书失败：%v", err)
+		reportError("下载证书失败：", err)
 		os.Exit(errCodeRunError)
 	}
 
 	err = saveCertificates(ctx, d)
 	if err != nil {
-		reportError("%v", err)
+		reportError("保存证书失败：", err)
 		os.Exit(errCodeRunError)
 	}
 
 	os.Exit(0)
 }
 
-func reportError(format string, a ...interface{}) {
-	_, _ = fmt.Fprintf(os.Stderr, format+"\n", a...)
+func reportError(message string, err error) {
+	_, _ = fmt.Fprintf(os.Stderr, message+" %v\n", err)
 }
 
 func printUsageAndExit() {
@@ -86,6 +86,7 @@ type paramError struct {
 	message string
 }
 
+// Error 输出 paramError
 func (e paramError) Error() string {
 	if e.value != "" {
 		return fmt.Sprintf("%v(%v) %v", e.name, e.value, e.message)
@@ -104,7 +105,7 @@ func checkArgs() error {
 	}
 
 	if mchPrivateKeyPath == "" {
-		return paramError{"商户平台证书路径", mchPrivateKeyPath, "必传"}
+		return paramError{"商户私钥路径", mchPrivateKeyPath, "必传"}
 	}
 
 	fileInfo, err := os.Stat(mchPrivateKeyPath)
