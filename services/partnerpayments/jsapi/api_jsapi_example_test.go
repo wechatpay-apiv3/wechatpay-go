@@ -12,38 +12,78 @@ package jsapi_test
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/partnerpayments/jsapi"
+	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
 func ExampleJsapiApiService_CloseOrder() {
 	var (
-		ctx    context.Context
-		client *core.Client
+		mchID                      string = "190000****"                               // 商户号
+		mchCertificateSerialNumber string = "3775************************************" // 商户证书序列号
+		mchAPIv3Key                string = "2ab9****************************"         // 商户APIv3密钥
 	)
-	// 假设已获得初始化后的 core.Client
+
+	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
+	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
+	if err != nil {
+		log.Print("load merchant private key error")
+	}
+
+	ctx := context.Background()
+	// 使用商户私钥等初始化 client，并使它具有自动定时获取微信支付平台证书的能力
+	opts := []core.ClientOption{
+		option.WithWechatPayAutoAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, mchAPIv3Key),
+	}
+	client, err := core.NewClient(ctx, opts...)
+	if err != nil {
+		log.Printf("new wechat pay client err:%s", err)
+	}
 
 	svc := jsapi.JsapiApiService{Client: client}
 	result, err := svc.CloseOrder(ctx,
 		jsapi.CloseOrderRequest{
-			OutTradeNo: core.String("outTradeNo_example"),
+			OutTradeNo: core.String("OutTradeNo_example"),
 			SpMchid:    core.String("1230000109"),
 			SubMchid:   core.String("1230000109"),
 		},
 	)
 
-	// TODO: 处理返回结果
-	_, _ = result, err
+	if err != nil {
+		// 处理错误
+		log.Printf("call CloseOrder err:%s", err)
+	} else {
+		// 处理返回结果
+		log.Printf("status=%d", result.Response.StatusCode)
+	}
 }
 
 func ExampleJsapiApiService_Prepay() {
 	var (
-		ctx    context.Context
-		client *core.Client
+		mchID                      string = "190000****"                               // 商户号
+		mchCertificateSerialNumber string = "3775************************************" // 商户证书序列号
+		mchAPIv3Key                string = "2ab9****************************"         // 商户APIv3密钥
 	)
-	// 假设已获得初始化后的 core.Client
+
+	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
+	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
+	if err != nil {
+		log.Print("load merchant private key error")
+	}
+
+	ctx := context.Background()
+	// 使用商户私钥等初始化 client，并使它具有自动定时获取微信支付平台证书的能力
+	opts := []core.ClientOption{
+		option.WithWechatPayAutoAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, mchAPIv3Key),
+	}
+	client, err := core.NewClient(ctx, opts...)
+	if err != nil {
+		log.Printf("new wechat pay client err:%s", err)
+	}
 
 	svc := jsapi.JsapiApiService{Client: client}
 	resp, result, err := svc.Prepay(ctx,
@@ -94,44 +134,91 @@ func ExampleJsapiApiService_Prepay() {
 		},
 	)
 
-	// TODO: 处理返回结果
-	_, _, _ = resp, result, err
+	if err != nil {
+		// 处理错误
+		log.Printf("call Prepay err:%s", err)
+	} else {
+		// 处理返回结果
+		log.Printf("status=%d resp=%s", result.Response.StatusCode, resp)
+	}
 }
 
 func ExampleJsapiApiService_QueryOrderById() {
 	var (
-		ctx    context.Context
-		client *core.Client
+		mchID                      string = "190000****"                               // 商户号
+		mchCertificateSerialNumber string = "3775************************************" // 商户证书序列号
+		mchAPIv3Key                string = "2ab9****************************"         // 商户APIv3密钥
 	)
-	// 假设已获得初始化后的 core.Client
+
+	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
+	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
+	if err != nil {
+		log.Print("load merchant private key error")
+	}
+
+	ctx := context.Background()
+	// 使用商户私钥等初始化 client，并使它具有自动定时获取微信支付平台证书的能力
+	opts := []core.ClientOption{
+		option.WithWechatPayAutoAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, mchAPIv3Key),
+	}
+	client, err := core.NewClient(ctx, opts...)
+	if err != nil {
+		log.Printf("new wechat pay client err:%s", err)
+	}
 
 	svc := jsapi.JsapiApiService{Client: client}
 	resp, result, err := svc.QueryOrderById(ctx,
 		jsapi.QueryOrderByIdRequest{
-			TransactionId: core.String("transactionId_example"),
-			Mchid:         core.String("mchid_example"),
+			TransactionId: core.String("TransactionId_example"),
+			Mchid:         core.String("Mchid_example"),
 		},
 	)
 
-	// TODO: 处理返回结果
-	_, _, _ = resp, result, err
+	if err != nil {
+		// 处理错误
+		log.Printf("call QueryOrderById err:%s", err)
+	} else {
+		// 处理返回结果
+		log.Printf("status=%d resp=%s", result.Response.StatusCode, resp)
+	}
 }
 
 func ExampleJsapiApiService_QueryOrderByOutTradeNo() {
 	var (
-		ctx    context.Context
-		client *core.Client
+		mchID                      string = "190000****"                               // 商户号
+		mchCertificateSerialNumber string = "3775************************************" // 商户证书序列号
+		mchAPIv3Key                string = "2ab9****************************"         // 商户APIv3密钥
 	)
-	// 假设已获得初始化后的 core.Client
+
+	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
+	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
+	if err != nil {
+		log.Print("load merchant private key error")
+	}
+
+	ctx := context.Background()
+	// 使用商户私钥等初始化 client，并使它具有自动定时获取微信支付平台证书的能力
+	opts := []core.ClientOption{
+		option.WithWechatPayAutoAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, mchAPIv3Key),
+	}
+	client, err := core.NewClient(ctx, opts...)
+	if err != nil {
+		log.Printf("new wechat pay client err:%s", err)
+	}
 
 	svc := jsapi.JsapiApiService{Client: client}
 	resp, result, err := svc.QueryOrderByOutTradeNo(ctx,
 		jsapi.QueryOrderByOutTradeNoRequest{
-			OutTradeNo: core.String("outTradeNo_example"),
-			Mchid:      core.String("mchid_example"),
+			OutTradeNo: core.String("OutTradeNo_example"),
+			Mchid:      core.String("Mchid_example"),
 		},
 	)
 
-	// TODO: 处理返回结果
-	_, _, _ = resp, result, err
+	if err != nil {
+		// 处理错误
+		log.Printf("call QueryOrderByOutTradeNo err:%s", err)
+	} else {
+		// 处理返回结果
+		log.Printf("status=%d resp=%s", result.Response.StatusCode, resp)
+	}
 }
