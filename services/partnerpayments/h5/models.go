@@ -796,23 +796,32 @@ func (o PrepayResponse) Clone() *PrepayResponse {
 
 // QueryOrderByIdRequest
 type QueryOrderByIdRequest struct {
+	// 服务商户号
+	SpMchid *string `json:"sp_mchid"`
+	// 子商户的商户号
+	SubMchid *string `json:"sub_mchid"`
+	// 微信支付订单号
 	TransactionId *string `json:"transaction_id"`
-	// 直连商户号
-	Mchid *string `json:"mchid"`
 }
 
 func (o QueryOrderByIdRequest) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
+
+	if o.SpMchid == nil {
+		return nil, fmt.Errorf("field `SpMchid` is required and must be specified in QueryOrderByIdRequest")
+	}
+	toSerialize["sp_mchid"] = o.SpMchid
+
+	if o.SubMchid == nil {
+		return nil, fmt.Errorf("field `SubMchid` is required and must be specified in QueryOrderByIdRequest")
+	}
+	toSerialize["sub_mchid"] = o.SubMchid
 
 	if o.TransactionId == nil {
 		return nil, fmt.Errorf("field `TransactionId` is required and must be specified in QueryOrderByIdRequest")
 	}
 	toSerialize["transaction_id"] = o.TransactionId
 
-	if o.Mchid == nil {
-		return nil, fmt.Errorf("field `Mchid` is required and must be specified in QueryOrderByIdRequest")
-	}
-	toSerialize["mchid"] = o.Mchid
 	return json.Marshal(toSerialize)
 }
 
@@ -824,10 +833,16 @@ func (o QueryOrderByIdRequest) String() string {
 		ret += fmt.Sprintf("TransactionId:%v, ", *o.TransactionId)
 	}
 
-	if o.Mchid == nil {
-		ret += "Mchid:<nil>"
+	if o.SpMchid == nil {
+		ret += "SpMchid:<nil>, "
 	} else {
-		ret += fmt.Sprintf("Mchid:%v", *o.Mchid)
+		ret += fmt.Sprintf("SpMchid:%v, ", *o.SpMchid)
+	}
+
+	if o.SubMchid == nil {
+		ret += "SubMchid:<nil>"
+	} else {
+		ret += fmt.Sprintf("SubMchid:%v", *o.SubMchid)
 	}
 
 	return fmt.Sprintf("QueryOrderByIdRequest{%s}", ret)
@@ -841,9 +856,14 @@ func (o QueryOrderByIdRequest) Clone() *QueryOrderByIdRequest {
 		*ret.TransactionId = *o.TransactionId
 	}
 
-	if o.Mchid != nil {
-		ret.Mchid = new(string)
-		*ret.Mchid = *o.Mchid
+	if o.SpMchid != nil {
+		ret.SpMchid = new(string)
+		*ret.SpMchid = *o.SpMchid
+	}
+
+	if o.SubMchid != nil {
+		ret.SubMchid = new(string)
+		*ret.SubMchid = *o.SubMchid
 	}
 
 	return &ret
@@ -851,23 +871,32 @@ func (o QueryOrderByIdRequest) Clone() *QueryOrderByIdRequest {
 
 // QueryOrderByOutTradeNoRequest
 type QueryOrderByOutTradeNoRequest struct {
+	// 服务商户号
+	SpMchid *string `json:"sp_mchid"`
+	// 子商户的商户号
+	SubMchid *string `json:"sub_mchid"`
+	// 商户订单号，商户系统内部订单号，只能是数字、大小写字母_-*且在同一个商户号下唯一。 特殊规则：最小字符长度为6
 	OutTradeNo *string `json:"out_trade_no"`
-	// 直连商户号
-	Mchid *string `json:"mchid"`
 }
 
 func (o QueryOrderByOutTradeNoRequest) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
+
+	if o.SpMchid == nil {
+		return nil, fmt.Errorf("field `SpMchid` is required and must be specified in QueryOrderByIdRequest")
+	}
+	toSerialize["sp_mchid"] = o.SpMchid
+
+	if o.SubMchid == nil {
+		return nil, fmt.Errorf("field `SubMchid` is required and must be specified in QueryOrderByIdRequest")
+	}
+	toSerialize["sub_mchid"] = o.SubMchid
 
 	if o.OutTradeNo == nil {
 		return nil, fmt.Errorf("field `OutTradeNo` is required and must be specified in QueryOrderByOutTradeNoRequest")
 	}
 	toSerialize["out_trade_no"] = o.OutTradeNo
 
-	if o.Mchid == nil {
-		return nil, fmt.Errorf("field `Mchid` is required and must be specified in QueryOrderByOutTradeNoRequest")
-	}
-	toSerialize["mchid"] = o.Mchid
 	return json.Marshal(toSerialize)
 }
 
@@ -879,10 +908,16 @@ func (o QueryOrderByOutTradeNoRequest) String() string {
 		ret += fmt.Sprintf("OutTradeNo:%v, ", *o.OutTradeNo)
 	}
 
-	if o.Mchid == nil {
-		ret += "Mchid:<nil>"
+	if o.SpMchid == nil {
+		ret += "SpMchid:<nil>, "
 	} else {
-		ret += fmt.Sprintf("Mchid:%v", *o.Mchid)
+		ret += fmt.Sprintf("SpMchid:%v, ", *o.SpMchid)
+	}
+
+	if o.SubMchid == nil {
+		ret += "SubMchid:<nil>"
+	} else {
+		ret += fmt.Sprintf("SubMchid:%v", *o.SubMchid)
 	}
 
 	return fmt.Sprintf("QueryOrderByOutTradeNoRequest{%s}", ret)
@@ -896,9 +931,14 @@ func (o QueryOrderByOutTradeNoRequest) Clone() *QueryOrderByOutTradeNoRequest {
 		*ret.OutTradeNo = *o.OutTradeNo
 	}
 
-	if o.Mchid != nil {
-		ret.Mchid = new(string)
-		*ret.Mchid = *o.Mchid
+	if o.SpMchid != nil {
+		ret.SpMchid = new(string)
+		*ret.SpMchid = *o.SpMchid
+	}
+
+	if o.SubMchid != nil {
+		ret.SubMchid = new(string)
+		*ret.SubMchid = *o.SubMchid
 	}
 
 	return &ret

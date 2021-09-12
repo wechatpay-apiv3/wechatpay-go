@@ -11,6 +11,7 @@
 package jsapi
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -378,36 +379,64 @@ func (o GoodsDetail) Clone() *GoodsDetail {
 
 // Payer
 type Payer struct {
-	// 用户在商户appid下的唯一标识。
-	Openid *string `json:"openid,omitempty"`
+	// 用户在服务商appid下的唯一标识
+	SpOpenid *string `json:"sp_openid,omitempty"`
+	// 用户在子商户appid下的唯一标识
+	SubOpenid *string `json:"sub_openid,omitempty"`
 }
 
 func (o Payer) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 
-	if o.Openid != nil {
-		toSerialize["openid"] = o.Openid
+	if o.SpOpenid == nil && o.SubOpenid == nil {
+		return nil, fmt.Errorf("sp_openid or sub_openid must set")
+	}
+
+	if o.SpOpenid != nil {
+		toSerialize["sp_openid"] = o.SpOpenid
+	}
+	if o.SubOpenid != nil {
+		toSerialize["sub_openid"] = o.SubOpenid
 	}
 	return json.Marshal(toSerialize)
 }
 
+// String 返回格式：Payer{SpOpenid:<nil>,SubOpenid:xxxx}
 func (o Payer) String() string {
-	var ret string
-	if o.Openid == nil {
-		ret += "Openid:<nil>"
+	var ret bytes.Buffer
+
+	ret.WriteString("Payer{")
+
+	ret.WriteString("SpOpenid:")
+	if o.SpOpenid == nil {
+		ret.WriteString("<nil>")
 	} else {
-		ret += fmt.Sprintf("Openid:%v", *o.Openid)
+		ret.WriteString(*o.SpOpenid)
 	}
 
-	return fmt.Sprintf("Payer{%s}", ret)
+	ret.WriteString(", SubOpenid:")
+	if o.SubOpenid == nil {
+		ret.WriteString("<nil>")
+	} else {
+		ret.WriteString(*o.SubOpenid)
+	}
+
+	ret.WriteString("}")
+
+	return ret.String()
 }
 
 func (o Payer) Clone() *Payer {
 	ret := Payer{}
 
-	if o.Openid != nil {
-		ret.Openid = new(string)
-		*ret.Openid = *o.Openid
+	if o.SpOpenid != nil {
+		ret.SpOpenid = new(string)
+		*ret.SpOpenid = *o.SpOpenid
+	}
+
+	if o.SubOpenid != nil {
+		ret.SubOpenid = new(string)
+		*ret.SubOpenid = *o.SubOpenid
 	}
 
 	return &ret
@@ -738,23 +767,32 @@ func (o PrepayResponse) Clone() *PrepayResponse {
 
 // QueryOrderByIdRequest
 type QueryOrderByIdRequest struct {
+	// 服务商户号
+	SpMchid *string `json:"sp_mchid"`
+	// 子商户的商户号
+	SubMchid *string `json:"sub_mchid"`
+	// 微信支付订单号
 	TransactionId *string `json:"transaction_id"`
-	// 直连商户号
-	Mchid *string `json:"mchid"`
 }
 
 func (o QueryOrderByIdRequest) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
+
+	if o.SpMchid == nil {
+		return nil, fmt.Errorf("field `SpMchid` is required and must be specified in QueryOrderByIdRequest")
+	}
+	toSerialize["sp_mchid"] = o.SpMchid
+
+	if o.SubMchid == nil {
+		return nil, fmt.Errorf("field `SubMchid` is required and must be specified in QueryOrderByIdRequest")
+	}
+	toSerialize["sub_mchid"] = o.SubMchid
 
 	if o.TransactionId == nil {
 		return nil, fmt.Errorf("field `TransactionId` is required and must be specified in QueryOrderByIdRequest")
 	}
 	toSerialize["transaction_id"] = o.TransactionId
 
-	if o.Mchid == nil {
-		return nil, fmt.Errorf("field `Mchid` is required and must be specified in QueryOrderByIdRequest")
-	}
-	toSerialize["mchid"] = o.Mchid
 	return json.Marshal(toSerialize)
 }
 
@@ -766,10 +804,16 @@ func (o QueryOrderByIdRequest) String() string {
 		ret += fmt.Sprintf("TransactionId:%v, ", *o.TransactionId)
 	}
 
-	if o.Mchid == nil {
-		ret += "Mchid:<nil>"
+	if o.SpMchid == nil {
+		ret += "SpMchid:<nil>, "
 	} else {
-		ret += fmt.Sprintf("Mchid:%v", *o.Mchid)
+		ret += fmt.Sprintf("SpMchid:%v, ", *o.SpMchid)
+	}
+
+	if o.SubMchid == nil {
+		ret += "SubMchid:<nil>"
+	} else {
+		ret += fmt.Sprintf("SubMchid:%v", *o.SubMchid)
 	}
 
 	return fmt.Sprintf("QueryOrderByIdRequest{%s}", ret)
@@ -783,9 +827,14 @@ func (o QueryOrderByIdRequest) Clone() *QueryOrderByIdRequest {
 		*ret.TransactionId = *o.TransactionId
 	}
 
-	if o.Mchid != nil {
-		ret.Mchid = new(string)
-		*ret.Mchid = *o.Mchid
+	if o.SpMchid != nil {
+		ret.SpMchid = new(string)
+		*ret.SpMchid = *o.SpMchid
+	}
+
+	if o.SubMchid != nil {
+		ret.SubMchid = new(string)
+		*ret.SubMchid = *o.SubMchid
 	}
 
 	return &ret
@@ -793,23 +842,32 @@ func (o QueryOrderByIdRequest) Clone() *QueryOrderByIdRequest {
 
 // QueryOrderByOutTradeNoRequest
 type QueryOrderByOutTradeNoRequest struct {
+	// 服务商户号
+	SpMchid *string `json:"sp_mchid"`
+	// 子商户的商户号
+	SubMchid *string `json:"sub_mchid"`
+	// 商户订单号，商户系统内部订单号，只能是数字、大小写字母_-*且在同一个商户号下唯一。 特殊规则：最小字符长度为6
 	OutTradeNo *string `json:"out_trade_no"`
-	// 直连商户号
-	Mchid *string `json:"mchid"`
 }
 
 func (o QueryOrderByOutTradeNoRequest) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
+
+	if o.SpMchid == nil {
+		return nil, fmt.Errorf("field `SpMchid` is required and must be specified in QueryOrderByIdRequest")
+	}
+	toSerialize["sp_mchid"] = o.SpMchid
+
+	if o.SubMchid == nil {
+		return nil, fmt.Errorf("field `SubMchid` is required and must be specified in QueryOrderByIdRequest")
+	}
+	toSerialize["sub_mchid"] = o.SubMchid
 
 	if o.OutTradeNo == nil {
 		return nil, fmt.Errorf("field `OutTradeNo` is required and must be specified in QueryOrderByOutTradeNoRequest")
 	}
 	toSerialize["out_trade_no"] = o.OutTradeNo
 
-	if o.Mchid == nil {
-		return nil, fmt.Errorf("field `Mchid` is required and must be specified in QueryOrderByOutTradeNoRequest")
-	}
-	toSerialize["mchid"] = o.Mchid
 	return json.Marshal(toSerialize)
 }
 
@@ -821,10 +879,16 @@ func (o QueryOrderByOutTradeNoRequest) String() string {
 		ret += fmt.Sprintf("OutTradeNo:%v, ", *o.OutTradeNo)
 	}
 
-	if o.Mchid == nil {
-		ret += "Mchid:<nil>"
+	if o.SpMchid == nil {
+		ret += "SpMchid:<nil>, "
 	} else {
-		ret += fmt.Sprintf("Mchid:%v", *o.Mchid)
+		ret += fmt.Sprintf("SpMchid:%v, ", *o.SpMchid)
+	}
+
+	if o.SubMchid == nil {
+		ret += "SubMchid:<nil>"
+	} else {
+		ret += fmt.Sprintf("SubMchid:%v", *o.SubMchid)
 	}
 
 	return fmt.Sprintf("QueryOrderByOutTradeNoRequest{%s}", ret)
@@ -838,9 +902,14 @@ func (o QueryOrderByOutTradeNoRequest) Clone() *QueryOrderByOutTradeNoRequest {
 		*ret.OutTradeNo = *o.OutTradeNo
 	}
 
-	if o.Mchid != nil {
-		ret.Mchid = new(string)
-		*ret.Mchid = *o.Mchid
+	if o.SpMchid != nil {
+		ret.SpMchid = new(string)
+		*ret.SpMchid = *o.SpMchid
+	}
+
+	if o.SubMchid != nil {
+		ret.SubMchid = new(string)
+		*ret.SubMchid = *o.SubMchid
 	}
 
 	return &ret
