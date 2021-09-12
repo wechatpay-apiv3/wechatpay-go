@@ -43,7 +43,7 @@ func (a *NativeApiService) CloseOrder(ctx context.Context, req CloseOrderRequest
 		return nil, fmt.Errorf("field `OutTradeNo` is required and must be specified in CloseOrderRequest")
 	}
 
-	localVarPath := consts.WechatPayAPIServer + "/v3/pay/transactions/out-trade-no/{out_trade_no}/close"
+	localVarPath := consts.WechatPayAPIServer + "/v3/pay/partner/transactions/out-trade-no/{out_trade_no}/close"
 	// Build Path with Path Params
 	localVarPath = strings.Replace(localVarPath, "{"+"out_trade_no"+"}", neturl.PathEscape(core.ParameterToString(*req.OutTradeNo, "")), -1)
 
@@ -80,7 +80,7 @@ func (a *NativeApiService) Prepay(ctx context.Context, req PrepayRequest) (resp 
 		localVarHeaderParams = nethttp.Header{}
 	)
 
-	localVarPath := consts.WechatPayAPIServer + "/v3/pay/transactions/native"
+	localVarPath := consts.WechatPayAPIServer + "/v3/pay/partner/transactions/native"
 	// Make sure All Required Params are properly set
 
 	// Setup Body Params
@@ -122,18 +122,22 @@ func (a *NativeApiService) QueryOrderById(ctx context.Context, req QueryOrderByI
 		return nil, nil, fmt.Errorf("field `TransactionId` is required and must be specified in QueryOrderByIdRequest")
 	}
 
-	localVarPath := consts.WechatPayAPIServer + "/v3/pay/transactions/id/{transaction_id}"
+	localVarPath := consts.WechatPayAPIServer + "/v3/pay/partner/transactions/id/{transaction_id}"
 	// Build Path with Path Params
 	localVarPath = strings.Replace(localVarPath, "{"+"transaction_id"+"}", neturl.PathEscape(core.ParameterToString(*req.TransactionId, "")), -1)
 
 	// Make sure All Required Params are properly set
-	if req.Mchid == nil {
-		return nil, nil, fmt.Errorf("field `Mchid` is required and must be specified in QueryOrderByIdRequest")
+	if req.SpMchid == nil {
+		return nil, nil, fmt.Errorf("field `SpMchid` is required and must be specified in QueryOrderByIdRequest")
+	}
+	if req.SubMchid == nil {
+		return nil, nil, fmt.Errorf("field `SubMchid` is required and must be specified in QueryOrderByIdRequest")
 	}
 
 	// Setup Query Params
 	localVarQueryParams = neturl.Values{}
-	localVarQueryParams.Add("mchid", core.ParameterToString(*req.Mchid, ""))
+	localVarQueryParams.Add("sp_mchid", core.ParameterToString(*req.SpMchid, ""))
+	localVarQueryParams.Add("sub_mchid", core.ParameterToString(*req.SubMchid, ""))
 
 	// Determine the Content-Type Header
 	localVarHTTPContentTypes := []string{}
@@ -171,18 +175,22 @@ func (a *NativeApiService) QueryOrderByOutTradeNo(ctx context.Context, req Query
 		return nil, nil, fmt.Errorf("field `OutTradeNo` is required and must be specified in QueryOrderByOutTradeNoRequest")
 	}
 
-	localVarPath := consts.WechatPayAPIServer + "/v3/pay/transactions/out-trade-no/{out_trade_no}"
+	localVarPath := consts.WechatPayAPIServer + "/v3/pay/partner/transactions/out-trade-no/{out_trade_no}"
 	// Build Path with Path Params
 	localVarPath = strings.Replace(localVarPath, "{"+"out_trade_no"+"}", neturl.PathEscape(core.ParameterToString(*req.OutTradeNo, "")), -1)
 
 	// Make sure All Required Params are properly set
-	if req.Mchid == nil {
-		return nil, nil, fmt.Errorf("field `Mchid` is required and must be specified in QueryOrderByOutTradeNoRequest")
+	if req.SpMchid == nil {
+		return nil, nil, fmt.Errorf("field `SpMchid` is required and must be specified in QueryOrderByOutTradeNoRequest")
+	}
+	if req.SubMchid == nil {
+		return nil, nil, fmt.Errorf("field `SubMchid` is required and must be specified in QueryOrderByOutTradeNoRequest")
 	}
 
 	// Setup Query Params
 	localVarQueryParams = neturl.Values{}
-	localVarQueryParams.Add("mchid", core.ParameterToString(*req.Mchid, ""))
+	localVarQueryParams.Add("sp_mchid", core.ParameterToString(*req.SpMchid, ""))
+	localVarQueryParams.Add("sub_mchid", core.ParameterToString(*req.SubMchid, ""))
 
 	// Determine the Content-Type Header
 	localVarHTTPContentTypes := []string{}

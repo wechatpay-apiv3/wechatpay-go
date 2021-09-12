@@ -22,6 +22,7 @@ import (
 )
 
 func ExampleJsapiApiService_CloseOrder() {
+	// 这里需要是「服务商」的相关信息
 	var (
 		mchID                      string = "190000****"                               // 商户号
 		mchCertificateSerialNumber string = "3775************************************" // 商户证书序列号
@@ -63,6 +64,7 @@ func ExampleJsapiApiService_CloseOrder() {
 }
 
 func ExampleJsapiApiService_Prepay() {
+	// 这里需要是「服务商」的相关信息
 	var (
 		mchID                      string = "190000****"                               // 商户号
 		mchCertificateSerialNumber string = "3775************************************" // 商户证书序列号
@@ -105,7 +107,9 @@ func ExampleJsapiApiService_Prepay() {
 				Total:    core.Int64(100),
 			},
 			Payer: &jsapi.Payer{
-				Openid: core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
+				//SpOpenid: core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
+				// or
+				SubOpenid: core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
 			},
 			Detail: &jsapi.Detail{
 				CostPrice: core.Int64(608800),
@@ -144,6 +148,7 @@ func ExampleJsapiApiService_Prepay() {
 }
 
 func ExampleJsapiApiService_QueryOrderById() {
+	// 这里需要是「服务商」的相关信息
 	var (
 		mchID                      string = "190000****"                               // 商户号
 		mchCertificateSerialNumber string = "3775************************************" // 商户证书序列号
@@ -169,8 +174,9 @@ func ExampleJsapiApiService_QueryOrderById() {
 	svc := jsapi.JsapiApiService{Client: client}
 	resp, result, err := svc.QueryOrderById(ctx,
 		jsapi.QueryOrderByIdRequest{
+			SpMchid:       core.String("Mchid_example"),
+			SubMchid:      core.String("SubMchid_example"),
 			TransactionId: core.String("TransactionId_example"),
-			Mchid:         core.String("Mchid_example"),
 		},
 	)
 
@@ -184,6 +190,7 @@ func ExampleJsapiApiService_QueryOrderById() {
 }
 
 func ExampleJsapiApiService_QueryOrderByOutTradeNo() {
+	// 这里需要是「服务商」的相关信息
 	var (
 		mchID                      string = "190000****"                               // 商户号
 		mchCertificateSerialNumber string = "3775************************************" // 商户证书序列号
@@ -209,8 +216,9 @@ func ExampleJsapiApiService_QueryOrderByOutTradeNo() {
 	svc := jsapi.JsapiApiService{Client: client}
 	resp, result, err := svc.QueryOrderByOutTradeNo(ctx,
 		jsapi.QueryOrderByOutTradeNoRequest{
+			SpMchid:    core.String("Mchid_example"),
+			SubMchid:   core.String("SubMchid_example"),
 			OutTradeNo: core.String("OutTradeNo_example"),
-			Mchid:      core.String("Mchid_example"),
 		},
 	)
 
