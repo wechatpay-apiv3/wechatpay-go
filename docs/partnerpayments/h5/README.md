@@ -15,10 +15,10 @@ H5支付API
 
 服务名 | 方法名 | HTTP 请求 | 描述
 ------------ | ------------- | ------------- | -------------
-*H5Api* | [**CloseOrder**](H5Api.md#closeorder) | **Post** /v3/pay/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
-*H5Api* | [**Prepay**](H5Api.md#prepay) | **Post** /v3/pay/transactions/h5 | H5支付下单
-*H5Api* | [**QueryOrderById**](H5Api.md#queryorderbyid) | **Get** /v3/pay/transactions/id/{transaction_id} | 微信支付订单号查询订单
-*H5Api* | [**QueryOrderByOutTradeNo**](H5Api.md#queryorderbyouttradeno) | **Get** /v3/pay/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
+*H5Api* | [**CloseOrder**](H5Api.md#closeorder) | **Post** /v3/pay/partner/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
+*H5Api* | [**Prepay**](H5Api.md#prepay) | **Post** /v3/pay/partner/transactions/h5 | H5支付下单
+*H5Api* | [**QueryOrderById**](H5Api.md#queryorderbyid) | **Get** /v3/pay/partner/transactions/id/{transaction_id} | 微信支付订单号查询订单
+*H5Api* | [**QueryOrderByOutTradeNo**](H5Api.md#queryorderbyouttradeno) | **Get** /v3/pay/partner/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
 
 
 ## 类型列表
