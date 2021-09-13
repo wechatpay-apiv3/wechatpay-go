@@ -128,10 +128,10 @@ func (a *JsapiApiService) QueryOrderById(ctx context.Context, req QueryOrderById
 
 	// Make sure All Required Params are properly set
 	if req.SpMchid == nil {
-		return nil, nil, fmt.Errorf("field `Mchid` is required and must be specified in QueryOrderByIdRequest")
+		return nil, nil, fmt.Errorf("field `SpMchid` is required and must be specified in QueryOrderByIdRequest")
 	}
 	if req.SubMchid == nil {
-		return nil, nil, fmt.Errorf("field `Mchid` is required and must be specified in QueryOrderByIdRequest")
+		return nil, nil, fmt.Errorf("field `SubMchid` is required and must be specified in QueryOrderByIdRequest")
 	}
 
 	// Setup Query Params
@@ -181,10 +181,10 @@ func (a *JsapiApiService) QueryOrderByOutTradeNo(ctx context.Context, req QueryO
 
 	// Make sure All Required Params are properly set
 	if req.SpMchid == nil {
-		return nil, nil, fmt.Errorf("field `Mchid` is required and must be specified in QueryOrderByIdRequest")
+		return nil, nil, fmt.Errorf("field `SpMchid` is required and must be specified in QueryOrderByOutTradeNoRequest")
 	}
 	if req.SubMchid == nil {
-		return nil, nil, fmt.Errorf("field `Mchid` is required and must be specified in QueryOrderByIdRequest")
+		return nil, nil, fmt.Errorf("field `SubMchid` is required and must be specified in QueryOrderByOutTradeNoRequest")
 	}
 
 	// Setup Query Params
