@@ -73,6 +73,7 @@ func (o Amount) Clone() *Amount {
 
 // CloseOrderRequest
 type CloseOrderRequest struct {
+	// 商户订单号
 	OutTradeNo *string `json:"out_trade_no"`
 	// 服务商户号，由微信支付生成并下发
 	SpMchid *string `json:"sp_mchid"`
@@ -689,16 +690,21 @@ func (o PrepayResponse) Clone() *PrepayResponse {
 
 // QueryOrderByIdRequest
 type QueryOrderByIdRequest struct {
-	// 服务商户号
-	SpMchid *string `json:"sp_mchid"`
-	// 子商户的商户号
-	SubMchid *string `json:"sub_mchid"`
 	// 微信支付订单号
 	TransactionId *string `json:"transaction_id"`
+	// 服务商户号
+	SpMchid *string `json:"sp_mchid"`
+	// 子商户号
+	SubMchid *string `json:"sub_mchid"`
 }
 
 func (o QueryOrderByIdRequest) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
+
+	if o.TransactionId == nil {
+		return nil, fmt.Errorf("field `TransactionId` is required and must be specified in QueryOrderByIdRequest")
+	}
+	toSerialize["transaction_id"] = o.TransactionId
 
 	if o.SpMchid == nil {
 		return nil, fmt.Errorf("field `SpMchid` is required and must be specified in QueryOrderByIdRequest")
@@ -709,12 +715,6 @@ func (o QueryOrderByIdRequest) MarshalJSON() ([]byte, error) {
 		return nil, fmt.Errorf("field `SubMchid` is required and must be specified in QueryOrderByIdRequest")
 	}
 	toSerialize["sub_mchid"] = o.SubMchid
-
-	if o.TransactionId == nil {
-		return nil, fmt.Errorf("field `TransactionId` is required and must be specified in QueryOrderByIdRequest")
-	}
-	toSerialize["transaction_id"] = o.TransactionId
-
 	return json.Marshal(toSerialize)
 }
 
@@ -764,32 +764,31 @@ func (o QueryOrderByIdRequest) Clone() *QueryOrderByIdRequest {
 
 // QueryOrderByOutTradeNoRequest
 type QueryOrderByOutTradeNoRequest struct {
+	// 商户订单号
+	OutTradeNo *string `json:"out_trade_no"`
 	// 服务商户号
 	SpMchid *string `json:"sp_mchid"`
-	// 子商户的商户号
+	// 子商户号
 	SubMchid *string `json:"sub_mchid"`
-	// 商户订单号，商户系统内部订单号，只能是数字、大小写字母_-*且在同一个商户号下唯一。 特殊规则：最小字符长度为6
-	OutTradeNo *string `json:"out_trade_no"`
 }
 
 func (o QueryOrderByOutTradeNoRequest) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
-
-	if o.SpMchid == nil {
-		return nil, fmt.Errorf("field `SpMchid` is required and must be specified in QueryOrderByIdRequest")
-	}
-	toSerialize["sp_mchid"] = o.SpMchid
-
-	if o.SubMchid == nil {
-		return nil, fmt.Errorf("field `SubMchid` is required and must be specified in QueryOrderByIdRequest")
-	}
-	toSerialize["sub_mchid"] = o.SubMchid
 
 	if o.OutTradeNo == nil {
 		return nil, fmt.Errorf("field `OutTradeNo` is required and must be specified in QueryOrderByOutTradeNoRequest")
 	}
 	toSerialize["out_trade_no"] = o.OutTradeNo
 
+	if o.SpMchid == nil {
+		return nil, fmt.Errorf("field `SpMchid` is required and must be specified in QueryOrderByOutTradeNoRequest")
+	}
+	toSerialize["sp_mchid"] = o.SpMchid
+
+	if o.SubMchid == nil {
+		return nil, fmt.Errorf("field `SubMchid` is required and must be specified in QueryOrderByOutTradeNoRequest")
+	}
+	toSerialize["sub_mchid"] = o.SubMchid
 	return json.Marshal(toSerialize)
 }
 
