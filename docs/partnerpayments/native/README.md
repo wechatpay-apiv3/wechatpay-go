@@ -15,10 +15,10 @@ Native支付API
 
 服务名 | 方法名 | HTTP 请求 | 描述
 ------------ | ------------- | ------------- | -------------
-*NativeApi* | [**CloseOrder**](NativeApi.md#closeorder) | **Post** /v3/pay/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
-*NativeApi* | [**Prepay**](NativeApi.md#prepay) | **Post** /v3/pay/transactions/native | Native支付预下单
-*NativeApi* | [**QueryOrderById**](NativeApi.md#queryorderbyid) | **Get** /v3/pay/transactions/id/{transaction_id} | 微信支付订单号查询订单
-*NativeApi* | [**QueryOrderByOutTradeNo**](NativeApi.md#queryorderbyouttradeno) | **Get** /v3/pay/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
+*NativeApi* | [**CloseOrder**](NativeApi.md#closeorder) | **Post** /v3/pay/partner/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
+*NativeApi* | [**Prepay**](NativeApi.md#prepay) | **Post** /v3/pay/partner/transactions/native | Native支付预下单
+*NativeApi* | [**QueryOrderById**](NativeApi.md#queryorderbyid) | **Get** /v3/pay/partner/transactions/id/{transaction_id} | 微信支付订单号查询订单
+*NativeApi* | [**QueryOrderByOutTradeNo**](NativeApi.md#queryorderbyouttradeno) | **Get** /v3/pay/partner/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
 
 
 ## 类型列表

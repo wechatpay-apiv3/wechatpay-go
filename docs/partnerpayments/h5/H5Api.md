@@ -4,10 +4,10 @@
 
 方法名 | HTTP 请求 | 描述
 ------------- | ------------- | -------------
-[**CloseOrder**](#closeorder) | **Post** /v3/pay/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
-[**Prepay**](#prepay) | **Post** /v3/pay/transactions/h5 | H5支付下单
-[**QueryOrderById**](#queryorderbyid) | **Get** /v3/pay/transactions/id/{transaction_id} | 微信支付订单号查询订单
-[**QueryOrderByOutTradeNo**](#queryorderbyouttradeno) | **Get** /v3/pay/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
+[**CloseOrder**](#closeorder) | **Post** /v3/pay/partner/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
+[**Prepay**](#prepay) | **Post** /v3/pay/partner/transactions/h5 | H5支付下单
+[**QueryOrderById**](#queryorderbyid) | **Get** /v3/pay/partner/transactions/id/{transaction_id} | 微信支付订单号查询订单
+[**QueryOrderByOutTradeNo**](#queryorderbyouttradeno) | **Get** /v3/pay/partner/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
 
 
 
@@ -273,7 +273,8 @@ func main() {
 	resp, result, err := svc.QueryOrderById(ctx,
 		h5.QueryOrderByIdRequest{
 			TransactionId: core.String("TransactionId_example"),
-			Mchid:         core.String("Mchid_example"),
+			SpMchid:       core.String("SpMchid_example"),
+			SubMchid:      core.String("SubMchid_example"),
 		},
 	)
 
@@ -356,7 +357,8 @@ func main() {
 	resp, result, err := svc.QueryOrderByOutTradeNo(ctx,
 		h5.QueryOrderByOutTradeNoRequest{
 			OutTradeNo: core.String("OutTradeNo_example"),
-			Mchid:      core.String("Mchid_example"),
+			SpMchid:    core.String("SpMchid_example"),
+			SubMchid:   core.String("SubMchid_example"),
 		},
 	)
 
