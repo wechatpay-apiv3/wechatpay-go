@@ -174,7 +174,8 @@ func ExampleH5ApiService_QueryOrderById() {
 	resp, result, err := svc.QueryOrderById(ctx,
 		h5.QueryOrderByIdRequest{
 			TransactionId: core.String("TransactionId_example"),
-			Mchid:         core.String("Mchid_example"),
+			SpMchid:       core.String("SpMchid_example"),
+			SubMchid:      core.String("SubMchid_example"),
 		},
 	)
 
@@ -214,7 +215,8 @@ func ExampleH5ApiService_QueryOrderByOutTradeNo() {
 	resp, result, err := svc.QueryOrderByOutTradeNo(ctx,
 		h5.QueryOrderByOutTradeNoRequest{
 			OutTradeNo: core.String("OutTradeNo_example"),
-			Mchid:      core.String("Mchid_example"),
+			SpMchid:    core.String("SpMchid_example"),
+			SubMchid:   core.String("SubMchid_example"),
 		},
 	)
 

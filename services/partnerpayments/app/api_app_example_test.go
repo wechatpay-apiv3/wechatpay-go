@@ -167,7 +167,8 @@ func ExampleAppApiService_QueryOrderById() {
 	resp, result, err := svc.QueryOrderById(ctx,
 		app.QueryOrderByIdRequest{
 			TransactionId: core.String("TransactionId_example"),
-			Mchid:         core.String("Mchid_example"),
+			SpMchid:       core.String("SpMchid_example"),
+			SubMchid:      core.String("SubMchid_example"),
 		},
 	)
 
@@ -207,7 +208,8 @@ func ExampleAppApiService_QueryOrderByOutTradeNo() {
 	resp, result, err := svc.QueryOrderByOutTradeNo(ctx,
 		app.QueryOrderByOutTradeNoRequest{
 			OutTradeNo: core.String("OutTradeNo_example"),
-			Mchid:      core.String("Mchid_example"),
+			SpMchid:    core.String("SpMchid_example"),
+			SubMchid:   core.String("SubMchid_example"),
 		},
 	)
 
