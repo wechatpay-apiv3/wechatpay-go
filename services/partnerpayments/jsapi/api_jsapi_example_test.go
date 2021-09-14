@@ -105,7 +105,8 @@ func ExampleJsapiApiService_Prepay() {
 				Total:    core.Int64(100),
 			},
 			Payer: &jsapi.Payer{
-				Openid: core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
+				SpOpenid:  core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
+				SubOpenid: core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
 			},
 			Detail: &jsapi.Detail{
 				CostPrice: core.Int64(608800),
@@ -170,7 +171,8 @@ func ExampleJsapiApiService_QueryOrderById() {
 	resp, result, err := svc.QueryOrderById(ctx,
 		jsapi.QueryOrderByIdRequest{
 			TransactionId: core.String("TransactionId_example"),
-			Mchid:         core.String("Mchid_example"),
+			SpMchid:       core.String("SpMchid_example"),
+			SubMchid:      core.String("SubMchid_example"),
 		},
 	)
 
@@ -210,7 +212,8 @@ func ExampleJsapiApiService_QueryOrderByOutTradeNo() {
 	resp, result, err := svc.QueryOrderByOutTradeNo(ctx,
 		jsapi.QueryOrderByOutTradeNoRequest{
 			OutTradeNo: core.String("OutTradeNo_example"),
-			Mchid:      core.String("Mchid_example"),
+			SpMchid:    core.String("SpMchid_example"),
+			SubMchid:   core.String("SubMchid_example"),
 		},
 	)
 

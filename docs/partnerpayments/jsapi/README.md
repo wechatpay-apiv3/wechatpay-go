@@ -15,10 +15,10 @@ JSAPI支付API
 
 服务名 | 方法名 | HTTP 请求 | 描述
 ------------ | ------------- | ------------- | -------------
-*JsapiApi* | [**CloseOrder**](JsapiApi.md#closeorder) | **Post** /v3/pay/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
-*JsapiApi* | [**Prepay**](JsapiApi.md#prepay) | **Post** /v3/pay/transactions/jsapi | JSAPI支付下单
-*JsapiApi* | [**QueryOrderById**](JsapiApi.md#queryorderbyid) | **Get** /v3/pay/transactions/id/{transaction_id} | 微信支付订单号查询订单
-*JsapiApi* | [**QueryOrderByOutTradeNo**](JsapiApi.md#queryorderbyouttradeno) | **Get** /v3/pay/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
+*JsapiApi* | [**CloseOrder**](JsapiApi.md#closeorder) | **Post** /v3/pay/partner/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
+*JsapiApi* | [**Prepay**](JsapiApi.md#prepay) | **Post** /v3/pay/partner/transactions/jsapi | JSAPI支付下单
+*JsapiApi* | [**QueryOrderById**](JsapiApi.md#queryorderbyid) | **Get** /v3/pay/partner/transactions/id/{transaction_id} | 微信支付订单号查询订单
+*JsapiApi* | [**QueryOrderByOutTradeNo**](JsapiApi.md#queryorderbyouttradeno) | **Get** /v3/pay/partner/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
 
 
 ## 类型列表

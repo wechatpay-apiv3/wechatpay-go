@@ -4,10 +4,10 @@
 
 方法名 | HTTP 请求 | 描述
 ------------- | ------------- | -------------
-[**CloseOrder**](#closeorder) | **Post** /v3/pay/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
-[**Prepay**](#prepay) | **Post** /v3/pay/transactions/jsapi | JSAPI支付下单
-[**QueryOrderById**](#queryorderbyid) | **Get** /v3/pay/transactions/id/{transaction_id} | 微信支付订单号查询订单
-[**QueryOrderByOutTradeNo**](#queryorderbyouttradeno) | **Get** /v3/pay/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
+[**CloseOrder**](#closeorder) | **Post** /v3/pay/partner/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
+[**Prepay**](#prepay) | **Post** /v3/pay/partner/transactions/jsapi | JSAPI支付下单
+[**QueryOrderById**](#queryorderbyid) | **Get** /v3/pay/partner/transactions/id/{transaction_id} | 微信支付订单号查询订单
+[**QueryOrderByOutTradeNo**](#queryorderbyouttradeno) | **Get** /v3/pay/partner/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
 
 
 
@@ -161,7 +161,8 @@ func main() {
 				Total:    core.Int64(100),
 			},
 			Payer: &jsapi.Payer{
-				Openid: core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
+				SpOpenid:  core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
+				SubOpenid: core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
 			},
 			Detail: &jsapi.Detail{
 				CostPrice: core.Int64(608800),
@@ -269,7 +270,8 @@ func main() {
 	resp, result, err := svc.QueryOrderById(ctx,
 		jsapi.QueryOrderByIdRequest{
 			TransactionId: core.String("TransactionId_example"),
-			Mchid:         core.String("Mchid_example"),
+			SpMchid:       core.String("SpMchid_example"),
+			SubMchid:      core.String("SubMchid_example"),
 		},
 	)
 
@@ -352,7 +354,8 @@ func main() {
 	resp, result, err := svc.QueryOrderByOutTradeNo(ctx,
 		jsapi.QueryOrderByOutTradeNoRequest{
 			OutTradeNo: core.String("OutTradeNo_example"),
-			Mchid:      core.String("Mchid_example"),
+			SpMchid:    core.String("SpMchid_example"),
+			SubMchid:   core.String("SubMchid_example"),
 		},
 	)
 

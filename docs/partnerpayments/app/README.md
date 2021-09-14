@@ -15,10 +15,10 @@ APP支付API
 
 服务名 | 方法名 | HTTP 请求 | 描述
 ------------ | ------------- | ------------- | -------------
-*AppApi* | [**CloseOrder**](AppApi.md#closeorder) | **Post** /v3/pay/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
-*AppApi* | [**Prepay**](AppApi.md#prepay) | **Post** /v3/pay/transactions/app | APP支付下单
-*AppApi* | [**QueryOrderById**](AppApi.md#queryorderbyid) | **Get** /v3/pay/transactions/id/{transaction_id} | 微信支付订单号查询订单
-*AppApi* | [**QueryOrderByOutTradeNo**](AppApi.md#queryorderbyouttradeno) | **Get** /v3/pay/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
+*AppApi* | [**CloseOrder**](AppApi.md#closeorder) | **Post** /v3/pay/partner/transactions/out-trade-no/{out_trade_no}/close | 关闭订单
+*AppApi* | [**Prepay**](AppApi.md#prepay) | **Post** /v3/pay/partner/transactions/app | APP支付下单
+*AppApi* | [**QueryOrderById**](AppApi.md#queryorderbyid) | **Get** /v3/pay/partner/transactions/id/{transaction_id} | 微信支付订单号查询订单
+*AppApi* | [**QueryOrderByOutTradeNo**](AppApi.md#queryorderbyouttradeno) | **Get** /v3/pay/partner/transactions/out-trade-no/{out_trade_no} | 商户订单号查询订单
 
 
 ## 类型列表
