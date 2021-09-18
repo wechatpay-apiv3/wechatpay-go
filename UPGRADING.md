@@ -8,8 +8,8 @@
 此次升级会导致 `payments` 下4个API接口的SDK的兼容性问题，建议开发者以如下方式对自己的代码进行更新。
 
 ### 1. 升级依赖
-1. 在你的模块目录下执行 `go get -u github.com/wechatpay-apiv3/wechatpay-go@v0.2.6` 升级依赖。
-2. （正常情况下该步骤会自动完成）修改模块 `go.mod` 文件中依赖的 `github.com/wechatpay-apiv3/wechatpay-go` 至 `v0.2.6`版本。
+1. 在你的模块目录下执行 `go get -u github.com/wechatpay-apiv3/wechatpay-go@v0.2.7` 升级依赖。
+2. （正常情况下该步骤会自动完成）修改模块 `go.mod` 文件中依赖的 `github.com/wechatpay-apiv3/wechatpay-go` 至 `v0.2.7`版本。
 
 ### 2. 定位需要修改的代码
 在项目根目录下执行`go build ./...`可以递归检查代码中的编译错误，即可快速定位到需要修改的代码。
