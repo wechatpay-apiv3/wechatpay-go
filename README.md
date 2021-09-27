@@ -323,7 +323,7 @@ handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifi
 mchAPIv3Key := "<your apiv3 key>"
 // 使用微信支付平台证书验证应答签名
 verifier := verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList([]*x509.Certificate{wechatPayCert})) 
-handler := NewNotifyHandler(mchAPIv3Key, verifier)
+handler := notify.NewNotifyHandler(mchAPIv3Key, verifier)
 ```
 
 建议：为了正确使用平台证书下载管理器，你应阅读并理解 [如何使用平台证书下载管理器](FAQ.md#如何使用平台证书下载管理器)。
