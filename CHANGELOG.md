@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.8] - 2021-10-08
+
+### Added
+
++ 批量转账接口，支持服务商（[代码](services/partnertransferbatch)，[文档](docs/partnertransferbatch)）和直连商户（[代码](services/transferbatch)，[文档](docs/transferbatch)）。
+
 ## [0.2.7] - 2021-09-14
 
 ### Fixed
