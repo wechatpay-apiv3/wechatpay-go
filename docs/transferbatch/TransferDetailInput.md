@@ -8,8 +8,8 @@
 **TransferAmount** | **int64** | 转账金额单位为“分”  | 
 **TransferRemark** | **string** | 单条转账备注（微信用户会收到该备注），UTF8编码，最多允许32个字符  | 
 **Openid** | **string** | 商户appid下，某用户的openid  | 
-**UserName** | ***os.File** | 收款方姓名。采用标准RSA算法，公钥由微信侧提供  | 
-**UserIdCard** | ***os.File** | 收款方身份证号，可不用填（采用标准RSA算法，公钥由微信侧提供）  | [可选] 
+**UserName** | **string** | 收款方姓名。采用标准RSA算法，公钥由微信侧提供  | 
+**UserIdCard** | **string** | 收款方身份证号，可不用填（采用标准RSA算法，公钥由微信侧提供）  | [可选] 
 
 [\[返回类型列表\]](README.md#类型列表)
 [\[返回接口列表\]](README.md#接口列表)
