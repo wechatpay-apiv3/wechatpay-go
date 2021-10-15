@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.9] - 2021-10-15
+
+### Fixed
+
++ 修复批量转账接口部分字段误设置为 `os.File` 的问题，包括服务商（[代码](services/partnertransferbatch)，[文档](docs/partnertransferbatch)）与直连商户（[代码](services/transferbatch)，[文档](docs/transferbatch)）
+
 ## [0.2.8] - 2021-10-08
 
 ### Added

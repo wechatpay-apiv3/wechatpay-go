@@ -13,7 +13,6 @@ package partnertransferbatch
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"time"
 )
 
@@ -1220,7 +1219,7 @@ type TransferDetailEntity struct {
 	// 收款用户openid。如果转账特约商户授权类型是INFORMATION_AUTHORIZATION_TYPE，对应的是特约商户公众号下的openid;如果转账特约商户授权类型是FUND_AUTHORIZATION_TYPE，对应的是服务商商户公众号下的openid。
 	Openid *string `json:"openid"`
 	// 收款方姓名。采用标准RSA算法，公钥由微信侧提供
-	Username **os.File `json:"username" encryption:"EM_APIV3"`
+	Username *string `json:"username" encryption:"EM_APIV3"`
 	// 转账发起的时间，按照使用rfc3339所定义的格式，格式为YYYY-MM-DDThh:mm:ss+TIMEZONE
 	InitiateTime *time.Time `json:"initiate_time"`
 	// 明细最后一次状态变更的时间，按照使用rfc3339所定义的格式，格式为YYYY-MM-DDThh:mm:ss+TIMEZONE
@@ -1448,7 +1447,7 @@ func (o TransferDetailEntity) Clone() *TransferDetailEntity {
 	}
 
 	if o.Username != nil {
-		ret.Username = new(*os.File)
+		ret.Username = new(string)
 		*ret.Username = *o.Username
 	}
 
@@ -1476,9 +1475,9 @@ type TransferDetailInput struct {
 	// 收款用户openid。如果转账特约商户授权类型是INFORMATION_AUTHORIZATION_TYPE，对应的是特约商户公众号下的openid。
 	Openid *string `json:"openid"`
 	// 收款用户姓名。采用标准RSA算法，公钥由微信侧提供
-	UserName **os.File `json:"user_name" encryption:"EM_APIV3"`
+	UserName *string `json:"user_name" encryption:"EM_APIV3"`
 	// 收款方身份证号，可不用填（采用标准RSA算法，公钥由微信侧提供）
-	UserIdCard **os.File `json:"user_id_card,omitempty" encryption:"EM_APIV3"`
+	UserIdCard *string `json:"user_id_card,omitempty" encryption:"EM_APIV3"`
 }
 
 func (o TransferDetailInput) MarshalJSON() ([]byte, error) {
@@ -1580,12 +1579,12 @@ func (o TransferDetailInput) Clone() *TransferDetailInput {
 	}
 
 	if o.UserName != nil {
-		ret.UserName = new(*os.File)
+		ret.UserName = new(string)
 		*ret.UserName = *o.UserName
 	}
 
 	if o.UserIdCard != nil {
-		ret.UserIdCard = new(*os.File)
+		ret.UserIdCard = new(string)
 		*ret.UserIdCard = *o.UserIdCard
 	}
 

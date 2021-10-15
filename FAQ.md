@@ -14,7 +14,7 @@
 
 首先使用 `go` 指令下载命令行工具
 ```shell
-go get -u github.com/wechatpay-apiv3/wechatpay-go/cmd/wechatpay_download_certs@v0.2.7
+go get -u github.com/wechatpay-apiv3/wechatpay-go/cmd/wechatpay_download_certs
 ```
 然后执行 `wechatpay_download_certs` 即可下载微信支付平台证书到当前目录
 ```shell

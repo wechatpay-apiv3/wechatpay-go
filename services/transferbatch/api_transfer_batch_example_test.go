@@ -143,8 +143,8 @@ func ExampleTransferBatchApiService_InitiateBatchTransfer() {
 				OutDetailNo:    core.String("x23zy545Bd5436"),
 				TransferAmount: core.Int64(200000),
 				TransferRemark: core.String("2020年4月报销"),
-				UserIdCard:     nil,
-				UserName:       nil,
+				UserIdCard:     core.String("UserIdCard_example"),
+				UserName:       core.String("UserName_example"),
 			}},
 		},
 	)
