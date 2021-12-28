@@ -288,42 +288,51 @@ result, err := client.Request(
 2. 调用 `handler.ParseNotifyRequest` 验签，并解密报文。
 
 ### 初始化
++ 方法一（大多数场景）：先手动注册下载器，再获取微信平台证书访问器。
 
-+ 方法一（推荐）：如果你像 [发送请求](#发送请求) 那样使用 `WithWechatPayAutoAuthCipher` 初始化 `core.Client`，直接获取微信支付平台证书访问器初始化 `notify.Handler`。
+适用场景： 仅需要对回调通知验证签名并解密的场景。例如，基础支付的回调通知。
 
 ```go
 ctx := context.Background()
-// 使用商户私钥等初始化 client，并使它具有自动定时获取微信支付平台证书的能力
-opts := []core.ClientOption{
-	option.WithWechatPayAutoAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, mchAPIv3Key),
-}
-client, err := core.NewClient(ctx, opts...)
-	
-// 获取平台证书访问器
+// 1. 使用 `RegisterDownloaderWithPrivateKey` 注册下载器
+err := downloader.MgrInstance().RegisterDownloaderWithPrivateKey(ctx, mchPrivateKey, mchCertificateSerialNumber, mchID, mchAPIV3Key)
+// 2. 获取商户号对应的微信支付平台证书访问器
 certVisitor := downloader.MgrInstance().GetCertificateVisitor(mchID)
+// 3. 使用证书访问器初始化 `notify.Handler`
 handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certVisitor))
 ```
 
-+ 方法二：如果没有使用 `WithWechatPayAutoAuthCipher`，则需要先手动注册下载器。
++ 方法二：像 [发送请求](#发送请求) 那样使用 `WithWechatPayAutoAuthCipher` 初始化 `core.Client`，然后再用client进行接口调用。
+
+适用场景：需要对回调通知验证签名并解密，并且后续需要使用 Client 的场景。例如，电子发票的回调通知，验签与解密后还需要通过 Client 调用用户填写抬头接口。
 
 ```go
 ctx := context.Background()
-// 这是一个单纯的回调处理进程，没有使用 WithWechatPayAutoAuthCipher 创建商户的 client，则需要手动注册下载器
-err := downloader.MgrInstance().RegisterDownloaderWithPrivateKey(ctx, mchPrivateKey, mchCertificateSerialNumber, mchID, mchAPIV3Key)
-
-// 注册完成，获取平台证书访问器
+// 1. 使用商户私钥等初始化 client，并使它具有自动定时获取微信支付平台证书的能力
+opts := []core.ClientOption{
+	option.WithWechatPayAutoAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, mchAPIv3Key),
+}
+client, err := core.NewClient(ctx, opts...)	
+// 2. 获取商户号对应的微信支付平台证书访问器
 certVisitor := downloader.MgrInstance().GetCertificateVisitor(mchID)
+// 3. 使用证书访问器初始化 `notify.Handler`
 handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certVisitor))
-
+// 4. 使用client进行接口调用
+// ...
 ```
 
 + 方法三：使用本地的微信支付平台证书和商户 APIv3 密钥初始化 `Handler`。
 
+适用场景：首次通过工具下载平台证书到本地，后续使用本地管理的平台证书进行验签与解密。
+
 ```go
+// 1. 初始化商户API v3 Key及微信支付平台证书
 mchAPIv3Key := "<your apiv3 key>"
-// 使用微信支付平台证书验证应答签名
-verifier := verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList([]*x509.Certificate{wechatPayCert})) 
-handler := notify.NewNotifyHandler(mchAPIv3Key, verifier)
+wechatPayCert, err := utils.LoadCertificate("<your wechat pay certificate>")
+// 2. 使用本地管理的微信支付平台证书获取微信支付平台证书访问器
+certVisitor := core.NewCertificateMapWithList([]*x509.Certificate{wechatPayCert})
+// 3. 使用apiv3 key、证书访问器初始化 `notify.Handler`
+handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certVisitor))
 ```
 
 建议：为了正确使用平台证书下载管理器，你应阅读并理解 [如何使用平台证书下载管理器](FAQ.md#如何使用平台证书下载管理器)。
