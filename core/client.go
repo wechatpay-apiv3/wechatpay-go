@@ -427,8 +427,7 @@ func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err e
 	default:
 		if regJSONTypeCheck.MatchString(contentType) {
 			err = json.NewEncoder(bodyBuf).Encode(body)
-		}
-		if regXMLTypeCheck.MatchString(contentType) {
+		} else if regXMLTypeCheck.MatchString(contentType) {
 			err = xml.NewEncoder(bodyBuf).Encode(body)
 		}
 	}
