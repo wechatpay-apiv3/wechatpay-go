@@ -413,22 +413,24 @@ func CreateFormFile(w *multipart.Writer, filename, contentType string, file []by
 func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err error) {
 	bodyBuf = &bytes.Buffer{}
 
-	if reader, ok := body.(io.Reader); ok {
-		_, err = bodyBuf.ReadFrom(reader)
-	} else if fp, ok := body.(**os.File); ok {
-		_, err = bodyBuf.ReadFrom(*fp)
-	} else if b, ok := body.([]byte); ok {
+	switch b := body.(type) {
+	case string:
+		_, err = bodyBuf.WriteString(b)
+	case *string:
+		_, err = bodyBuf.WriteString(*b)
+	case []byte:
 		_, err = bodyBuf.Write(b)
-	} else if s, ok := body.(string); ok {
-		_, err = bodyBuf.WriteString(s)
-	} else if s, ok := body.(*string); ok {
-		_, err = bodyBuf.WriteString(*s)
-	} else if regJSONTypeCheck.MatchString(contentType) {
-		err = json.NewEncoder(bodyBuf).Encode(body)
-	} else if regXMLTypeCheck.MatchString(contentType) {
-		err = xml.NewEncoder(bodyBuf).Encode(body)
+	case **os.File:
+		_, err = bodyBuf.ReadFrom(*b)
+	case io.Reader:
+		_, err = bodyBuf.ReadFrom(b)
+	default:
+		if regJSONTypeCheck.MatchString(contentType) {
+			err = json.NewEncoder(bodyBuf).Encode(body)
+		} else if regXMLTypeCheck.MatchString(contentType) {
+			err = xml.NewEncoder(bodyBuf).Encode(body)
+		}
 	}
-
 	if err != nil {
 		return nil, err
 	}
