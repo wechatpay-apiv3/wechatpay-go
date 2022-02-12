@@ -116,7 +116,7 @@ resp, result, err := svc.PrepayWithRequestPayment(ctx,
 		Attach:      core.String("自定义数据说明"),
 		NotifyUrl:   core.String("https://www.weixin.qq.com/wxpay/pay.php"),
 		Amount: &jsapi.Amount{
-			Total: core.Int32(100),
+			Total: core.Int64(100),
 		},
 		Payer: &jsapi.Payer{
 			Openid: core.String("oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"),
