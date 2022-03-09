@@ -1347,10 +1347,9 @@ func (o TransferDetailInput) MarshalJSON() ([]byte, error) {
 	}
 	toSerialize["openid"] = o.Openid
 
-	if o.UserName == nil {
-		return nil, fmt.Errorf("field `UserName` is required and must be specified in TransferDetailInput")
+	if o.UserName != nil {
+		toSerialize["user_name"] = o.UserName
 	}
-	toSerialize["user_name"] = o.UserName
 
 	if o.UserIdCard != nil {
 		toSerialize["user_id_card"] = o.UserIdCard
