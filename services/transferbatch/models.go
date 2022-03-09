@@ -1318,7 +1318,7 @@ type TransferDetailInput struct {
 	TransferRemark *string `json:"transfer_remark"`
 	// 商户appid下，某用户的openid
 	Openid *string `json:"openid"`
-	// 收款方姓名。采用标准RSA算法，公钥由微信侧提供
+	// 收款方姓名，可不用填（采用标准RSA算法，公钥由微信侧提供）
 	UserName *string `json:"user_name" encryption:"EM_APIV3"`
 	// 收款方身份证号，可不用填（采用标准RSA算法，公钥由微信侧提供）
 	UserIdCard *string `json:"user_id_card,omitempty" encryption:"EM_APIV3"`
