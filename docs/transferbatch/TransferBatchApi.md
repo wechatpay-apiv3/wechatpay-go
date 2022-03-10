@@ -232,18 +232,18 @@ func main() {
 	resp, result, err := svc.InitiateBatchTransfer(ctx,
 		transferbatch.InitiateBatchTransferRequest{
 			Appid:       core.String("wxf636efh567hg4356"),
-			OutBatchNo:  core.String("plfk2020042013"),
 			BatchName:   core.String("2019年1月深圳分部报销单"),
 			BatchRemark: core.String("2019年1月深圳分部报销单"),
+			OutBatchNo:  core.String("plfk2020042013"),
 			TotalAmount: core.Int64(4000000),
 			TotalNum:    core.Int64(200),
 			TransferDetailList: []transferbatch.TransferDetailInput{transferbatch.TransferDetailInput{
-				Openid:         core.String("o-MYE42l80oelYMDE34nYD456Xoy"),
-				OutDetailNo:    core.String("x23zy545Bd5436"),
 				TransferAmount: core.Int64(200000),
+				UserName:       core.String("757b340b45ebef5467rter35gf464344v3542sdf4t6re4tb4f54ty45t4yyry45"),
+				OutDetailNo:    core.String("x23zy545Bd5436"),
+				UserIdCard:     core.String("8609cb22e1774a50a930e414cc71eca06121bcd266335cda230d24a7886a8d9f"),
 				TransferRemark: core.String("2020年4月报销"),
-				UserIdCard:     core.String("UserIdCard_example"),
-				UserName:       core.String("UserName_example"),
+				Openid:         core.String("o-MYE42l80oelYMDE34nYD456Xoy"),
 			}},
 		},
 	)

@@ -9,11 +9,10 @@
     - 调用查询批次接口，可获取到转账批次详情及当前状态。
     - 调用查询明细接口，可获取到单条转账明细详情及当前状态。
 
-
 ## 总览
 本 SDK 由 WechatPay APIv3 SDK 生成器生成。生成器基于 [OpenAPI Generator](https://openapi-generator.tech) 构建。
 
-- API 版本: 1.0.0
+- API 版本: 1.0.1
 
 ## 接口列表
 
