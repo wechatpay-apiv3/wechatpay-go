@@ -107,10 +107,10 @@ import (
 
 svc := jsapi.JsapiApiService{Client: client}
 // 得到prepay_id，以及调起支付所需的参数和签名
-resp, result, err := svc.PrepayWithRequestPayment(ctx,
+resp, result, err := svc.Prepay(ctx,
 	jsapi.PrepayRequest{
-		Appid:       core.String("wxd678efh567hg6787"),
-		Mchid:       core.String("1900009191"),
+		SpAppid:     core.String("wxd678efh567hg6787"),
+		SpMchid:     core.String("1900009191"),
 		Description: core.String("Image形象店-深圳腾大-QQ公仔"),
 		OutTradeNo:  core.String("1217752501201407033233368018"),
 		Attach:      core.String("自定义数据说明"),
@@ -144,7 +144,7 @@ svc := jsapi.JsapiApiService{Client: client}
 resp, result, err := svc.QueryOrderById(ctx,
 	jsapi.QueryOrderByIdRequest{
 		TransactionId: core.String("4200000985202103031441826014"),
-		Mchid:         core.String("1900009191"),
+		SpMchid:       core.String("1900009191"),
 	},
 )
 
