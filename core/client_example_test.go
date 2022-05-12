@@ -24,14 +24,14 @@ func ExampleNewClient_default() {
 		mchID                      string
 		mchCertificateSerialNumber string
 		mchPrivateKey              *rsa.PrivateKey
-		wechatPayCertList          []*x509.Certificate
+		wechatPayCertificateList   []*x509.Certificate
 		customHTTPClient           *http.Client
 	)
 
 	client, err := core.NewClient(
 		context.Background(),
 		// 一次性设置 签名/验签/敏感字段加解密，并注册 平台证书下载器，自动定时获取最新的平台证书
-		option.WithWechatPayAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, wechatPayCertList),
+		option.WithWechatPayAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, wechatPayCertificateList),
 		// 设置自定义 HTTPClient 实例，不设置时默认使用 http.Client{}，并设置超时时间为 30s
 		option.WithHTTPClient(customHTTPClient),
 	)

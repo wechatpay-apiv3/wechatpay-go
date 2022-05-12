@@ -100,12 +100,22 @@ func GetCertificateSerialNumber(certificate x509.Certificate) string {
 	return fmt.Sprintf("%X", certificate.SerialNumber.Bytes())
 }
 
-// IsCertExpired 判定证书在特定时间是否过期
+// Deprecated: IsCertExpired 判定证书在特定时间是否过期
 func IsCertExpired(certificate x509.Certificate, now time.Time) bool {
 	return now.After(certificate.NotAfter)
 }
 
-// IsCertValid 判定证书在特定时间是否有效
+// IsCertificateExpired 判定证书在特定时间是否过期
+func IsCertificateExpired(certificate x509.Certificate, now time.Time) bool {
+	return now.After(certificate.NotAfter)
+}
+
+// Deprecated: IsCertValid 判定证书在特定时间是否有效
 func IsCertValid(certificate x509.Certificate, now time.Time) bool {
+	return now.After(certificate.NotBefore) && now.Before(certificate.NotAfter)
+}
+
+// IsCertificateValid 判定证书在特定时间是否有效
+func IsCertificateValid(certificate x509.Certificate, now time.Time) bool {
 	return now.After(certificate.NotBefore) && now.Before(certificate.NotAfter)
 }
