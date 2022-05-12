@@ -97,7 +97,7 @@ func main() {
 
 ## 更多示例
 
-### 以 [JSAPI下单](https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_1_1.shtml) 为例
+### 以 [JSAPI下单](https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_1.shtml) 为例
 
 ```go
 import (
@@ -131,7 +131,7 @@ if err == nil {
 }
 ```
 
-### 以 [查询订单](https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_1_2.shtml) 为例
+### 以 [查询订单](https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_2.shtml) 为例
 
 ```go
 import (
