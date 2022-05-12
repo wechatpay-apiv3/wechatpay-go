@@ -29,8 +29,8 @@ func (d *pseudoCertificateDownloader) GetAll(ctx context.Context) map[string]*x5
 }
 
 // Get 获取证书序列号对应的平台证书
-func (d *pseudoCertificateDownloader) Get(ctx context.Context, serialNo string) (*x509.Certificate, bool) {
-	return d.mgr.GetCertificate(ctx, d.mchID, serialNo)
+func (d *pseudoCertificateDownloader) Get(ctx context.Context, serialNumber string) (*x509.Certificate, bool) {
+	return d.mgr.GetCertificate(ctx, d.mchID, serialNumber)
 }
 
 // GetNewestSerial 获取最新的平台证书的证书序列号
@@ -44,8 +44,8 @@ func (d *pseudoCertificateDownloader) ExportAll(ctx context.Context) map[string]
 }
 
 // Export 获取证书序列号对应的平台证书内容
-func (d *pseudoCertificateDownloader) Export(ctx context.Context, serialNo string) (string, bool) {
-	return d.mgr.ExportCertificate(ctx, d.mchID, serialNo)
+func (d *pseudoCertificateDownloader) Export(ctx context.Context, serialNumber string) (string, bool) {
+	return d.mgr.ExportCertificate(ctx, d.mchID, serialNumber)
 }
 
 // CertificateDownloaderMgr 证书下载器管理器
@@ -70,7 +70,7 @@ func (mgr *CertificateDownloaderMgr) Stop() {
 }
 
 // GetCertificate 获取商户的某个平台证书
-func (mgr *CertificateDownloaderMgr) GetCertificate(ctx context.Context, mchID, serialNo string) (
+func (mgr *CertificateDownloaderMgr) GetCertificate(ctx context.Context, mchID, serialNumber string) (
 	*x509.Certificate, bool,
 ) {
 	mgr.lock.RLock()
@@ -81,7 +81,7 @@ func (mgr *CertificateDownloaderMgr) GetCertificate(ctx context.Context, mchID, 
 		return nil, false
 	}
 
-	return downloader.Get(ctx, serialNo)
+	return downloader.Get(ctx, serialNumber)
 }
 
 // GetCertificateMap 获取商户的平台证书Map
@@ -109,7 +109,7 @@ func (mgr *CertificateDownloaderMgr) GetNewestCertificateSerial(ctx context.Cont
 }
 
 // ExportCertificate 获取商户的某个平台证书内容
-func (mgr *CertificateDownloaderMgr) ExportCertificate(ctx context.Context, mchID, serialNo string) (string, bool) {
+func (mgr *CertificateDownloaderMgr) ExportCertificate(ctx context.Context, mchID, serialNumber string) (string, bool) {
 	mgr.lock.RLock()
 	downloader, ok := mgr.downloaderMap[mchID]
 	mgr.lock.RUnlock()
@@ -118,7 +118,7 @@ func (mgr *CertificateDownloaderMgr) ExportCertificate(ctx context.Context, mchI
 		return "", false
 	}
 
-	return downloader.Export(ctx, serialNo)
+	return downloader.Export(ctx, serialNumber)
 }
 
 // ExportCertificateMap 导出商户的平台证书内容Map
