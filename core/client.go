@@ -409,8 +409,8 @@ func CreateFormFile(w *multipart.Writer, filename, contentType string, file []by
 	return err
 }
 
-// setBody Set Request body from an interface
 //revive:disable-next-line:cyclomatic 本函数实现需要考虑多种情况，但理解起来并不复杂，进行圈复杂度豁免
+// setBody Set Request body from an interface
 func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err error) {
 	bodyBuf = &bytes.Buffer{}
 
