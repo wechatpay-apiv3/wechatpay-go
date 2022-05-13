@@ -409,7 +409,8 @@ func CreateFormFile(w *multipart.Writer, filename, contentType string, file []by
 	return err
 }
 
-// Set Request body from an interface
+//revive:disable-next-line:cyclomatic 本函数实现需要考虑多种情况，但理解起来并不复杂，进行圈复杂度豁免
+// setBody Set Request body from an interface
 func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err error) {
 	bodyBuf = &bytes.Buffer{}
 
@@ -442,7 +443,7 @@ func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err e
 	return bodyBuf, nil
 }
 
-// contains is a case insensitive match, finding needle in a haystack
+// contains is a case-insensitive match, finding needle in a haystack
 func contains(haystack []string, needle string) bool {
 	for _, a := range haystack {
 		if strings.EqualFold(a, needle) {

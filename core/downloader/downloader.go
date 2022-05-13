@@ -28,8 +28,8 @@ func isSameCertificateMap(l, r map[string]*x509.Certificate) bool {
 		return false
 	}
 
-	for serialNo := range l {
-		if _, ok := r[serialNo]; !ok {
+	for serialNumber := range l {
+		if _, ok := r[serialNumber]; !ok {
 			return false
 		}
 	}
@@ -47,11 +47,11 @@ type CertificateDownloader struct {
 }
 
 // Get 获取证书序列号对应的平台证书
-func (d *CertificateDownloader) Get(ctx context.Context, serialNo string) (*x509.Certificate, bool) {
+func (d *CertificateDownloader) Get(ctx context.Context, serialNumber string) (*x509.Certificate, bool) {
 	d.lock.RLock()
 	defer d.lock.RUnlock()
 
-	return d.certificates.Get(ctx, serialNo)
+	return d.certificates.Get(ctx, serialNumber)
 }
 
 // GetAll 获取平台证书Map
@@ -71,11 +71,11 @@ func (d *CertificateDownloader) GetNewestSerial(ctx context.Context) string {
 }
 
 // Export 获取证书序列号对应的平台证书内容
-func (d *CertificateDownloader) Export(_ context.Context, serialNo string) (string, bool) {
+func (d *CertificateDownloader) Export(_ context.Context, serialNumber string) (string, bool) {
 	d.lock.RLock()
 	defer d.lock.RUnlock()
 
-	content, ok := d.certContents[serialNo]
+	content, ok := d.certContents[serialNumber]
 	return content, ok
 }
 
@@ -85,8 +85,8 @@ func (d *CertificateDownloader) ExportAll(_ context.Context) map[string]string {
 	defer d.lock.RUnlock()
 
 	ret := make(map[string]string)
-	for serialNo, content := range d.certContents {
-		ret[serialNo] = content
+	for serialNumber, content := range d.certContents {
+		ret[serialNumber] = content
 	}
 
 	return ret
@@ -156,10 +156,10 @@ func (d *CertificateDownloader) DownloadCertificates(ctx context.Context) error 
 			return fmt.Errorf("parse downlaoded certificate failed: %v, certcontent:%v", err, certContent)
 		}
 
-		serialNo := *rawCertificate.SerialNo
+		serialNumber := *rawCertificate.SerialNo
 
-		rawCertContentMap[serialNo] = certContent
-		certificateMap[serialNo] = certificate
+		rawCertContentMap[serialNumber] = certContent
+		certificateMap[serialNumber] = certificate
 	}
 
 	if len(certificateMap) == 0 {

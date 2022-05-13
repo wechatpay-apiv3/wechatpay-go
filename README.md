@@ -97,7 +97,7 @@ func main() {
 
 ## 更多示例
 
-### 以 [JSAPI下单](https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_1_1.shtml) 为例
+### 以 [JSAPI下单](https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_1.shtml) 为例
 
 ```go
 import (
@@ -131,7 +131,7 @@ if err == nil {
 }
 ```
 
-### 以 [查询订单](https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_1_2.shtml) 为例
+### 以 [查询订单](https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_2.shtml) 为例
 
 ```go
 import (
@@ -297,9 +297,9 @@ ctx := context.Background()
 // 1. 使用 `RegisterDownloaderWithPrivateKey` 注册下载器
 err := downloader.MgrInstance().RegisterDownloaderWithPrivateKey(ctx, mchPrivateKey, mchCertificateSerialNumber, mchID, mchAPIV3Key)
 // 2. 获取商户号对应的微信支付平台证书访问器
-certVisitor := downloader.MgrInstance().GetCertificateVisitor(mchID)
+certificateVisitor := downloader.MgrInstance().GetCertificateVisitor(mchID)
 // 3. 使用证书访问器初始化 `notify.Handler`
-handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certVisitor))
+handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certificateVisitor))
 ```
 
 + 方法二：像 [发送请求](#发送请求) 那样使用 `WithWechatPayAutoAuthCipher` 初始化 `core.Client`，然后再用client进行接口调用。
@@ -314,9 +314,9 @@ opts := []core.ClientOption{
 }
 client, err := core.NewClient(ctx, opts...)	
 // 2. 获取商户号对应的微信支付平台证书访问器
-certVisitor := downloader.MgrInstance().GetCertificateVisitor(mchID)
+certificateVisitor := downloader.MgrInstance().GetCertificateVisitor(mchID)
 // 3. 使用证书访问器初始化 `notify.Handler`
-handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certVisitor))
+handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certificateVisitor))
 // 4. 使用client进行接口调用
 // ...
 ```
@@ -330,9 +330,9 @@ handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifi
 mchAPIv3Key := "<your apiv3 key>"
 wechatPayCert, err := utils.LoadCertificate("<your wechat pay certificate>")
 // 2. 使用本地管理的微信支付平台证书获取微信支付平台证书访问器
-certVisitor := core.NewCertificateMapWithList([]*x509.Certificate{wechatPayCert})
+certificateVisitor := core.NewCertificateMapWithList([]*x509.Certificate{wechatPayCert})
 // 3. 使用apiv3 key、证书访问器初始化 `notify.Handler`
-handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certVisitor))
+handler := notify.NewNotifyHandler(mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(certificateVisitor))
 ```
 
 建议：为了正确使用平台证书下载管理器，你应阅读并理解 [如何使用平台证书下载管理器](FAQ.md#如何使用平台证书下载管理器)。

@@ -18,7 +18,7 @@ go get -u github.com/wechatpay-apiv3/wechatpay-go/cmd/wechatpay_download_certs
 ```
 然后执行 `wechatpay_download_certs` 即可下载微信支付平台证书到当前目录
 ```shell
-wechatpay_download_certs -m <mchID> -p <mchPrivateKeyPath> -s <mchSerialNo> -k <mchAPIv3Key>
+wechatpay_download_certs -m <mchID> -p <mchPrivateKeyPath> -s <mchSerialNumber> -k <mchAPIv3Key>
 ```
 完整参数列表可运行 `wechatpay_download_certs -h` 查看。
 
@@ -28,7 +28,7 @@ wechatpay_download_certs -m <mchID> -p <mchPrivateKeyPath> -s <mchSerialNo> -k <
 
 ```go
 // GetCertificate 获取商户的某个平台证书
-func (mgr *CertificateDownloaderMgr) GetCertificate(ctx context.Context, mchID, serialNo string) (*x509.Certificate, bool)
+func (mgr *CertificateDownloaderMgr) GetCertificate(ctx context.Context, mchID, serialNumber string) (*x509.Certificate, bool)
 
 // GetCertificateVisitor 获取某个商户的平台证书访问器
 func (mgr *CertificateDownloaderMgr) GetCertificateVisitor(mchID string) core.CertificateVisitor

@@ -101,11 +101,25 @@ func GetCertificateSerialNumber(certificate x509.Certificate) string {
 }
 
 // IsCertExpired 判定证书在特定时间是否过期
+//
+// Deprecated: 请使用 IsCertificateExpired
 func IsCertExpired(certificate x509.Certificate, now time.Time) bool {
 	return now.After(certificate.NotAfter)
 }
 
+// IsCertificateExpired 判定证书在特定时间是否过期
+func IsCertificateExpired(certificate x509.Certificate, now time.Time) bool {
+	return now.After(certificate.NotAfter)
+}
+
 // IsCertValid 判定证书在特定时间是否有效
+//
+// Deprecated: 请使用 IsCertificateValid
 func IsCertValid(certificate x509.Certificate, now time.Time) bool {
+	return now.After(certificate.NotBefore) && now.Before(certificate.NotAfter)
+}
+
+// IsCertificateValid 判定证书在特定时间是否有效
+func IsCertificateValid(certificate x509.Certificate, now time.Time) bool {
 	return now.After(certificate.NotBefore) && now.Before(certificate.NotAfter)
 }

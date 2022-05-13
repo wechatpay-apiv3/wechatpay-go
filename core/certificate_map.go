@@ -36,8 +36,8 @@ func (m *CertificateMap) Reset(newCertificates map[string]*x509.Certificate) {
 }
 
 // Get 获取证书序列号对应的平台证书
-func (m *CertificateMap) Get(_ context.Context, serialNo string) (*x509.Certificate, bool) {
-	cert, ok := m.m[serialNo]
+func (m *CertificateMap) Get(_ context.Context, serialNumber string) (*x509.Certificate, bool) {
+	cert, ok := m.m[serialNumber]
 	return cert, ok
 }
 
