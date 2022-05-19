@@ -3,6 +3,12 @@
 package utils
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha1"
+	"crypto/x509"
+	"encoding/base64"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -67,34 +73,73 @@ fHMq4tsbKO0dKAeydPM/nrUZBmaYQVKMVOORGLFjFKVO7JV6Kq/R86ouhjEPgJOe
 2xulNBUcjicqtZlBdEh/PWCYP2SpGVDclKm8jeo175T3EVAkdKzzmfpxtMmnMlmq
 cTJOU9TxuGvNASMtjj7pYIerTx+xgZDXEVBWFW9PjJ0TV06tCRsgSHItgg==
 -----END CERTIFICATE-----`
+	testRSACryptoUtilPrivateKey  *rsa.PrivateKey
+	testRSACryptoUtilPublicKey   *rsa.PublicKey
+	testRSACryptoUtilCertificate *x509.Certificate
 )
 
-func TestEncryptAndDecrypt(t *testing.T) {
-	privatKey, err := LoadPrivateKey(testingKey(testRSACryptoUtilPrivateKeyStr))
-	require.NoError(t, err)
+func init() {
+	var err error
+	testRSACryptoUtilPrivateKey, err = LoadPrivateKey(testingKey(testRSACryptoUtilPrivateKeyStr))
+	if err != nil {
+		panic(fmt.Errorf("fail to load the private key:%s", err.Error()))
+	}
+	testRSACryptoUtilPublicKey, err = LoadPublicKey(testRSACryptoUtilPublicKeyStr)
+	if err != nil {
+		panic(fmt.Errorf("fail to load the public key:%s", err.Error()))
+	}
+	testRSACryptoUtilCertificate, err = LoadCertificate(testRSACryptoUtilMchCertificateStr)
+	if err != nil {
+		panic(fmt.Errorf("fail to load the certificate key:%s", err.Error()))
+	}
+}
 
-	publicKey, err := LoadPublicKey(testRSACryptoUtilPublicKeyStr)
-	require.NoError(t, err)
-
-	certificate, err := LoadCertificate(testRSACryptoUtilMchCertificateStr)
-	require.NoError(t, err)
+func TestOAEPCrypto(t *testing.T) {
 
 	const message = "hello world"
-	// 使用证书加密
-	cipertext, err := EncryptOAEPWithCertificate(message, certificate)
+	// 使用OAEP padding方式对证书加密
+	ciphertext, err := EncryptOAEPWithCertificate(message, testRSACryptoUtilCertificate)
 	require.NoError(t, err)
 
-	// 私钥解密
-	decryptMessage, err := DecryptOAEP(cipertext, privatKey)
+	// 使用OAEP padding方式用公有库直接进行私钥解密，以验证加密正确
+	decodedCiphertext, err := base64.StdEncoding.DecodeString(ciphertext)
+	require.NoError(t, err)
+	decryptMessageBytes, err := rsa.DecryptOAEP(
+		sha1.New(), rand.Reader, testRSACryptoUtilPrivateKey, decodedCiphertext, nil)
+	require.NoError(t, err)
+	assert.Equal(t, message, string(decryptMessageBytes))
+
+	// 使用OAEP padding方式直接公钥加密
+	ciphertext, err = EncryptOAEPWithPublicKey(message, testRSACryptoUtilPublicKey)
+	require.NoError(t, err)
+
+	// 使用OAEP padding方式私钥解密
+	decryptMessage, err := DecryptOAEP(ciphertext, testRSACryptoUtilPrivateKey)
 	require.NoError(t, err)
 	assert.Equal(t, message, decryptMessage)
+}
 
-	// 直接公钥加密
-	cipertext, err = EncryptOAEPWithPublicKey(message, publicKey)
+func TestPKCS1v15Crypto(t *testing.T) {
+
+	const message = "hello world"
+
+	// 使用PKCS1 padding对证书加密
+	ciphertext, err := EncryptPKCS1v15WithCertificate(message, testRSACryptoUtilCertificate)
 	require.NoError(t, err)
 
-	// 私钥解密
-	decryptMessage, err = DecryptOAEP(cipertext, privatKey)
+	// 使用PKCS1 padding对用公有库直接进行私钥解密，以验证加密正确
+	decodedCiphertext, err := base64.StdEncoding.DecodeString(ciphertext)
+	require.NoError(t, err)
+	decryptMessageBytes, err := rsa.DecryptPKCS1v15(rand.Reader, testRSACryptoUtilPrivateKey, decodedCiphertext)
+	require.NoError(t, err)
+	assert.Equal(t, message, string(decryptMessageBytes))
+
+	// 使用PKCS1 padding进行公钥加密
+	ciphertext, err = EncryptPKCS1v15WithPublicKey(message, testRSACryptoUtilPublicKey)
+	require.NoError(t, err)
+
+	// 使用PKCS1 padding进行私钥解密
+	decryptMessage, err := DecryptPKCS1v15(ciphertext, testRSACryptoUtilPrivateKey)
 	require.NoError(t, err)
 	assert.Equal(t, message, decryptMessage)
 }
