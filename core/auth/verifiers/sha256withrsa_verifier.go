@@ -41,7 +41,7 @@ func (verifier *SHA256WithRSAVerifier) Verify(ctx context.Context, serialNumber,
 	hashed := sha256.Sum256([]byte(message))
 	err = rsa.VerifyPKCS1v15(certificate.PublicKey.(*rsa.PublicKey), crypto.SHA256, hashed[:], sigBytes)
 	if err != nil {
-		return fmt.Errorf("verifty signature with public key err:%s", err.Error())
+		return fmt.Errorf("verify signature with public key err:%s", err.Error())
 	}
 	return nil
 }
