@@ -366,6 +366,9 @@ type PrepayRequest struct {
 	Detail        *Detail     `json:"detail,omitempty"`
 	SceneInfo     *SceneInfo  `json:"scene_info,omitempty"`
 	SettleInfo    *SettleInfo `json:"settle_info,omitempty"`
+	//分账请求，Y-是，需要分账 或者N-否，不分账  https://pay.weixin.qq.com/wiki/doc/api/allocation_sl.php?chapter=24_3&index=3
+	ProfitSharing *string     `json:"profit_sharing,omitempty"`
+
 }
 
 func (o PrepayRequest) MarshalJSON() ([]byte, error) {
@@ -431,6 +434,9 @@ func (o PrepayRequest) MarshalJSON() ([]byte, error) {
 
 	if o.SettleInfo != nil {
 		toSerialize["settle_info"] = o.SettleInfo
+	}
+	if o.ProfitSharing != nil {
+		toSerialize["profit_sharing"] = o.ProfitSharing
 	}
 	return json.Marshal(toSerialize)
 }
@@ -500,6 +506,12 @@ func (o PrepayRequest) String() string {
 	ret += fmt.Sprintf("SceneInfo:%v, ", o.SceneInfo)
 
 	ret += fmt.Sprintf("SettleInfo:%v", o.SettleInfo)
+
+	if o.ProfitSharing == nil {
+		ret += "ProfitSharing:<nil>, "
+	} else {
+		ret += fmt.Sprintf("ProfitSharing:%v, ", *o.ProfitSharing)
+	}
 
 	return fmt.Sprintf("PrepayRequest{%s}", ret)
 }
@@ -573,6 +585,11 @@ func (o PrepayRequest) Clone() *PrepayRequest {
 
 	if o.SettleInfo != nil {
 		ret.SettleInfo = o.SettleInfo.Clone()
+	}
+
+	if o.ProfitSharing != nil {
+		ret.ProfitSharing = new(string)
+		*ret.ProfitSharing = *o.ProfitSharing
 	}
 
 	return &ret
