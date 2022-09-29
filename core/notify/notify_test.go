@@ -50,7 +50,7 @@ func Test_getRequestBody(t *testing.T) {
 
 func Test_getRequestBodyReadAllError(t *testing.T) {
 	patch := gomonkey.ApplyFunc(
-		io.ReadAll, func(r io.Reader) ([]byte, error) {
+		ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
 			return nil, fmt.Errorf("read buf error")
 		},
 	)

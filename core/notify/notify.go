@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
-	"io"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -134,13 +134,13 @@ func doAEADOpen(c cipher.AEAD, nonce, ciphertext, additionalData string) (string
 }
 
 func getRequestBody(request *http.Request) ([]byte, error) {
-	body, err := io.ReadAll(request.Body)
+	body, err := ioutil.ReadAll(request.Body)
 	if err != nil {
 		return nil, fmt.Errorf("read request body err: %v", err)
 	}
 
 	_ = request.Body.Close()
-	request.Body = io.NopCloser(bytes.NewBuffer(body))
+	request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 	return body, nil
 }
