@@ -8,7 +8,7 @@
 ## 功能介绍
 
 1. 接口 SDK。详见 [接口介绍](services)。
-1. HTTP 客户端 `core.Client`，支持请求签名和应答验签。如果 SDK 未支持你需要的接口，请用此客户端发起请求。
+2. HTTP 客户端 `core.Client`，支持请求签名和应答验签。如果 SDK 未支持你需要的接口，请用此客户端发起请求。
 3. 回调通知处理库 `core/notify`，支持微信支付回调通知的验签和解密。详见 [回调通知验签与解密](#回调通知的验签与解密)。
 4. 证书下载、[敏感信息加解密](#敏感信息加解密) 等辅助能力。
 
@@ -217,71 +217,6 @@ if err != nil {
 }
 ```
 
-## 敏感信息加解密
-
-为了保证通信过程中敏感信息字段（如用户的住址、银行卡号、手机号码等）的机密性，
-
-+ 微信支付要求加密上送的敏感信息
-+ 微信支付会加密下行的敏感信息
-
-详见 [接口规则 - 敏感信息加解密](https://wechatpay-api.gitbook.io/wechatpay-api-v3/qian-ming-zhi-nan-1/min-gan-xin-xi-jia-mi)。
-
-### 使用加解密算法工具包
-
-使用工具包 [utils](utils) 中的函数，手动对敏感信息加解密。
-
-```go
-package utils
-
-// EncryptOAEPWithPublicKey 使用公钥加密
-func EncryptOAEPWithPublicKey(message string, publicKey *rsa.PublicKey) (ciphertext string, err error)
-// EncryptOAEPWithCertificate 使用证书中的公钥加密
-func EncryptOAEPWithCertificate(message string, certificate *x509.Certificate) (ciphertext string, err error)
-
-// DecryptOAEP 使用私钥解密
-func DecryptOAEP(ciphertext string, privateKey *rsa.PrivateKey) (message string, err error)
-```
-
-[rsa_crypto_test.go](utils/rsa_crypto_test.go) 中演示了如何使用以上函数做敏感信息加解密。
-
-### 获取微信支付平台证书
-
-请求的敏感信息，使用微信支付平台证书中的公钥加密。推荐 [使用平台证书下载管理器](FAQ.md#如何在更多地方使用平台证书下载管理器) 获取微信支付平台证书，或者 [下载平台证书](FAQ.md#如何下载微信支付平台证书)。
-
-### 设置 `Wechatpay-Serial` 请求头
-
-请求的敏感信息加密后，在 HTTP 请求头中添加微信支付平台证书序列号 `Wechatpay-Serial`。该序列号用于告知微信支付加密使用的证书。
-
-使用 `core.Client` 的 `Request` 方法来传输自定义 HTTPHeader。
-
-```go
-// Request 向微信支付发送请求
-//
-// 相比于 Get / Post / Put / Patch / Delete 方法，本方法支持设置更多内容
-// 特别地，如果需要为当前请求设置 Header，应使用本方法
-func (client *Client) Request(
-	ctx context.Context,
-	method, requestPath string,
-	headerParams http.Header,
-	queryParams url.Values,
-	postBody interface{},
-	contentType string,
-) (result *APIResult, err error)
-
-// 示例代码
-// 微信支付平台证书序列号，对应加密使用的私钥
-header.Add("Wechatpay-Serial", "5157F09EFDC096DE15EBE81A47057A72*******")
-result, err := client.Request(
-	ctx,
-	"POST",
-	"https://api.mch.weixin.qq.com/v3/profitsharing/receivers/add",
-	header,
-	nil,
-	body,
-	"application/json")
-
-```
-
 ## 回调通知的验签与解密
 
 1. 使用微信支付平台证书（验签）和商户 APIv3 密钥（解密）初始化 `notify.Handler`
@@ -368,6 +303,93 @@ if err != nil {
 // 处理通知内容
 fmt.Println(notifyReq.Summary)
 fmt.Println(content)
+```
+
+## 敏感信息加解密
+
+为了保证通信过程中敏感信息字段（如用户的住址、银行卡号、手机号码等）的机密性，
+
++ 微信支付要求加密上行的敏感信息
++ 微信支付会加密下行的敏感信息
+
+详见 [接口规则 - 敏感信息加解密](https://wechatpay-api.gitbook.io/wechatpay-api-v3/qian-ming-zhi-nan-1/min-gan-xin-xi-jia-mi)。
+
+### （推荐）使用敏感信息加解密器
+
+敏感信息加解密器 `cipher.Cipher` 能根据 API 契约自动处理敏感信息：
+
++ 发起请求时，开发者设置原文，加密器自动加密敏感信息，并设置 `Wechatpay-Serial` 请求头
++ 收到应答时，解密器自动解密敏感信息，开发者得到原文
+
+使用敏感信息加解密器，只需通过 `option.WithWechatPayCipher` 为 `core.Client` 添加加解密器：
+
+```go
+client, err := core.NewClient(
+    context.Background(),
+// 一次性设置 签名/验签/敏感字段加解密，并注册 平台证书下载器，自动定时获取最新的平台证书
+    option.WithWechatPayAutoAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, mchAPIv3Key),
+    option.WithWechatPayCipher(
+        encryptors.NewWechatPayEncryptor(downloader.MgrInstance().GetCertificateVisitor(mchID)),
+        decryptors.NewWechatPayDecryptor(mchPrivateKey),
+    ),
+)
+```
+
+### 使用加解密算法工具包
+
+#### 步骤一：获取微信支付平台证书
+
+请求的敏感信息，使用微信支付平台证书中的公钥加密。推荐 [使用平台证书下载管理器](FAQ.md#如何使用平台证书下载管理器) 获取微信支付平台证书，或者 [下载平台证书](FAQ.md#如何下载微信支付平台证书)。
+
+#### 步骤二：加解密
+
+使用工具包 [utils](utils) 中的函数，手动对敏感信息加解密。
+
+```go
+package utils
+
+// EncryptOAEPWithPublicKey 使用公钥加密
+func EncryptOAEPWithPublicKey(message string, publicKey *rsa.PublicKey) (ciphertext string, err error)
+// EncryptOAEPWithCertificate 使用证书中的公钥加密
+func EncryptOAEPWithCertificate(message string, certificate *x509.Certificate) (ciphertext string, err error)
+
+// DecryptOAEP 使用私钥解密
+func DecryptOAEP(ciphertext string, privateKey *rsa.PrivateKey) (message string, err error)
+```
+
+[rsa_crypto_test.go](utils/rsa_crypto_test.go) 中演示了如何使用以上函数做敏感信息加解密。
+
+#### 步骤三：设置 `Wechatpay-Serial` 请求头
+
+请求的敏感信息加密后，在 HTTP 请求头中添加微信支付平台证书序列号 `Wechatpay-Serial`。该序列号用于告知微信支付加密使用的证书。
+
+使用 `core.Client` 的 `Request` 方法来传输自定义 HTTPHeader。
+
+```go
+// Request 向微信支付发送请求
+//
+// 相比于 Get / Post / Put / Patch / Delete 方法，本方法支持设置更多内容
+// 特别地，如果需要为当前请求设置 Header，应使用本方法
+func (client *Client) Request(
+	ctx context.Context,
+	method, requestPath string,
+	headerParams http.Header,
+	queryParams url.Values,
+	postBody interface{},
+	contentType string,
+) (result *APIResult, err error)
+
+// 示例代码
+// 微信支付平台证书序列号，对应加密使用的私钥
+header.Add("Wechatpay-Serial", "5157F09EFDC096DE15EBE81A47057A72*******")
+result, err := client.Request(
+	ctx,
+	"POST",
+	"https://api.mch.weixin.qq.com/v3/profitsharing/receivers/add",
+	header,
+	nil,
+	body,
+	"application/json")
 
 ```
 
