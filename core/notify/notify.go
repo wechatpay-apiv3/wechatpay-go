@@ -160,7 +160,7 @@ func NewRSANotifyHandler(apiV3Key string, verifier auth.Verifier) (*Handler, err
 }
 
 // NewNotifyHandler 创建通知处理器
-// Deprecated: should NewRSANotifyHandler use instead
+// Deprecated: Use NewRSANotifyHandler instead
 func NewNotifyHandler(apiV3Key string, verifier auth.Verifier) *Handler {
 	h, _ := NewRSANotifyHandler(apiV3Key, verifier)
 	return h
