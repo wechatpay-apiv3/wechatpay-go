@@ -11,10 +11,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 )
 
 // Handler 通知处理器，使用前先设置验签和解密的算法套件
