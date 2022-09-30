@@ -372,5 +372,5 @@ func TestHandler_processBody_InvalidAlgorithm(t *testing.T) {
 	c := make(map[string]interface{})
 	_, err := processBody(v, []byte(`{"resource":{"algorithm":"AEAD_SM4_GCM"}}`), c)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid resource.algorithm")
+	assert.Contains(t, err.Error(), "is not the configured algorithm")
 }
