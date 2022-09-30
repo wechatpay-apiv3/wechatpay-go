@@ -69,11 +69,12 @@ func (h *Handler) ParseNotifyRequest(
 
 	suite, ok := h.cipherSuites[signType]
 	if !ok {
-		return nil, fmt.Errorf("invalid Wechatpay-Signature-Type: %s", signType)
+		return nil, fmt.Errorf("unsupported Wechatpay-Signature-Type: %s", signType)
 	}
 
 	if err := suite.validator.Validate(ctx, request); err != nil {
-		return nil, fmt.Errorf("not valid wechatpay notify request: %v", err)
+		return nil, fmt.Errorf("invalid notification, err: %v, request: %+v",
+			err, request)
 	}
 
 	body, err := getRequestBody(request)
@@ -91,7 +92,8 @@ func processBody(suite CipherSuite, body []byte, content interface{}) (*Request,
 	}
 
 	if ret.Resource.Algorithm != suite.aeadAlgorithm {
-		return nil, fmt.Errorf("invalid resource.algorithm: %s, suite.algorithm: %s",
+		return nil, fmt.Errorf(
+			"possible invalid notification, resource.algorithm %s is not the configured algorithm %s",
 			ret.Resource.Algorithm,
 			suite.aeadAlgorithm)
 	}
