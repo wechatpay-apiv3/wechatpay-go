@@ -43,7 +43,7 @@ func LoadPrivateKey(privateKeyStr string) (privateKey *rsa.PrivateKey, err error
 	}
 	privateKey, ok := key.(*rsa.PrivateKey)
 	if !ok {
-		return nil, fmt.Errorf("%s is not rsa private key", privateKeyStr)
+		return nil, fmt.Errorf("not a RSA private key")
 	}
 	return privateKey, nil
 }
