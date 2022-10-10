@@ -5,6 +5,7 @@ package notify
 import (
 	"bytes"
 	"context"
+	"crypto/cipher"
 	"crypto/x509"
 	"fmt"
 	"io"
@@ -178,9 +179,10 @@ cTJOU9TxuGvNASMtjj7pYIerTx+xgZDXEVBWFW9PjJ0TV06tCRsgSHItgg==
 	cert, err := utils.LoadCertificate(wechatPayCertificate)
 	require.NoError(t, err)
 
-	handler := NewNotifyHandler(
+	handler, err := NewRSANotifyHandler(
 		mchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList([]*x509.Certificate{cert})),
 	)
+	assert.Nil(t, err)
 
 	content := new(contentType)
 
@@ -215,9 +217,10 @@ func TestHandler_ParseNotifyRequestValidateError(t *testing.T) {
 	)
 	defer patch.Reset()
 
-	handler := NewNotifyHandler(
+	handler, _ := NewRSANotifyHandler(
 		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
 	)
+
 	req := httptest.NewRequest(
 		http.MethodGet, "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
 	)
@@ -244,7 +247,7 @@ func TestHandler_ParseNotifyRequest_getRequestBodyError(t *testing.T) {
 		},
 	)
 
-	handler := NewNotifyHandler(
+	handler, _ := NewRSANotifyHandler(
 		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
 	)
 	req := httptest.NewRequest(
@@ -274,7 +277,7 @@ func TestHandler_ParseNotifyRequest_UnmarshalRequestError(t *testing.T) {
 	)
 	// gonna cause unmarshal error
 
-	handler := NewNotifyHandler(
+	handler, _ := NewRSANotifyHandler(
 		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
 	)
 	req := httptest.NewRequest(
@@ -299,17 +302,17 @@ func TestHandler_ParseNotifyRequest_DecryptError(t *testing.T) {
 
 	patches.ApplyFunc(
 		getRequestBody, func(request *http.Request) ([]byte, error) {
-			return []byte("{\"resource\": {}}"), nil
+			return []byte(`{"resource":{"algorithm":"AEAD_AES_256_GCM"}}`), nil
 		},
 	)
 
 	patches.ApplyFunc(
-		utils.DecryptAES256GCM, func(aesKey, associatedData, nonce, ciphertext string) (plaintext string, err error) {
+		doAEADOpen, func(c cipher.AEAD, nonce, ciphertext, additionalData string) (plaintext string, err error) {
 			return "", fmt.Errorf("decrypt error")
 		},
 	)
 
-	handler := NewNotifyHandler(
+	handler, _ := NewRSANotifyHandler(
 		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
 	)
 	req := httptest.NewRequest(
@@ -334,18 +337,18 @@ func TestHandler_ParseNotifyRequest_UnmarshalContentError(t *testing.T) {
 
 	patches.ApplyFunc(
 		getRequestBody, func(request *http.Request) ([]byte, error) {
-			return []byte("{\"resource\": {}}"), nil
+			return []byte(`{"resource":{"algorithm":"AEAD_AES_256_GCM"}}`), nil
 		},
 	)
 
 	patches.ApplyFunc(
-		utils.DecryptAES256GCM, func(aesKey, associatedData, nonce, ciphertext string) (plaintext string, err error) {
+		doAEADOpen, func(c cipher.AEAD, nonce, ciphertext, additionalData string) (plaintext string, err error) {
 			return "invalid content", nil
 		},
 	)
 	// gonna cause unmarshal error
 
-	handler := NewNotifyHandler(
+	handler, _ := NewRSANotifyHandler(
 		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
 	)
 	req := httptest.NewRequest(
@@ -356,4 +359,18 @@ func TestHandler_ParseNotifyRequest_UnmarshalContentError(t *testing.T) {
 	_, err := handler.ParseNotifyRequest(context.Background(), req, content)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unmarshal plaintext to content failed")
+}
+
+func TestHandler_processBody_InvalidAlgorithm(t *testing.T) {
+	v := CipherSuite{
+		signatureType: "WECHATPAY2-RSA2048-SHA256",
+		validator:     validators.WechatPayNotifyValidator{},
+		aeadAlgorithm: "AEAD_AES_256_GCM",
+		aead:          nil,
+	}
+
+	c := make(map[string]interface{})
+	_, err := processBody(v, []byte(`{"resource":{"algorithm":"AEAD_SM4_GCM"}}`), c)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "is not the configured algorithm")
 }
