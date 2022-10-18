@@ -363,9 +363,9 @@ func TestHandler_ParseNotifyRequest_UnmarshalContentError(t *testing.T) {
 
 func TestHandler_processBody_InvalidAlgorithm(t *testing.T) {
 	v := CipherSuite{
-		signatureType: "WECHATPAY2-RSA2048-SHA256",
+		signatureType: rsaSignatureType,
 		validator:     validators.WechatPayNotifyValidator{},
-		aeadAlgorithm: "AEAD_AES_256_GCM",
+		aeadAlgorithm: aeadAesGcmAlgorithm,
 		aead:          nil,
 	}
 

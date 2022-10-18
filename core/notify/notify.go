@@ -18,6 +18,10 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 )
 
+const rsaSignatureType = "WECHATPAY2-SHA256-RSA2048"
+const defaultSignatureType = rsaSignatureType
+const aeadAesGcmAlgorithm = "AEAD_AES_256_GCM"
+
 // Handler 通知处理器，使用前先设置验签和解密的算法套件
 type Handler struct {
 	cipherSuites map[string]CipherSuite
@@ -49,9 +53,9 @@ func (h *Handler) AddCipherSuite(cipherSuite CipherSuite) *Handler {
 // AddRSAWithAESGCM 添加一个 RSA + AES-GCM 的算法套件
 func (h *Handler) AddRSAWithAESGCM(verifier auth.Verifier, aesgcm cipher.AEAD) *Handler {
 	v := CipherSuite{
-		signatureType: "WECHATPAY2-RSA2048-SHA256",
+		signatureType: rsaSignatureType,
 		validator:     *validators.NewWechatPayNotifyValidator(verifier),
-		aeadAlgorithm: "AEAD_AES_256_GCM",
+		aeadAlgorithm: aeadAesGcmAlgorithm,
 		aead:          aesgcm,
 	}
 	return h.AddCipherSuite(v)
@@ -65,7 +69,7 @@ func (h *Handler) ParseNotifyRequest(
 ) (*Request, error) {
 	signType := request.Header.Get("Wechatpay-Signature-Type")
 	if signType == "" {
-		signType = "WECHATPAY2-RSA2048-SHA256"
+		signType = defaultSignatureType
 	}
 
 	suite, ok := h.cipherSuites[signType]
