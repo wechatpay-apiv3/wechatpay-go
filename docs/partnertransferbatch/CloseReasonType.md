@@ -1,6 +1,6 @@
 # CloseReasonType
 
-* &#x60;MERCHANT_REVOCATION&#x60; - 商户主动撤销, 商户主动撤销（页面方式） * &#x60;OVERDUE_CLOSE&#x60; - 系统超时关闭, 系统超时关闭，可能原因账户余额不足或其他错误 
+  MERCHANT_REVOCATION - 商户主动撤销，商户主动撤销（页面方式）  OVERDUE_CLOSE - 系统超时关闭，系统超时关闭，可能原因账户余额不足或其他错误
 
 ## 枚举
 

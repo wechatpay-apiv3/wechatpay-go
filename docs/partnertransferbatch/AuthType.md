@@ -1,6 +1,6 @@
 # AuthType
 
-* &#x60;INFORMATION_AUTHORIZATION_TYPE&#x60; - 特约商户信息授权类型, 表示使用特约商户用户信息，出款方服务商 * &#x60;FUND_AUTHORIZATION_TYPE&#x60; - 特约商户资金授权类型, 表示使用特约商户的资金，出款方为特约商户，用户信息为服务商appid对应的openid * &#x60;INFORMATION_AND_FUND_AUTHORIZATION_TYPE&#x60; - 特约商户信息和资金授权类型, 表示使用特约商户的用户信息且出款方为特约商户 
+  INFORMATION_AUTHORIZATION_TYPE - 特约商户信息授权类型，表示使用特约商户用户信息，出款方服务商  FUND_AUTHORIZATION_TYPE - 特约商户资金授权类型，表示使用特约商户的资金，出款方为特约商户，用户信息为服务商appid对应的openid  INFORMATION_AND_FUND_AUTHORIZATION_TYPE - 特约商户信息和资金授权类型，表示使用特约商户的用户信息且出款方为特约商户
 
 ## 枚举
 

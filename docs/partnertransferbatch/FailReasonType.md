@@ -1,6 +1,6 @@
 # FailReasonType
 
-* &#x60;ACCOUNT_FROZEN&#x60; - 账户冻结, 该用户账户被冻结 * &#x60;REAL_NAME_CHECK_FAIL&#x60; - 用户未实名, 收款人未实名认证，需要用户完成微信实名认证 * &#x60;NAME_NOT_CORRECT&#x60; - 用户姓名校验失败, 收款人姓名校验不通过，请核实信息 * &#x60;OPENID_INVALID&#x60; - Openid校验失败, Openid格式错误或者不属于商家公众账号 * &#x60;TRANSFER_QUOTA_EXCEED&#x60; - 超过用户单笔收款额度, 超过用户单笔收款额度，核实产品设置是否准确 * &#x60;DAY_RECEIVED_QUOTA_EXCEED&#x60; - 超过用户单日收款额度, 超过用户单日收款额度，核实产品设置是否准确 * &#x60;MONTH_RECEIVED_QUOTA_EXCEED&#x60; - 超过用户单月收款额度, 超过用户单月收款额度，核实产品设置是否准确 * &#x60;DAY_RECEIVED_COUNT_EXCEED&#x60; - 超过用户单日收款次数, 超过用户单日收款次数，核实产品设置是否准确 * &#x60;PRODUCT_AUTH_CHECK_FAIL&#x60; - 产品权限校验失败, 未开通该权限或权限被冻结，请核实产品权限状态 * &#x60;OVERDUE_CLOSE&#x60; - 转账关闭, 超过系统重试期，系统自动关闭 * &#x60;ID_CARD_NOT_CORRECT&#x60; - 用户身份证校验失败, 收款人身份证校验不通过，请核实信息 * &#x60;ACCOUNT_NOT_EXIST&#x60; - 用户账户不存在, 该用户账户不存在 * &#x60;TRANSFER_RISK&#x60; - 转账存在风险, 该笔转账可能存在风险，已被微信拦截 * &#x60;PAY_ROLL_CARD_ALREADY_LOGOUT&#x60; - 用户薪工卡已注销, 该用户的薪工卡已经注销 * &#x60;PAY_ROLL_CARD_ALREADY_FROZEN&#x60; - 用户薪工卡已冻结, 该用户的薪工卡已经被冻结 * &#x60;PAY_ROLL_CARD_UNAUTHORIZED&#x60; - 用户薪工卡未授权该商户, 该用户的薪工卡未授权该商户 * &#x60;PAY_ROLL_CARD_USER_NOT_OPEN&#x60; - 用户未开通薪工卡, 该用户没有开通薪工卡 
+  ACCOUNT_FROZEN - 账户冻结，该用户账户被冻结  REAL_NAME_CHECK_FAIL - 用户未实名，收款人未实名认证，需要用户完成微信实名认证  NAME_NOT_CORRECT - 用户姓名校验失败，收款人姓名校验不通过，请核实信息  OPENID_INVALID - Openid校验失败，Openid格式错误或者不属于商家公众账号  TRANSFER_QUOTA_EXCEED - 超过用户单笔收款额度，超过用户单笔收款额度，核实产品设置是否准确  DAY_RECEIVED_QUOTA_EXCEED - 超过用户单日收款额度，超过用户单日收款额度，核实产品设置是否准确  MONTH_RECEIVED_QUOTA_EXCEED - 超过用户单月收款额度，超过用户单月收款额度，核实产品设置是否准确  DAY_RECEIVED_COUNT_EXCEED - 超过用户单日收款次数，超过用户单日收款次数，核实产品设置是否准确  PRODUCT_AUTH_CHECK_FAIL - 产品权限校验失败，未开通该权限或权限被冻结，请核实产品权限状态  OVERDUE_CLOSE - 转账关闭，超过系统重试期，系统自动关闭  ID_CARD_NOT_CORRECT - 用户身份证校验失败，收款人身份证校验不通过，请核实信息  ACCOUNT_NOT_EXIST - 用户账户不存在，该用户账户不存在  TRANSFER_RISK - 转账存在风险，该笔转账可能存在风险，已被微信拦截  PAYROLL_CARD_ALREADY_LOGOUT - 用户务工卡已注销，该用户的务工卡已经注销  PAYROLL_CARD_ALREADY_FROZEN - 用户务工卡已冻结，该用户的务工卡已经被冻结  PAYROLL_CARD_UNAUTHORIZED - 用户务工卡未授权该商户，该用户的务工卡未授权该商户  PAYROLL_CARD_USER_NOT_OPEN - 用户未开通务工卡，该用户没有开通务工卡  PAYROLL_CARD_NAME_CARD_NOT_MATCH - 用户姓名与务工卡实名不一致，务工卡实名和用户实名不一致  PAYROLL_CARD_ID_CARD_NOT_MATCH - 用户身份证与务工卡身份证不一致，务工卡身份证和用户身份证不一致  PAYROLL_CARD_BANKCARD_UNBUNDLING - 用户务工卡所选银行卡已解绑，务工卡所选银行卡已解绑  BANK_CARD_COLLECTIONS_ABOVE_QUOTA - 银行卡收款超过限额，银行卡属二/三类卡，达到收款限额无法入账  BANK_CARD_ACCOUNT_ABNORMAL - 银行卡账户异常，银行卡已被销户、冻结、作废、挂失等致无法入账  BANK_CARD_STATUS_ABNORMAL - 银行卡状态异常，银行卡状态异常，无法入账  BANK_CARD_BANK_INFO_WRONG - 银行卡银行信息错误，登记的银行名称或分支行信息有误  BANK_CARD_CARD_INFO_WRONG - 银行卡户名或卡号错误，银行卡户名或卡号有误  OTHER_FAIL_REASON_TYPE - 其它失败，其它失败原因  REALNAME_ACCOUNT_RECEIVED_QUOTA_EXCEED - 用户账户收款受限，请引导用户在微信支付查看详情  RECEIVE_ACCOUNT_NOT_PERMMIT - 未配置该用户为转账收款人，请在产品设置中调整，添加该用户为收款人  PAYEE_ACCOUNT_ABNORMAL - 用户账户收款异常，请联系用户完善其在微信支付的身份信息以继续收款  PAYER_ACCOUNT_ABNORMAL - 商户账户付款受限，可前往商户平台获取解除功能限制指引  TRANSFER_REMARK_SET_FAIL - 转账备注设置失败，转账备注设置失败，请调整后重新再试
 
 ## 枚举
 
@@ -31,13 +31,41 @@
 
 * `TRANSFER_RISK` (value: `"TRANSFER_RISK"`)
 
-* `PAY_ROLL_CARD_ALREADY_LOGOUT` (value: `"PAY_ROLL_CARD_ALREADY_LOGOUT"`)
+* `PAYROLL_CARD_ALREADY_LOGOUT` (value: `"PAYROLL_CARD_ALREADY_LOGOUT"`)
 
-* `PAY_ROLL_CARD_ALREADY_FROZEN` (value: `"PAY_ROLL_CARD_ALREADY_FROZEN"`)
+* `PAYROLL_CARD_ALREADY_FROZEN` (value: `"PAYROLL_CARD_ALREADY_FROZEN"`)
 
-* `PAY_ROLL_CARD_UNAUTHORIZED` (value: `"PAY_ROLL_CARD_UNAUTHORIZED"`)
+* `PAYROLL_CARD_UNAUTHORIZED` (value: `"PAYROLL_CARD_UNAUTHORIZED"`)
 
-* `PAY_ROLL_CARD_USER_NOT_OPEN` (value: `"PAY_ROLL_CARD_USER_NOT_OPEN"`)
+* `PAYROLL_CARD_USER_NOT_OPEN` (value: `"PAYROLL_CARD_USER_NOT_OPEN"`)
+
+* `PAYROLL_CARD_NAME_CARD_NOT_MATCH` (value: `"PAYROLL_CARD_NAME_CARD_NOT_MATCH"`)
+
+* `PAYROLL_CARD_ID_CARD_NOT_MATCH` (value: `"PAYROLL_CARD_ID_CARD_NOT_MATCH"`)
+
+* `PAYROLL_CARD_BANKCARD_UNBUNDLING` (value: `"PAYROLL_CARD_BANKCARD_UNBUNDLING"`)
+
+* `BANK_CARD_COLLECTIONS_ABOVE_QUOTA` (value: `"BANK_CARD_COLLECTIONS_ABOVE_QUOTA"`)
+
+* `BANK_CARD_ACCOUNT_ABNORMAL` (value: `"BANK_CARD_ACCOUNT_ABNORMAL"`)
+
+* `BANK_CARD_STATUS_ABNORMAL` (value: `"BANK_CARD_STATUS_ABNORMAL"`)
+
+* `BANK_CARD_BANK_INFO_WRONG` (value: `"BANK_CARD_BANK_INFO_WRONG"`)
+
+* `BANK_CARD_CARD_INFO_WRONG` (value: `"BANK_CARD_CARD_INFO_WRONG"`)
+
+* `OTHER_FAIL_REASON_TYPE` (value: `"OTHER_FAIL_REASON_TYPE"`)
+
+* `REALNAME_ACCOUNT_RECEIVED_QUOTA_EXCEED` (value: `"REALNAME_ACCOUNT_RECEIVED_QUOTA_EXCEED"`)
+
+* `RECEIVE_ACCOUNT_NOT_PERMMIT` (value: `"RECEIVE_ACCOUNT_NOT_PERMMIT"`)
+
+* `PAYEE_ACCOUNT_ABNORMAL` (value: `"PAYEE_ACCOUNT_ABNORMAL"`)
+
+* `PAYER_ACCOUNT_ABNORMAL` (value: `"PAYER_ACCOUNT_ABNORMAL"`)
+
+* `TRANSFER_REMARK_SET_FAIL` (value: `"TRANSFER_REMARK_SET_FAIL"`)
 
 
 [\[返回类型列表\]](README.md#类型列表)
