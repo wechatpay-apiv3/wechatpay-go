@@ -17,3 +17,4 @@
 | refunddomestic | 退款|✔️|✔️|
 | transferbatch|批量转账到零钱|✔| |
 | partnertransferbatch|批量转账到零钱| |✔|
+| payrollcard|微工卡| |✔|
