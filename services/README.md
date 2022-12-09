@@ -19,3 +19,4 @@
 | partnertransferbatch|批量转账到零钱| |✔|
 | payrollcard|微工卡| |✔|
 | weixinpayscanandride | 微信支付刷码乘车 |✔️|✔️|
+| lovefeast | 爱心餐 |✔️||
