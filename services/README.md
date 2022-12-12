@@ -15,7 +15,7 @@
 | partnerpayments/h5 | H5 支付||✔️|
 | profitsharing | 分账|✔️|✔️|
 | refunddomestic | 退款|✔️|✔️|
-| transferbatch|批量转账到零钱|✔| |
+| transferbatch|商家转账|✔| |
 | partnertransferbatch|批量转账到零钱| |✔|
 | payrollcard|微工卡| |✔|
 | weixinpayscanandride | 微信支付刷码乘车 |✔️|✔️|
