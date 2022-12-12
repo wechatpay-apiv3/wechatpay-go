@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.15] - 2022-12-12
+
+### Added
+
++ 增加微工卡 `payrollcard`
++ 增加微信支付刷码乘车 `weixinpayscanandride`
++ 增加爱心餐 `lovefeast`
+
+### Changed
+
++ 批量转账 `transferbatch` 更名为 商家转账
+
 ## [0.2.9] - 2021-10-15
 
 ### Fixed
