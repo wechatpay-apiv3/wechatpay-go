@@ -1,7 +1,5 @@
 # FailReasonType
 
-  ACCOUNT_FROZEN - 账户冻结，该用户账户被冻结  REAL_NAME_CHECK_FAIL - 用户未实名，收款人未实名认证，需要用户完成微信实名认证  NAME_NOT_CORRECT - 用户姓名校验失败，收款人姓名校验不通过，请核实信息  OPENID_INVALID - Openid校验失败，Openid格式错误或者不属于商家公众账号  TRANSFER_QUOTA_EXCEED - 超过用户单笔收款额度，超过用户单笔收款额度，核实产品设置是否准确  DAY_RECEIVED_QUOTA_EXCEED - 超过用户单日收款额度，超过用户单日收款额度，核实产品设置是否准确  MONTH_RECEIVED_QUOTA_EXCEED - 超过用户单月收款额度，超过用户单月收款额度，核实产品设置是否准确  DAY_RECEIVED_COUNT_EXCEED - 超过用户单日收款次数，超过用户单日收款次数，核实产品设置是否准确  PRODUCT_AUTH_CHECK_FAIL - 产品权限校验失败，未开通该权限或权限被冻结，请核实产品权限状态  OVERDUE_CLOSE - 转账关闭，超过系统重试期，系统自动关闭  ID_CARD_NOT_CORRECT - 用户身份证校验失败，收款人身份证校验不通过，请核实信息  ACCOUNT_NOT_EXIST - 用户账户不存在，该用户账户不存在  TRANSFER_RISK - 转账存在风险，该笔转账可能存在风险，已被微信拦截  REALNAME_ACCOUNT_RECEIVED_QUOTA_EXCEED - 用户账户收款受限，请引导用户在微信支付查看详情
-
 ## 枚举
 
 
@@ -31,7 +29,27 @@
 
 * `TRANSFER_RISK` (value: `"TRANSFER_RISK"`)
 
+* `OTHER_FAIL_REASON_TYPE` (value: `"OTHER_FAIL_REASON_TYPE"`)
+
 * `REALNAME_ACCOUNT_RECEIVED_QUOTA_EXCEED` (value: `"REALNAME_ACCOUNT_RECEIVED_QUOTA_EXCEED"`)
+
+* `RECEIVE_ACCOUNT_NOT_PERMMIT` (value: `"RECEIVE_ACCOUNT_NOT_PERMMIT"`)
+
+* `PAYEE_ACCOUNT_ABNORMAL` (value: `"PAYEE_ACCOUNT_ABNORMAL"`)
+
+* `PAYER_ACCOUNT_ABNORMAL` (value: `"PAYER_ACCOUNT_ABNORMAL"`)
+
+* `TRANSFER_SCENE_UNAVAILABLE` (value: `"TRANSFER_SCENE_UNAVAILABLE"`)
+
+* `TRANSFER_SCENE_INVALID` (value: `"TRANSFER_SCENE_INVALID"`)
+
+* `TRANSFER_REMARK_SET_FAIL` (value: `"TRANSFER_REMARK_SET_FAIL"`)
+
+* `RECEIVE_ACCOUNT_NOT_CONFIGURE` (value: `"RECEIVE_ACCOUNT_NOT_CONFIGURE"`)
+
+* `BLOCK_B2_C_USERLIMITAMOUNT_BSRULE_MONTH` (value: `"BLOCK_B2C_USERLIMITAMOUNT_BSRULE_MONTH"`)
+
+* `BLOCK_B2_C_USERLIMITAMOUNT_MONTH` (value: `"BLOCK_B2C_USERLIMITAMOUNT_MONTH"`)
 
 
 [\[返回类型列表\]](README.md#类型列表)

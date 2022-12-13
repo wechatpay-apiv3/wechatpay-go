@@ -12,6 +12,7 @@
 **BatchType** | **string** | API:API方式发起   WEB:页面方式发起 | 
 **BatchName** | **string** | 该笔批量转账的名称 | 
 **BatchRemark** | **string** | 转账说明，UTF8编码，最多允许32个字符 | 
+**CloseReason** | [**CloseReasonType**](CloseReasonType.md) | 如果批次单状态为“CLOSED”（已关闭），则有关闭原因 | [可选] 
 **TotalAmount** | **int64** | 转账金额单位为“分” | 
 **TotalNum** | **int64** | 一个转账批次单最多发起三千笔转账 | 
 **CreateTime** | **time.Time** | 批次受理成功时返回，按照使用rfc3339所定义的格式，格式为YYYY-MM-DDThh:mm:ss+TIMEZONE | [可选] 
@@ -20,7 +21,7 @@
 **SuccessNum** | **int64** | 转账成功的笔数。当批次状态为“PROCESSING”（转账中）时，转账成功笔数随时可能变化 | [可选] 
 **FailAmount** | **int64** | 转账失败的金额，单位为“分” | [可选] 
 **FailNum** | **int64** | 转账失败的笔数 | [可选] 
-**CloseReason** | [**CloseReasonType**](CloseReasonType.md) | 如果批次单状态为“CLOSED”（已关闭），则有关闭原因 | [可选] 
+**TransferSceneId** | **string** | 指定的转账场景ID | [可选] 
 
 [\[返回类型列表\]](README.md#类型列表)
 [\[返回接口列表\]](README.md#接口列表)

@@ -6,7 +6,7 @@
 ------------- | ------------- | -------------
 [**GetTransferBatchByNo**](#gettransferbatchbyno) | **Get** /v3/transfer/batches/batch-id/{batch_id} | 通过微信批次单号查询批次单
 [**GetTransferBatchByOutNo**](#gettransferbatchbyoutno) | **Get** /v3/transfer/batches/out-batch-no/{out_batch_no} | 通过商家批次单号查询批次单
-[**InitiateBatchTransfer**](#initiatebatchtransfer) | **Post** /v3/transfer/batches | 发起批量转账
+[**InitiateBatchTransfer**](#initiatebatchtransfer) | **Post** /v3/transfer/batches | 发起商家转账
 
 
 
@@ -28,7 +28,6 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/transferbatch"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -43,7 +42,8 @@ func main() {
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
 	if err != nil {
-		log.Print("load merchant private key error")
+		log.Printf("load merchant private key error:%s", err)
+		return
 	}
 
 	ctx := context.Background()
@@ -54,6 +54,7 @@ func main() {
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
 		log.Printf("new wechat pay client err:%s", err)
+		return
 	}
 
 	svc := transferbatch.TransferBatchApiService{Client: client}
@@ -114,7 +115,6 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/transferbatch"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -129,7 +129,8 @@ func main() {
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
 	if err != nil {
-		log.Print("load merchant private key error")
+		log.Printf("load merchant private key error:%s", err)
+		return
 	}
 
 	ctx := context.Background()
@@ -140,6 +141,7 @@ func main() {
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
 		log.Printf("new wechat pay client err:%s", err)
+		return
 	}
 
 	svc := transferbatch.TransferBatchApiService{Client: client}
@@ -186,7 +188,7 @@ Name | Type | Description
 
 > InitiateBatchTransferResponse InitiateBatchTransfer(InitiateBatchTransferRequest)
 
-发起批量转账
+发起商家转账
 
 
 
@@ -200,7 +202,6 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/transferbatch"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -215,7 +216,8 @@ func main() {
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
 	if err != nil {
-		log.Print("load merchant private key error")
+		log.Printf("load merchant private key error:%s", err)
+		return
 	}
 
 	ctx := context.Background()
@@ -226,25 +228,27 @@ func main() {
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
 		log.Printf("new wechat pay client err:%s", err)
+		return
 	}
 
 	svc := transferbatch.TransferBatchApiService{Client: client}
 	resp, result, err := svc.InitiateBatchTransfer(ctx,
 		transferbatch.InitiateBatchTransferRequest{
 			Appid:       core.String("wxf636efh567hg4356"),
+			OutBatchNo:  core.String("plfk2020042013"),
 			BatchName:   core.String("2019年1月深圳分部报销单"),
 			BatchRemark: core.String("2019年1月深圳分部报销单"),
-			OutBatchNo:  core.String("plfk2020042013"),
 			TotalAmount: core.Int64(4000000),
 			TotalNum:    core.Int64(200),
 			TransferDetailList: []transferbatch.TransferDetailInput{transferbatch.TransferDetailInput{
-				TransferAmount: core.Int64(200000),
-				UserName:       core.String("757b340b45ebef5467rter35gf464344v3542sdf4t6re4tb4f54ty45t4yyry45"),
 				OutDetailNo:    core.String("x23zy545Bd5436"),
-				UserIdCard:     core.String("8609cb22e1774a50a930e414cc71eca06121bcd266335cda230d24a7886a8d9f"),
+				TransferAmount: core.Int64(200000),
 				TransferRemark: core.String("2020年4月报销"),
 				Openid:         core.String("o-MYE42l80oelYMDE34nYD456Xoy"),
+				UserName:       core.String("757b340b45ebef5467rter35gf464344v3542sdf4t6re4tb4f54ty45t4yyry45"),
+				UserIdCard:     core.String("8609cb22e1774a50a930e414cc71eca06121bcd266335cda230d24a7886a8d9f"),
 			}},
+			TransferSceneId: core.String("1000"),
 		},
 	)
 

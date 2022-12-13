@@ -1,19 +1,19 @@
-# transferbatch/TransferDetailApi
+# weixinpayscanandride/TransactionsApi
 
 所有URI均基于微信支付 API 地址： *https://api.mch.weixin.qq.com*
 
 方法名 | HTTP 请求 | 描述
 ------------- | ------------- | -------------
-[**GetTransferDetailByNo**](#gettransferdetailbyno) | **Get** /v3/transfer/batches/batch-id/{batch_id}/details/detail-id/{detail_id} | 通过微信明细单号查询明细单
-[**GetTransferDetailByOutNo**](#gettransferdetailbyoutno) | **Get** /v3/transfer/batches/out-batch-no/{out_batch_no}/details/out-detail-no/{out_detail_no} | 通过商家明细单号查询明细单
+[**CreateTransaction**](#createtransaction) | **Post** /v3/qrcode/transactions | 扣费受理
+[**QueryTransaction**](#querytransaction) | **Get** /v3/qrcode/transactions/out-trade-no/{out_trade_no} | 查询订单
 
 
 
-## GetTransferDetailByNo
+## CreateTransaction
 
-> TransferDetailEntity GetTransferDetailByNo(GetTransferDetailByNoRequest)
+> TransactionsEntity CreateTransaction(CreateTransactionRequest)
 
-通过微信明细单号查询明细单
+扣费受理
 
 
 
@@ -27,7 +27,7 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/services/transferbatch"
+	"github.com/wechatpay-apiv3/wechatpay-go/services/weixinpayscanandride"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
@@ -56,17 +56,40 @@ func main() {
 		return
 	}
 
-	svc := transferbatch.TransferDetailApiService{Client: client}
-	resp, result, err := svc.GetTransferDetailByNo(ctx,
-		transferbatch.GetTransferDetailByNoRequest{
-			BatchId:  core.String("1030000071100999991182020050700019480001"),
-			DetailId: core.String("1040000071100999991182020050700019500100"),
+	svc := weixinpayscanandride.TransactionsApiService{Client: client}
+	resp, result, err := svc.CreateTransaction(ctx,
+		weixinpayscanandride.CreateTransactionRequest{
+			Appid:       core.String("wxcbda96de0b165486"),
+			SubAppid:    core.String("wxcbda96de0b165486"),
+			SubMchid:    core.String("1900000109"),
+			Description: core.String("地铁扣费"),
+			Attach:      core.String("深圳分店"),
+			OutTradeNo:  core.String("20150806125346"),
+			TradeScene:  weixinpayscanandride.TRADESCENE_BUS.Ptr(),
+			GoodsTag:    core.String("WXG"),
+			ContractId:  core.String("Wx15463511252015071056489715"),
+			NotifyUrl:   core.String("https://yoursite.com/wxpay.html"),
+			Amount: &weixinpayscanandride.OrderAmount{
+				Total:    core.Int64(600),
+				Currency: core.String("CNY"),
+			},
+			BusInfo: &weixinpayscanandride.BusSceneInfo{
+				StartTime:   core.String("2017-08-26T10:43:39+08:00"),
+				LineName:    core.String("1路公车"),
+				PlateNumber: core.String("粤B888888"),
+			},
+			MetroInfo: &weixinpayscanandride.MetroSceneInfo{
+				StartTime:    core.String("2017-08-26T10:43:39+08:00"),
+				EndTime:      core.String("2017-08-26T10:43:39+08:00"),
+				StartStation: core.String("西单"),
+				EndStation:   core.String("天安门西"),
+			},
 		},
 	)
 
 	if err != nil {
 		// 处理错误
-		log.Printf("call GetTransferDetailByNo err:%s", err)
+		log.Printf("call CreateTransaction err:%s", err)
 	} else {
 		// 处理返回结果
 		log.Printf("status=%d resp=%s", result.Response.StatusCode, resp)
@@ -78,26 +101,26 @@ func main() {
 参数名 | 参数类型 | 参数描述
 ------------- | ------------- | -------------
 **ctx** | **context.Context** | Golang 上下文，可用于日志、请求取消、请求跟踪等功能|
-**req** | [**GetTransferDetailByNoRequest**](GetTransferDetailByNoRequest.md) | API `transferbatch` 所定义的本接口需要的所有参数，包括`Path`/`Query`/`Body` 3类参数|
+**req** | [**CreateTransactionRequest**](CreateTransactionRequest.md) | API `weixinpayscanandride` 所定义的本接口需要的所有参数，包括`Path`/`Query`/`Body` 3类参数|
 
 ### 返回结果
 Name | Type | Description
 ------------- | ------------- | -------------
-**resp** | \*[**TransferDetailEntity**](TransferDetailEntity.md) | 结构化的接口返回结果
+**resp** | \*[**TransactionsEntity**](TransactionsEntity.md) | 结构化的接口返回结果
 **result** | **\*core.APIResult** | 本次 API 访问的请求与应答信息
 **err** | **error** | 本次 API 访问中发生的错误，当且仅当 API 失败时存在
 
-[\[返回顶部\]](#transferbatchtransferdetailapi)
+[\[返回顶部\]](#weixinpayscanandridetransactionsapi)
 [\[返回接口列表\]](README.md#接口列表)
 [\[返回类型列表\]](README.md#类型列表)
 [\[返回服务README\]](README.md)
 
 
-## GetTransferDetailByOutNo
+## QueryTransaction
 
-> TransferDetailEntity GetTransferDetailByOutNo(GetTransferDetailByOutNoRequest)
+> TransactionsEntity QueryTransaction(QueryTransactionRequest)
 
-通过商家明细单号查询明细单
+查询订单
 
 
 
@@ -111,7 +134,7 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/services/transferbatch"
+	"github.com/wechatpay-apiv3/wechatpay-go/services/weixinpayscanandride"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
@@ -140,17 +163,17 @@ func main() {
 		return
 	}
 
-	svc := transferbatch.TransferDetailApiService{Client: client}
-	resp, result, err := svc.GetTransferDetailByOutNo(ctx,
-		transferbatch.GetTransferDetailByOutNoRequest{
-			OutDetailNo: core.String("x23zy545Bd5436"),
-			OutBatchNo:  core.String("plfk2020042013"),
+	svc := weixinpayscanandride.TransactionsApiService{Client: client}
+	resp, result, err := svc.QueryTransaction(ctx,
+		weixinpayscanandride.QueryTransactionRequest{
+			OutTradeNo: core.String("20150806125346"),
+			SubMchid:   core.String("1900000109"),
 		},
 	)
 
 	if err != nil {
 		// 处理错误
-		log.Printf("call GetTransferDetailByOutNo err:%s", err)
+		log.Printf("call QueryTransaction err:%s", err)
 	} else {
 		// 处理返回结果
 		log.Printf("status=%d resp=%s", result.Response.StatusCode, resp)
@@ -162,16 +185,16 @@ func main() {
 参数名 | 参数类型 | 参数描述
 ------------- | ------------- | -------------
 **ctx** | **context.Context** | Golang 上下文，可用于日志、请求取消、请求跟踪等功能|
-**req** | [**GetTransferDetailByOutNoRequest**](GetTransferDetailByOutNoRequest.md) | API `transferbatch` 所定义的本接口需要的所有参数，包括`Path`/`Query`/`Body` 3类参数|
+**req** | [**QueryTransactionRequest**](QueryTransactionRequest.md) | API `weixinpayscanandride` 所定义的本接口需要的所有参数，包括`Path`/`Query`/`Body` 3类参数|
 
 ### 返回结果
 Name | Type | Description
 ------------- | ------------- | -------------
-**resp** | \*[**TransferDetailEntity**](TransferDetailEntity.md) | 结构化的接口返回结果
+**resp** | \*[**TransactionsEntity**](TransactionsEntity.md) | 结构化的接口返回结果
 **result** | **\*core.APIResult** | 本次 API 访问的请求与应答信息
 **err** | **error** | 本次 API 访问中发生的错误，当且仅当 API 失败时存在
 
-[\[返回顶部\]](#transferbatchtransferdetailapi)
+[\[返回顶部\]](#weixinpayscanandridetransactionsapi)
 [\[返回接口列表\]](README.md#接口列表)
 [\[返回类型列表\]](README.md#类型列表)
 [\[返回服务README\]](README.md)
