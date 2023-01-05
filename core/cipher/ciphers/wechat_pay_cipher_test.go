@@ -4,9 +4,10 @@ package ciphers
 
 import (
 	"context"
-	"github.com/agiledragon/gomonkey"
 	"reflect"
 	"testing"
+
+	"github.com/agiledragon/gomonkey/v2"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
