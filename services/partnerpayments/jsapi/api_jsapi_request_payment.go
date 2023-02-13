@@ -13,7 +13,7 @@ type PrepayWithRequestPaymentResponse struct {
 	// 预支付交易会话标识
 	PrepayId *string `json:"prepay_id"` // revive:disable-line:var-naming
 	// 应用ID
-	Appid *string `json:"appId"`
+	Appid *string `json:"appid"`
 	// 时间戳
 	TimeStamp *string `json:"timeStamp"`
 	// 随机字符串
@@ -38,7 +38,11 @@ func (a *JsapiApiService) PrepayWithRequestPayment(
 	resp = new(PrepayWithRequestPaymentResponse)
 	resp.PrepayId = prepayResp.PrepayId
 	resp.SignType = core.String("RSA")
-	resp.Appid = req.SubAppid
+	if req.SubAppid != nil {
+		resp.Appid = req.SubAppid
+	} else {
+		resp.Appid = req.SpAppid
+	}
 	resp.TimeStamp = core.String(strconv.FormatInt(time.Now().Unix(), 10))
 	nonce, err := utils.GenerateNonce()
 	if err != nil {
@@ -53,4 +57,45 @@ func (a *JsapiApiService) PrepayWithRequestPayment(
 	}
 	resp.PaySign = core.String(signatureResult.Signature)
 	return resp, result, nil
+}
+
+func (o PrepayWithRequestPaymentResponse) String() string {
+	var ret string
+	if o.PrepayId == nil {
+		ret += "PrepayId:<nil>, "
+	} else {
+		ret += fmt.Sprintf("PrepayId:%v, ", *o.PrepayId)
+	}
+	if o.Appid == nil {
+		ret += "Appid:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Appid:%v, ", *o.Appid)
+	}
+	if o.TimeStamp == nil {
+		ret += "TimeStamp:<nil>, "
+	} else {
+		ret += fmt.Sprintf("TimeStamp:%v, ", *o.TimeStamp)
+	}
+	if o.NonceStr == nil {
+		ret += "NonceStr:<nil>, "
+	} else {
+		ret += fmt.Sprintf("NonceStr:%v, ", *o.NonceStr)
+	}
+	if o.Package == nil {
+		ret += "Package:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Package:%v, ", *o.Package)
+	}
+	if o.SignType == nil {
+		ret += "SignType:<nil>"
+	} else {
+		ret += fmt.Sprintf("SignType:%v", *o.SignType)
+	}
+	if o.PaySign == nil {
+		ret += "PaySign:<nil>"
+	} else {
+		ret += fmt.Sprintf("PaySign:%v", *o.PaySign)
+	}
+
+	return fmt.Sprintf("PrepayResponse{%s}", ret)
 }
