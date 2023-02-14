@@ -28,7 +28,7 @@ type PrepayWithRequestPaymentResponse struct {
 
 // PrepayWithRequestPayment Jsapi支付下单，并返回调起支付的请求参数
 func (a *JsapiApiService) PrepayWithRequestPayment(
-	ctx context.Context, req PrepayRequest,
+	ctx context.Context, req PrepayRequest, requestPaymentAppid string,
 ) (resp *PrepayWithRequestPaymentResponse, result *core.APIResult, err error) {
 	prepayResp, result, err := a.Prepay(ctx, req)
 	if err != nil {
@@ -38,11 +38,7 @@ func (a *JsapiApiService) PrepayWithRequestPayment(
 	resp = new(PrepayWithRequestPaymentResponse)
 	resp.PrepayId = prepayResp.PrepayId
 	resp.SignType = core.String("RSA")
-	if req.SubAppid != nil {
-		resp.Appid = req.SubAppid
-	} else {
-		resp.Appid = req.SpAppid
-	}
+	resp.Appid = &requestPaymentAppid
 	resp.TimeStamp = core.String(strconv.FormatInt(time.Now().Unix(), 10))
 	nonce, err := utils.GenerateNonce()
 	if err != nil {
