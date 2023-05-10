@@ -294,7 +294,7 @@ fmt.Println(transaction.TransactionId)
 
 ```go
 content := make(map[string]interface{})
-notifyReq, err := handler.ParseNotifyRequest(context.Background(), request, content)
+notifyReq, err := handler.ParseNotifyRequest(context.Background(), request, &content)
 // 如果验签未通过，或者解密失败
 if err != nil {
 	fmt.Println(err)
