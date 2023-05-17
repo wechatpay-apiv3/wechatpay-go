@@ -27,7 +27,6 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/profitsharing"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -42,7 +41,8 @@ func main() {
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
 	if err != nil {
-		log.Print("load merchant private key error")
+		log.Printf("load merchant private key error:%s", err)
+		return
 	}
 
 	ctx := context.Background()
@@ -53,18 +53,19 @@ func main() {
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
 		log.Printf("new wechat pay client err:%s", err)
+		return
 	}
 
 	svc := profitsharing.ReturnOrdersApiService{Client: client}
 	resp, result, err := svc.CreateReturnOrder(ctx,
 		profitsharing.CreateReturnOrderRequest{
-			Amount:      core.Int64(10),
-			Description: core.String("用户退款"),
+			SubMchid:    core.String("1900000109"),
 			OrderId:     core.String("3008450740201411110007820472"),
 			OutOrderNo:  core.String("P20150806125346"),
 			OutReturnNo: core.String("R20190516001"),
 			ReturnMchid: core.String("86693852"),
-			SubMchid:    core.String("1900000109"),
+			Amount:      core.Int64(10),
+			Description: core.String("用户退款"),
 		},
 	)
 
@@ -115,7 +116,6 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/profitsharing"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -130,7 +130,8 @@ func main() {
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
 	if err != nil {
-		log.Print("load merchant private key error")
+		log.Printf("load merchant private key error:%s", err)
+		return
 	}
 
 	ctx := context.Background()
@@ -141,14 +142,15 @@ func main() {
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
 		log.Printf("new wechat pay client err:%s", err)
+		return
 	}
 
 	svc := profitsharing.ReturnOrdersApiService{Client: client}
 	resp, result, err := svc.QueryReturnOrder(ctx,
 		profitsharing.QueryReturnOrderRequest{
+			SubMchid:    core.String("1900000109"),
 			OutReturnNo: core.String("R20190516001"),
 			OutOrderNo:  core.String("P20190806125346"),
-			SubMchid:    core.String("1900000109"),
 		},
 	)
 

@@ -1,7 +1,5 @@
 # OrderStatus
 
-  * &#x60;PROCESSING&#x60; - 处理中，  * &#x60;FINISHED&#x60; - 分账完成，
-
 ## 枚举
 
 

@@ -1,7 +1,5 @@
 # ReceiverType
 
-  * &#x60;MERCHANT_ID&#x60; - 商户号，  * &#x60;PERSONAL_OPENID&#x60; - 个人openid（由父商户APPID转换得到），  * &#x60;PERSONAL_SUB_OPENID&#x60; - 个人sub_openid（由子商户APPID转换得到）（直连商户不需要，服务商需要），
-
 ## 枚举
 
 

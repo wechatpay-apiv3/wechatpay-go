@@ -1,7 +1,5 @@
 # SplitBillHashType
 
-  * &#x60;SHA1&#x60; - SHA1，Secure Hash Algorithm 1
-
 ## 枚举
 
 

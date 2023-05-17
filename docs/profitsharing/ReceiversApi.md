@@ -27,7 +27,6 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/profitsharing"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -42,7 +41,8 @@ func main() {
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
 	if err != nil {
-		log.Print("load merchant private key error")
+		log.Printf("load merchant private key error:%s", err)
+		return
 	}
 
 	ctx := context.Background()
@@ -53,19 +53,20 @@ func main() {
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
 		log.Printf("new wechat pay client err:%s", err)
+		return
 	}
 
 	svc := profitsharing.ReceiversApiService{Client: client}
 	resp, result, err := svc.AddReceiver(ctx,
 		profitsharing.AddReceiverRequest{
-			Account:        core.String("86693852"),
+			SubMchid:       core.String("1900000109"),
 			Appid:          core.String("wx8888888888888888"),
-			CustomRelation: core.String("代理商"),
+			SubAppid:       core.String("wx8888888888888889"),
+			Type:           profitsharing.RECEIVERTYPE_MERCHANT_ID.Ptr(),
+			Account:        core.String("86693852"),
 			Name:           core.String("hu89ohu89ohu89o"),
 			RelationType:   profitsharing.RECEIVERRELATIONTYPE_SERVICE_PROVIDER.Ptr(),
-			SubAppid:       core.String("wx8888888888888889"),
-			SubMchid:       core.String("1900000109"),
-			Type:           profitsharing.RECEIVERTYPE_MERCHANT_ID.Ptr(),
+			CustomRelation: core.String("代理商"),
 		},
 	)
 
@@ -116,7 +117,6 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/profitsharing"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -131,7 +131,8 @@ func main() {
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
 	if err != nil {
-		log.Print("load merchant private key error")
+		log.Printf("load merchant private key error:%s", err)
+		return
 	}
 
 	ctx := context.Background()
@@ -142,16 +143,17 @@ func main() {
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
 		log.Printf("new wechat pay client err:%s", err)
+		return
 	}
 
 	svc := profitsharing.ReceiversApiService{Client: client}
 	resp, result, err := svc.DeleteReceiver(ctx,
 		profitsharing.DeleteReceiverRequest{
-			Account:  core.String("86693852"),
+			SubMchid: core.String("1900000109"),
 			Appid:    core.String("wx8888888888888888"),
 			SubAppid: core.String("wx8888888888888889"),
-			SubMchid: core.String("1900000109"),
 			Type:     profitsharing.RECEIVERTYPE_MERCHANT_ID.Ptr(),
+			Account:  core.String("86693852"),
 		},
 	)
 

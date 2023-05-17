@@ -1,7 +1,5 @@
 # ReturnOrderStatus
 
-  * &#x60;PROCESSING&#x60; - 处理中，  * &#x60;SUCCESS&#x60; - 已成功，  * &#x60;FAILED&#x60; - 已失败，
-
 ## 枚举
 
 

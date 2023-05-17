@@ -272,8 +272,8 @@ func (e AuthenticationScene) Ptr() *AuthenticationScene {
 
 // Enums of AuthenticationScene
 const (
-	AUTHENTICATIONSCENE_MINI_APP AuthenticationScene = "FROM_MINI_APP"
-	AUTHENTICATIONSCENE_HARDWARE AuthenticationScene = "FROM_HARDWARE"
+	AUTHENTICATIONSCENE_FROM_MINI_APP AuthenticationScene = "FROM_MINI_APP"
+	AUTHENTICATIONSCENE_FROM_HARDWARE AuthenticationScene = "FROM_HARDWARE"
 )
 
 // AuthenticationState
@@ -285,9 +285,9 @@ func (e AuthenticationState) Ptr() *AuthenticationState {
 
 // Enums of AuthenticationState
 const (
-	AUTHENTICATIONSTATE_PROCESSING AuthenticationState = "AUTHENTICATE_PROCESSING"
-	AUTHENTICATIONSTATE_SUCCESS    AuthenticationState = "AUTHENTICATE_SUCCESS"
-	AUTHENTICATIONSTATE_FAILED     AuthenticationState = "AUTHENTICATE_FAILED"
+	AUTHENTICATIONSTATE_AUTHENTICATE_PROCESSING AuthenticationState = "AUTHENTICATE_PROCESSING"
+	AUTHENTICATIONSTATE_AUTHENTICATE_SUCCESS    AuthenticationState = "AUTHENTICATE_SUCCESS"
+	AUTHENTICATIONSTATE_AUTHENTICATE_FAILED     AuthenticationState = "AUTHENTICATE_FAILED"
 )
 
 // AuthenticationType

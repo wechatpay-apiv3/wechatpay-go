@@ -1,7 +1,5 @@
 # ReturnOrderFailReason
 
-  * &#x60;ACCOUNT_ABNORMAL&#x60; - 分账接收方账户异常，  * &#x60;BALANCE_NOT_ENOUGH&#x60; - 余额不足，  * &#x60;TIME_OUT_CLOSED&#x60; - 超时关单，
-
 ## 枚举
 
 
@@ -10,6 +8,10 @@
 * `BALANCE_NOT_ENOUGH` (value: `"BALANCE_NOT_ENOUGH"`)
 
 * `TIME_OUT_CLOSED` (value: `"TIME_OUT_CLOSED"`)
+
+* `PAYER_ACCOUNT_ABNORMAL` (value: `"PAYER_ACCOUNT_ABNORMAL"`)
+
+* `INVALID_REQUEST` (value: `"INVALID_REQUEST"`)
 
 
 [\[返回类型列表\]](README.md#类型列表)

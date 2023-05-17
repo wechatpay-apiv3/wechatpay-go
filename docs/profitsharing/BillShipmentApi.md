@@ -26,7 +26,6 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
-	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/profitsharing"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -41,7 +40,8 @@ func main() {
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
 	if err != nil {
-		log.Print("load merchant private key error")
+		log.Printf("load merchant private key error:%s", err)
+		return
 	}
 
 	ctx := context.Background()
@@ -52,13 +52,14 @@ func main() {
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
 		log.Printf("new wechat pay client err:%s", err)
+		return
 	}
 
 	svc := profitsharing.BillShipmentApiService{Client: client}
 	resp, result, err := svc.SplitBill(ctx,
 		profitsharing.SplitBillRequest{
-			BillDate: core.String("2019-06-11"),
 			SubMchid: core.String("19000000001"),
+			BillDate: core.String("2019-06-11"),
 			TarType:  profitsharing.SPLITBILLTARTYPE_GZIP.Ptr(),
 		},
 	)

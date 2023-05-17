@@ -1,7 +1,5 @@
 # SplitBillTarType
 
-  * &#x60;GZIP&#x60; - GZIP格式压缩，返回格式为.gzip的压缩包账单
-
 ## 枚举
 
 
