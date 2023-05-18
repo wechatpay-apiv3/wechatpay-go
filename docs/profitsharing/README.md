@@ -5,7 +5,7 @@
 ## 总览
 本 SDK 由 WechatPay APIv3 SDK 生成器生成。生成器基于 [OpenAPI Generator](https://openapi-generator.tech) 构建。
 
-- API 版本: 0.0.9
+- API 版本: 0.0.3
 
 ## 接口列表
 

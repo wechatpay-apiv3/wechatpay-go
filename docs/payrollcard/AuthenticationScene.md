@@ -3,9 +3,9 @@
 ## 枚举
 
 
-* `FROM_MINI_APP` (value: `"FROM_MINI_APP"`)
+* `MINI_APP` (value: `"FROM_MINI_APP"`)
 
-* `FROM_HARDWARE` (value: `"FROM_HARDWARE"`)
+* `HARDWARE` (value: `"FROM_HARDWARE"`)
 
 
 [\[返回类型列表\]](README.md#类型列表)

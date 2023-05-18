@@ -51,10 +51,6 @@
 
 * `BLOCK_B2_C_USERLIMITAMOUNT_MONTH` (value: `"BLOCK_B2C_USERLIMITAMOUNT_MONTH"`)
 
-* `MERCHANT_REJECT` (value: `"MERCHANT_REJECT"`)
-
-* `MERCHANT_NOT_CONFIRM` (value: `"MERCHANT_NOT_CONFIRM"`)
-
 
 [\[返回类型列表\]](README.md#类型列表)
 [\[返回接口列表\]](README.md#接口列表)

@@ -10,7 +10,7 @@
 **Appid** | **string** | 申请商户号的appid或商户号绑定的appid（企业号corpid即为此appid） | 
 **OutDetailNo** | **string** | 商户系统内部区分转账批次单下不同转账明细单的唯一标识 | 
 **DetailId** | **string** | 微信支付系统内部区分转账批次单下不同转账明细单的唯一标识 | 
-**DetailStatus** | **string** | INIT: 初始态。 系统转账校验中 WAIT_PAY: 待确认。待商户确认, 符合免密条件时, 系统会自动扭转为转账中 PROCESSING:转账中。正在处理中，转账结果尚未明确 SUCCESS:转账成功 FAIL:转账失败。需要确认失败原因后，再决定是否重新发起对该笔明细单的转账（并非整个转账批次单） | 
+**DetailStatus** | **string** | PROCESSING:转账中。正在处理中，转账结果尚未明确   SUCCESS:转账成功   FAIL:转账失败。需要确认失败原因后，再决定是否重新发起对该笔明细单的转账（并非整个转账批次单） | 
 **TransferAmount** | **int64** | 转账金额单位为“分” | 
 **TransferRemark** | **string** | 单条转账备注（微信用户会收到该备注），UTF8编码，最多允许32个字符 | 
 **FailReason** | [**FailReasonType**](FailReasonType.md) | 如果转账失败则有失败原因 | [可选] 

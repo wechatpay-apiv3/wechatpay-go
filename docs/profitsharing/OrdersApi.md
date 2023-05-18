@@ -28,6 +28,7 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/profitsharing"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -42,8 +43,7 @@ func main() {
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
 	if err != nil {
-		log.Printf("load merchant private key error:%s", err)
-		return
+		log.Print("load merchant private key error")
 	}
 
 	ctx := context.Background()
@@ -54,26 +54,24 @@ func main() {
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
 		log.Printf("new wechat pay client err:%s", err)
-		return
 	}
 
 	svc := profitsharing.OrdersApiService{Client: client}
 	resp, result, err := svc.CreateOrder(ctx,
 		profitsharing.CreateOrderRequest{
-			SubMchid:      core.String("1900000109"),
-			Appid:         core.String("wx8888888888888888"),
-			SubAppid:      core.String("wx8888888888888889"),
-			TransactionId: core.String("4208450740201411110007820472"),
-			OutOrderNo:    core.String("P20150806125346"),
+			Appid:      core.String("wx8888888888888888"),
+			OutOrderNo: core.String("P20150806125346"),
 			Receivers: []profitsharing.CreateOrderReceiver{profitsharing.CreateOrderReceiver{
-				Type:        core.String("MERCHANT_ID"),
 				Account:     core.String("86693852"),
-				Name:        core.String("hu89ohu89ohu89o"),
 				Amount:      core.Int64(888),
 				Description: core.String("分给商户A"),
+				Name:        core.String("hu89ohu89ohu89o"),
+				Type:        core.String("MERCHANT_ID"),
 			}},
+			SubAppid:        core.String("wx8888888888888889"),
+			SubMchid:        core.String("1900000109"),
+			TransactionId:   core.String("4208450740201411110007820472"),
 			UnfreezeUnsplit: core.Bool(true),
-			NotifyUrl:       core.String("https://weixin.qq.com"),
 		},
 	)
 
@@ -124,6 +122,7 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/profitsharing"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -138,8 +137,7 @@ func main() {
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
 	if err != nil {
-		log.Printf("load merchant private key error:%s", err)
-		return
+		log.Print("load merchant private key error")
 	}
 
 	ctx := context.Background()
@@ -150,15 +148,14 @@ func main() {
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
 		log.Printf("new wechat pay client err:%s", err)
-		return
 	}
 
 	svc := profitsharing.OrdersApiService{Client: client}
 	resp, result, err := svc.QueryOrder(ctx,
 		profitsharing.QueryOrderRequest{
-			SubMchid:      core.String("1900000109"),
 			TransactionId: core.String("4208450740201411110007820472"),
 			OutOrderNo:    core.String("P20150806125346"),
+			SubMchid:      core.String("1900000109"),
 		},
 	)
 
@@ -209,6 +206,7 @@ import (
 	"log"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/profitsharing"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -223,8 +221,7 @@ func main() {
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
 	if err != nil {
-		log.Printf("load merchant private key error:%s", err)
-		return
+		log.Print("load merchant private key error")
 	}
 
 	ctx := context.Background()
@@ -235,17 +232,15 @@ func main() {
 	client, err := core.NewClient(ctx, opts...)
 	if err != nil {
 		log.Printf("new wechat pay client err:%s", err)
-		return
 	}
 
 	svc := profitsharing.OrdersApiService{Client: client}
 	resp, result, err := svc.UnfreezeOrder(ctx,
 		profitsharing.UnfreezeOrderRequest{
+			Description:   core.String("解冻全部剩余资金"),
+			OutOrderNo:    core.String("P20150806125346"),
 			SubMchid:      core.String("1900000109"),
 			TransactionId: core.String("4208450740201411110007820472"),
-			OutOrderNo:    core.String("P20150806125346"),
-			Description:   core.String("解冻全部剩余资金"),
-			NotifyUrl:     core.String("https://weixin.qq.com"),
 		},
 	)
 
