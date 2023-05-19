@@ -315,7 +315,7 @@ func TestClientVerifyFail(t *testing.T) {
 	client, err := core.NewClient(ctx, opts...)
 	require.NoError(t, err)
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Request-Id", "0")
 		w.Header().Set("Wechatpay-Serial", utils.GetCertificateSerialNumber(*wechatPayCertificate))
 
@@ -342,7 +342,7 @@ func TestClientNoAuth(t *testing.T) {
 	client, err := core.NewClient(ctx, opts...)
 	require.NoError(t, err)
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(401)
 		w.Header().Set("Request-Id", "0")
 		fmt.Fprint(w, `{"code":"SIGN_ERROR","message":"sign error"}`)
