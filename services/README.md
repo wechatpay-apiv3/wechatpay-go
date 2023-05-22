@@ -20,3 +20,4 @@
 | weixinpayscanandride | 微信支付刷码乘车 |✔️|✔️|
 | lovefeast | 爱心餐 |✔️||
 | goldplan | 点金计划 ||✔️|
+| wexinpayscoreparking | 微信支付分停车 |✔️|✔️|
