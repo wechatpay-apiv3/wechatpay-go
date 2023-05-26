@@ -1,0 +1,25 @@
+# SubsidyPayReceiptStatus
+
+## 枚举
+
+
+* `PAY_RECEIPT_UNKNOWN` (value: `"PAY_RECEIPT_UNKNOWN"`)
+
+* `PAY_RECEIPT_ACCEPTED` (value: `"PAY_RECEIPT_ACCEPTED"`)
+
+* `PAY_RECEIPT_SUCCESS` (value: `"PAY_RECEIPT_SUCCESS"`)
+
+* `PAY_RECEIPT_FAIL` (value: `"PAY_RECEIPT_FAIL"`)
+
+* `PAY_RECEIPT_RETURNING` (value: `"PAY_RECEIPT_RETURNING"`)
+
+* `PAY_RECEIPT_PARTIAL_RETURN` (value: `"PAY_RECEIPT_PARTIAL_RETURN"`)
+
+* `PAY_RECEIPT_FULL_RETURN` (value: `"PAY_RECEIPT_FULL_RETURN"`)
+
+
+[\[返回类型列表\]](README.md#类型列表)
+[\[返回接口列表\]](README.md#接口列表)
+[\[返回服务README\]](README.md)
+
+
