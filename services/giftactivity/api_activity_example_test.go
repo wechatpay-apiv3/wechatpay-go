@@ -364,7 +364,7 @@ func ExampleActivityApiService_ListActivitySku() {
 	}
 }
 
-func ExampleActivityApiService_TerMinateActivity() {
+func ExampleActivityApiService_TerminateActivity() {
 	var (
 		mchID                      string = "190000****"                               // 商户号
 		mchCertificateSerialNumber string = "3775************************************" // 商户证书序列号
@@ -390,15 +390,15 @@ func ExampleActivityApiService_TerMinateActivity() {
 	}
 
 	svc := giftactivity.ActivityApiService{Client: client}
-	resp, result, err := svc.TerMinateActivity(ctx,
-		giftactivity.TerMinateActivityRequest{
+	resp, result, err := svc.TerminateActivity(ctx,
+		giftactivity.TerminateActivityRequest{
 			ActivityId: core.String("10028001"),
 		},
 	)
 
 	if err != nil {
 		// 处理错误
-		log.Printf("call TerMinateActivity err:%s", err)
+		log.Printf("call TerminateActivity err:%s", err)
 	} else {
 		// 处理返回结果
 		log.Printf("status=%d resp=%s", result.Response.StatusCode, resp)

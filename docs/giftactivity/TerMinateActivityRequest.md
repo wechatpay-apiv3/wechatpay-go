@@ -1,4 +1,4 @@
-# TerMinateActivityRequest
+# TerminateActivityRequest
 
 ## 属性列表
 

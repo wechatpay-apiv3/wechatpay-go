@@ -2663,44 +2663,6 @@ const (
 	SKUSTATUS_SKU_STATUS_UNKNOWN SkuStatus = "SKU_STATUS_UNKNOWN"
 )
 
-// TerMinateActivityRequest
-type TerMinateActivityRequest struct {
-	// 活动Id
-	ActivityId *string `json:"activity_id"`
-}
-
-func (o TerMinateActivityRequest) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-
-	if o.ActivityId == nil {
-		return nil, fmt.Errorf("field `ActivityId` is required and must be specified in TerMinateActivityRequest")
-	}
-	toSerialize["activity_id"] = o.ActivityId
-	return json.Marshal(toSerialize)
-}
-
-func (o TerMinateActivityRequest) String() string {
-	var ret string
-	if o.ActivityId == nil {
-		ret += "ActivityId:<nil>"
-	} else {
-		ret += fmt.Sprintf("ActivityId:%v", *o.ActivityId)
-	}
-
-	return fmt.Sprintf("TerMinateActivityRequest{%s}", ret)
-}
-
-func (o TerMinateActivityRequest) Clone() *TerMinateActivityRequest {
-	ret := TerMinateActivityRequest{}
-
-	if o.ActivityId != nil {
-		ret.ActivityId = new(string)
-		*ret.ActivityId = *o.ActivityId
-	}
-
-	return &ret
-}
-
 // TerminateActResponse
 type TerminateActResponse struct {
 	// 生效时间
@@ -2748,6 +2710,44 @@ func (o TerminateActResponse) Clone() *TerminateActResponse {
 		ret.TerminateTime = new(string)
 		*ret.TerminateTime = *o.TerminateTime
 	}
+
+	if o.ActivityId != nil {
+		ret.ActivityId = new(string)
+		*ret.ActivityId = *o.ActivityId
+	}
+
+	return &ret
+}
+
+// TerminateActivityRequest
+type TerminateActivityRequest struct {
+	// 活动Id
+	ActivityId *string `json:"activity_id"`
+}
+
+func (o TerminateActivityRequest) MarshalJSON() ([]byte, error) {
+	toSerialize := map[string]interface{}{}
+
+	if o.ActivityId == nil {
+		return nil, fmt.Errorf("field `ActivityId` is required and must be specified in TerminateActivityRequest")
+	}
+	toSerialize["activity_id"] = o.ActivityId
+	return json.Marshal(toSerialize)
+}
+
+func (o TerminateActivityRequest) String() string {
+	var ret string
+	if o.ActivityId == nil {
+		ret += "ActivityId:<nil>"
+	} else {
+		ret += fmt.Sprintf("ActivityId:%v", *o.ActivityId)
+	}
+
+	return fmt.Sprintf("TerminateActivityRequest{%s}", ret)
+}
+
+func (o TerminateActivityRequest) Clone() *TerminateActivityRequest {
+	ret := TerminateActivityRequest{}
 
 	if o.ActivityId != nil {
 		ret.ActivityId = new(string)

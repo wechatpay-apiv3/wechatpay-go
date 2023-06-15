@@ -362,11 +362,11 @@ func (a *ActivityApiService) ListActivitySku(ctx context.Context, req ListActivi
 	return resp, result, nil
 }
 
-// TerMinateActivity 终止活动
+// TerminateActivity 终止活动
 //
 // 使用场景：商户可以通过该接口停止支付有礼活动。
 // 可调用商户：商户/服务商/渠道商
-func (a *ActivityApiService) TerMinateActivity(ctx context.Context, req TerMinateActivityRequest) (resp *TerminateActResponse, result *core.APIResult, err error) {
+func (a *ActivityApiService) TerminateActivity(ctx context.Context, req TerminateActivityRequest) (resp *TerminateActResponse, result *core.APIResult, err error) {
 	var (
 		localVarHTTPMethod   = nethttp.MethodPost
 		localVarPostBody     interface{}
@@ -376,7 +376,7 @@ func (a *ActivityApiService) TerMinateActivity(ctx context.Context, req TerMinat
 
 	// Make sure Path Params are properly set
 	if req.ActivityId == nil {
-		return nil, nil, fmt.Errorf("field `ActivityId` is required and must be specified in TerMinateActivityRequest")
+		return nil, nil, fmt.Errorf("field `ActivityId` is required and must be specified in TerminateActivityRequest")
 	}
 
 	localVarPath := consts.WechatPayAPIServer + "/v3/marketing/paygiftactivity/activities/{activity_id}/terminate"

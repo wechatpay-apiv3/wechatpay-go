@@ -11,7 +11,7 @@
 [**ListActivities**](#listactivities) | **Get** /v3/marketing/paygiftactivity/activities | 获取支付有礼活动列表
 [**ListActivityMerchant**](#listactivitymerchant) | **Get** /v3/marketing/paygiftactivity/activities/{activity_id}/merchants | 获取活动发券商户号
 [**ListActivitySku**](#listactivitysku) | **Get** /v3/marketing/paygiftactivity/activities/{activity_id}/goods | 获取活动指定商品列表
-[**TerMinateActivity**](#terminateactivity) | **Post** /v3/marketing/paygiftactivity/activities/{activity_id}/terminate | 终止活动
+[**TerminateActivity**](#terminateactivity) | **Post** /v3/marketing/paygiftactivity/activities/{activity_id}/terminate | 终止活动
 
 
 
@@ -653,9 +653,9 @@ Name | Type | Description
 [\[返回服务README\]](README.md)
 
 
-## TerMinateActivity
+## TerminateActivity
 
-> TerminateActResponse TerMinateActivity(TerMinateActivityRequest)
+> TerminateActResponse TerminateActivity(TerminateActivityRequest)
 
 终止活动
 
@@ -701,15 +701,15 @@ func main() {
 	}
 
 	svc := giftactivity.ActivityApiService{Client: client}
-	resp, result, err := svc.TerMinateActivity(ctx,
-		giftactivity.TerMinateActivityRequest{
+	resp, result, err := svc.TerminateActivity(ctx,
+		giftactivity.TerminateActivityRequest{
 			ActivityId: core.String("10028001"),
 		},
 	)
 
 	if err != nil {
 		// 处理错误
-		log.Printf("call TerMinateActivity err:%s", err)
+		log.Printf("call TerminateActivity err:%s", err)
 	} else {
 		// 处理返回结果
 		log.Printf("status=%d resp=%s", result.Response.StatusCode, resp)
@@ -721,7 +721,7 @@ func main() {
 参数名 | 参数类型 | 参数描述
 ------------- | ------------- | -------------
 **ctx** | **context.Context** | Golang 上下文，可用于日志、请求取消、请求跟踪等功能|
-**req** | [**TerMinateActivityRequest**](TerMinateActivityRequest.md) | API `giftactivity` 所定义的本接口需要的所有参数，包括`Path`/`Query`/`Body` 3类参数|
+**req** | [**TerminateActivityRequest**](TerminateActivityRequest.md) | API `giftactivity` 所定义的本接口需要的所有参数，包括`Path`/`Query`/`Body` 3类参数|
 
 ### 返回结果
 Name | Type | Description
