@@ -246,7 +246,6 @@ func main() {
 				TransferRemark: core.String("2020年4月报销"),
 				Openid:         core.String("o-MYE42l80oelYMDE34nYD456Xoy"),
 				UserName:       core.String("757b340b45ebef5467rter35gf464344v3542sdf4t6re4tb4f54ty45t4yyry45"),
-				UserIdCard:     core.String("8609cb22e1774a50a930e414cc71eca06121bcd266335cda230d24a7886a8d9f"),
 			}},
 			TransferSceneId: core.String("1000"),
 		},
