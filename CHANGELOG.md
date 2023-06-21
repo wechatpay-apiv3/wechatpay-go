@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.16] - 2023-06-21
+
+### Added
+
++ 增加点金计划 `goldplan`
++ 增加微信支付分停车 `wexinpayscoreparking`
++ 增加商家券 `merchantexclusivecoupon`
++ 增加支付有礼 `giftactivity`
+
+### Changed
+
++ 更新商家转账 `transferbatch`
+
 ## [0.2.15] - 2022-12-12
 
 ### Added
