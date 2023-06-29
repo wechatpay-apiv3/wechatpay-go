@@ -1,4 +1,4 @@
-# RetailStoreActDeleteRepresentativeRequest
+# DeleteRepresentativeBody
 
 ## 属性列表
 

@@ -13,7 +13,7 @@
 
 ## AddRepresentative
 
-> RetailStoreActAddRepresentativeResponse AddRepresentative(AddRepresentativeRequest)
+> Representatives AddRepresentative(AddRepresentativeRequest)
 
 添加零售小店活动业务代理
 
@@ -89,7 +89,7 @@ func main() {
 ### 返回结果
 Name | Type | Description
 ------------- | ------------- | -------------
-**resp** | \*[**RetailStoreActAddRepresentativeResponse**](RetailStoreActAddRepresentativeResponse.md) | 结构化的接口返回结果
+**resp** | \*[**Representatives**](Representatives.md) | 结构化的接口返回结果
 **result** | **\*core.APIResult** | 本次 API 访问的请求与应答信息
 **err** | **error** | 本次 API 访问中发生的错误，当且仅当 API 失败时存在
 
@@ -101,7 +101,7 @@ Name | Type | Description
 
 ## CreateMaterials
 
-> RetailStoreActCreateMaterials CreateMaterials(CreateMaterialsRequest)
+> Materials CreateMaterials(CreateMaterialsRequest)
 
 生成小店活动物料码
 
@@ -174,7 +174,7 @@ func main() {
 ### 返回结果
 Name | Type | Description
 ------------- | ------------- | -------------
-**resp** | \*[**RetailStoreActCreateMaterials**](RetailStoreActCreateMaterials.md) | 结构化的接口返回结果
+**resp** | \*[**Materials**](Materials.md) | 结构化的接口返回结果
 **result** | **\*core.APIResult** | 本次 API 访问的请求与应答信息
 **err** | **error** | 本次 API 访问中发生的错误，当且仅当 API 失败时存在
 
@@ -186,7 +186,7 @@ Name | Type | Description
 
 ## DeleteRepresentative
 
-> RetailStoreActDeleteRepresentativeResponse DeleteRepresentative(DeleteRepresentativeRequest)
+> DeleteRepresentativeResponse DeleteRepresentative(DeleteRepresentativeRequest)
 
 删除零售小店活动业务代理
 
@@ -262,7 +262,7 @@ func main() {
 ### 返回结果
 Name | Type | Description
 ------------- | ------------- | -------------
-**resp** | \*[**RetailStoreActDeleteRepresentativeResponse**](RetailStoreActDeleteRepresentativeResponse.md) | 结构化的接口返回结果
+**resp** | \*[**DeleteRepresentativeResponse**](DeleteRepresentativeResponse.md) | 结构化的接口返回结果
 **result** | **\*core.APIResult** | 本次 API 访问的请求与应答信息
 **err** | **error** | 本次 API 访问中发生的错误，当且仅当 API 失败时存在
 
@@ -274,7 +274,7 @@ Name | Type | Description
 
 ## ListRepresentative
 
-> RetailStoreActListRepresentativeResponse ListRepresentative(ListRepresentativeRequest)
+> ListRepresentativeResponse ListRepresentative(ListRepresentativeRequest)
 
 查询零售小店活动业务代理
 
@@ -347,7 +347,7 @@ func main() {
 ### 返回结果
 Name | Type | Description
 ------------- | ------------- | -------------
-**resp** | \*[**RetailStoreActListRepresentativeResponse**](RetailStoreActListRepresentativeResponse.md) | 结构化的接口返回结果
+**resp** | \*[**ListRepresentativeResponse**](ListRepresentativeResponse.md) | 结构化的接口返回结果
 **result** | **\*core.APIResult** | 本次 API 访问的请求与应答信息
 **err** | **error** | 本次 API 访问中发生的错误，当且仅当 API 失败时存在
 

@@ -1,4 +1,4 @@
-# RetailStoreActListRepresentativeResponse
+# ListRepresentativeResponse
 
 ## 属性列表
 

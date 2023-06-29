@@ -1,4 +1,4 @@
-# RetailStoreActDeleteRepresentativeResponse
+# DeleteRepresentativeResponse
 
 ## 属性列表
 

@@ -1,4 +1,4 @@
-# RetailStoreActAddRepresentativeRequest
+# AddRepresentativesRequest
 
 ## 属性列表
 

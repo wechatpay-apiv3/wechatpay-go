@@ -1,4 +1,4 @@
-# RetailStoreActCreateMaterialsRequest
+# CreateMaterialsBody
 
 ## 属性列表
 

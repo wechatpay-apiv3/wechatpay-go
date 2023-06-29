@@ -27,7 +27,7 @@ type RetailStoreActApiService services.Service
 // AddRepresentative 添加零售小店活动业务代理
 //
 // 该接口为服务商或商户给零售小店活动添加业务代理的专用接口。 使用对象：活动创建方商户号、活动归属品牌的品牌主商户号或品牌经营商户号。
-func (a *RetailStoreActApiService) AddRepresentative(ctx context.Context, req AddRepresentativeRequest) (resp *RetailStoreActAddRepresentativeResponse, result *core.APIResult, err error) {
+func (a *RetailStoreActApiService) AddRepresentative(ctx context.Context, req AddRepresentativeRequest) (resp *Representatives, result *core.APIResult, err error) {
 	var (
 		localVarHTTPMethod   = nethttp.MethodPut
 		localVarPostBody     interface{}
@@ -47,7 +47,7 @@ func (a *RetailStoreActApiService) AddRepresentative(ctx context.Context, req Ad
 	// Make sure All Required Params are properly set
 
 	// Setup Body Params
-	localVarPostBody = &RetailStoreActAddRepresentativeRequest{
+	localVarPostBody = &AddRepresentativesRequest{
 		RepresentativeInfoList: req.RepresentativeInfoList,
 		OutRequestNo:           req.OutRequestNo,
 		AddTime:                req.AddTime,
@@ -64,8 +64,8 @@ func (a *RetailStoreActApiService) AddRepresentative(ctx context.Context, req Ad
 		return nil, result, err
 	}
 
-	// Extract RetailStoreActAddRepresentativeResponse from Http Response
-	resp = new(RetailStoreActAddRepresentativeResponse)
+	// Extract Representatives from Http Response
+	resp = new(Representatives)
 	err = core.UnMarshalResponse(result.Response, resp)
 	if err != nil {
 		return nil, result, err
@@ -76,7 +76,7 @@ func (a *RetailStoreActApiService) AddRepresentative(ctx context.Context, req Ad
 // CreateMaterials 生成小店活动物料码
 //
 // 该接口为服务商或商户给零售小店活动申请物料码专用接口。 使用对象：品牌的品牌主商户号或品牌服务商。
-func (a *RetailStoreActApiService) CreateMaterials(ctx context.Context, req CreateMaterialsRequest) (resp *RetailStoreActCreateMaterials, result *core.APIResult, err error) {
+func (a *RetailStoreActApiService) CreateMaterials(ctx context.Context, req CreateMaterialsRequest) (resp *Materials, result *core.APIResult, err error) {
 	var (
 		localVarHTTPMethod   = nethttp.MethodPost
 		localVarPostBody     interface{}
@@ -96,7 +96,7 @@ func (a *RetailStoreActApiService) CreateMaterials(ctx context.Context, req Crea
 	// Make sure All Required Params are properly set
 
 	// Setup Body Params
-	localVarPostBody = &RetailStoreActCreateMaterialsRequest{
+	localVarPostBody = &CreateMaterialsBody{
 		OutRequestNo: req.OutRequestNo,
 		MaterialNum:  req.MaterialNum,
 	}
@@ -112,8 +112,8 @@ func (a *RetailStoreActApiService) CreateMaterials(ctx context.Context, req Crea
 		return nil, result, err
 	}
 
-	// Extract RetailStoreActCreateMaterials from Http Response
-	resp = new(RetailStoreActCreateMaterials)
+	// Extract Materials from Http Response
+	resp = new(Materials)
 	err = core.UnMarshalResponse(result.Response, resp)
 	if err != nil {
 		return nil, result, err
@@ -124,7 +124,7 @@ func (a *RetailStoreActApiService) CreateMaterials(ctx context.Context, req Crea
 // DeleteRepresentative 删除零售小店活动业务代理
 //
 // 该接口为服务商或商户给零售小店活动删除业务代理的专用接口。 使用对象：活动创建方商户号、活动归属品牌的品牌主商户号或品牌经营商户号。
-func (a *RetailStoreActApiService) DeleteRepresentative(ctx context.Context, req DeleteRepresentativeRequest) (resp *RetailStoreActDeleteRepresentativeResponse, result *core.APIResult, err error) {
+func (a *RetailStoreActApiService) DeleteRepresentative(ctx context.Context, req DeleteRepresentativeRequest) (resp *DeleteRepresentativeResponse, result *core.APIResult, err error) {
 	var (
 		localVarHTTPMethod   = nethttp.MethodDelete
 		localVarPostBody     interface{}
@@ -144,7 +144,7 @@ func (a *RetailStoreActApiService) DeleteRepresentative(ctx context.Context, req
 	// Make sure All Required Params are properly set
 
 	// Setup Body Params
-	localVarPostBody = &RetailStoreActDeleteRepresentativeRequest{
+	localVarPostBody = &DeleteRepresentativeBody{
 		RepresentativeInfoList: req.RepresentativeInfoList,
 		OutRequestNo:           req.OutRequestNo,
 		DeleteTime:             req.DeleteTime,
@@ -161,8 +161,8 @@ func (a *RetailStoreActApiService) DeleteRepresentative(ctx context.Context, req
 		return nil, result, err
 	}
 
-	// Extract RetailStoreActDeleteRepresentativeResponse from Http Response
-	resp = new(RetailStoreActDeleteRepresentativeResponse)
+	// Extract DeleteRepresentativeResponse from Http Response
+	resp = new(DeleteRepresentativeResponse)
 	err = core.UnMarshalResponse(result.Response, resp)
 	if err != nil {
 		return nil, result, err
@@ -173,7 +173,7 @@ func (a *RetailStoreActApiService) DeleteRepresentative(ctx context.Context, req
 // ListRepresentative 查询零售小店活动业务代理
 //
 // 该接口为服务商或商户给零售小店活动查询业务代理的专用接口。 使用对象：活动创建方商户号、活动归属品牌的品牌主商户号或品牌经营商户号。
-func (a *RetailStoreActApiService) ListRepresentative(ctx context.Context, req ListRepresentativeRequest) (resp *RetailStoreActListRepresentativeResponse, result *core.APIResult, err error) {
+func (a *RetailStoreActApiService) ListRepresentative(ctx context.Context, req ListRepresentativeRequest) (resp *ListRepresentativeResponse, result *core.APIResult, err error) {
 	var (
 		localVarHTTPMethod   = nethttp.MethodGet
 		localVarPostBody     interface{}
@@ -214,8 +214,8 @@ func (a *RetailStoreActApiService) ListRepresentative(ctx context.Context, req L
 		return nil, result, err
 	}
 
-	// Extract RetailStoreActListRepresentativeResponse from Http Response
-	resp = new(RetailStoreActListRepresentativeResponse)
+	// Extract ListRepresentativeResponse from Http Response
+	resp = new(ListRepresentativeResponse)
 	err = core.UnMarshalResponse(result.Response, resp)
 	if err != nil {
 		return nil, result, err

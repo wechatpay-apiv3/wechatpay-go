@@ -451,6 +451,77 @@ func (o AddRepresentativeRequest) Clone() *AddRepresentativeRequest {
 	return &ret
 }
 
+// AddRepresentativesRequest
+type AddRepresentativesRequest struct {
+	// 业务代理信息列表
+	RepresentativeInfoList []RepresentativeInfo `json:"representative_info_list"`
+	// 商户新增业务代理请求的唯一标识，商户需保证唯一。可包含英文字母，数字，\\|，\\_，\\*，\\-等内容，不允许出现其他不合法符号。
+	OutRequestNo *string `json:"out_request_no"`
+	// 添加时间
+	AddTime *string `json:"add_time,omitempty"`
+}
+
+func (o AddRepresentativesRequest) MarshalJSON() ([]byte, error) {
+	toSerialize := map[string]interface{}{}
+
+	if o.RepresentativeInfoList == nil {
+		return nil, fmt.Errorf("field `RepresentativeInfoList` is required and must be specified in AddRepresentativesRequest")
+	}
+	toSerialize["representative_info_list"] = o.RepresentativeInfoList
+
+	if o.OutRequestNo == nil {
+		return nil, fmt.Errorf("field `OutRequestNo` is required and must be specified in AddRepresentativesRequest")
+	}
+	toSerialize["out_request_no"] = o.OutRequestNo
+
+	if o.AddTime != nil {
+		toSerialize["add_time"] = o.AddTime
+	}
+	return json.Marshal(toSerialize)
+}
+
+func (o AddRepresentativesRequest) String() string {
+	var ret string
+	ret += fmt.Sprintf("RepresentativeInfoList:%v, ", o.RepresentativeInfoList)
+
+	if o.OutRequestNo == nil {
+		ret += "OutRequestNo:<nil>, "
+	} else {
+		ret += fmt.Sprintf("OutRequestNo:%v, ", *o.OutRequestNo)
+	}
+
+	if o.AddTime == nil {
+		ret += "AddTime:<nil>"
+	} else {
+		ret += fmt.Sprintf("AddTime:%v", *o.AddTime)
+	}
+
+	return fmt.Sprintf("AddRepresentativesRequest{%s}", ret)
+}
+
+func (o AddRepresentativesRequest) Clone() *AddRepresentativesRequest {
+	ret := AddRepresentativesRequest{}
+
+	if o.RepresentativeInfoList != nil {
+		ret.RepresentativeInfoList = make([]RepresentativeInfo, len(o.RepresentativeInfoList))
+		for i, item := range o.RepresentativeInfoList {
+			ret.RepresentativeInfoList[i] = *item.Clone()
+		}
+	}
+
+	if o.OutRequestNo != nil {
+		ret.OutRequestNo = new(string)
+		*ret.OutRequestNo = *o.OutRequestNo
+	}
+
+	if o.AddTime != nil {
+		ret.AddTime = new(string)
+		*ret.AddTime = *o.AddTime
+	}
+
+	return &ret
+}
+
 // ApplyActivityBody
 type ApplyActivityBody struct {
 	// 调用报名活动API的商户的商户号
@@ -642,6 +713,62 @@ func (o ApplyActivityResponse) Clone() *ApplyActivityResponse {
 	return &ret
 }
 
+// CreateMaterialsBody
+type CreateMaterialsBody struct {
+	// 商户添加业务代理信息凭据号，商户侧需保持唯一性。可包含英文字母，数字，\\\\|，\\\\_，\\\\*，\\\\-等内容，不允许出现其他不合法符号。
+	OutRequestNo *string `json:"out_request_no"`
+	// 生成物料码数量
+	MaterialNum *int64 `json:"material_num"`
+}
+
+func (o CreateMaterialsBody) MarshalJSON() ([]byte, error) {
+	toSerialize := map[string]interface{}{}
+
+	if o.OutRequestNo == nil {
+		return nil, fmt.Errorf("field `OutRequestNo` is required and must be specified in CreateMaterialsBody")
+	}
+	toSerialize["out_request_no"] = o.OutRequestNo
+
+	if o.MaterialNum == nil {
+		return nil, fmt.Errorf("field `MaterialNum` is required and must be specified in CreateMaterialsBody")
+	}
+	toSerialize["material_num"] = o.MaterialNum
+	return json.Marshal(toSerialize)
+}
+
+func (o CreateMaterialsBody) String() string {
+	var ret string
+	if o.OutRequestNo == nil {
+		ret += "OutRequestNo:<nil>, "
+	} else {
+		ret += fmt.Sprintf("OutRequestNo:%v, ", *o.OutRequestNo)
+	}
+
+	if o.MaterialNum == nil {
+		ret += "MaterialNum:<nil>"
+	} else {
+		ret += fmt.Sprintf("MaterialNum:%v", *o.MaterialNum)
+	}
+
+	return fmt.Sprintf("CreateMaterialsBody{%s}", ret)
+}
+
+func (o CreateMaterialsBody) Clone() *CreateMaterialsBody {
+	ret := CreateMaterialsBody{}
+
+	if o.OutRequestNo != nil {
+		ret.OutRequestNo = new(string)
+		*ret.OutRequestNo = *o.OutRequestNo
+	}
+
+	if o.MaterialNum != nil {
+		ret.MaterialNum = new(int64)
+		*ret.MaterialNum = *o.MaterialNum
+	}
+
+	return &ret
+}
+
 // CreateMaterialsRequest
 type CreateMaterialsRequest struct {
 	// 品牌ID
@@ -711,6 +838,78 @@ func (o CreateMaterialsRequest) Clone() *CreateMaterialsRequest {
 	if o.MaterialNum != nil {
 		ret.MaterialNum = new(int64)
 		*ret.MaterialNum = *o.MaterialNum
+	}
+
+	return &ret
+}
+
+// DeleteRepresentativeBody
+type DeleteRepresentativeBody struct {
+	// 业务代理信息列表
+	RepresentativeInfoList []RepresentativeInfo `json:"representative_info_list"`
+	// 商户删除业务代理请求的唯一标识，商户需保证唯一。可包含英文字母，数字，\\|，\\_，\\*，\\-等内容，不允许出现其他不合法符号。
+	OutRequestNo *string `json:"out_request_no"`
+	// 删除时间
+	DeleteTime *string `json:"delete_time"`
+}
+
+func (o DeleteRepresentativeBody) MarshalJSON() ([]byte, error) {
+	toSerialize := map[string]interface{}{}
+
+	if o.RepresentativeInfoList == nil {
+		return nil, fmt.Errorf("field `RepresentativeInfoList` is required and must be specified in DeleteRepresentativeBody")
+	}
+	toSerialize["representative_info_list"] = o.RepresentativeInfoList
+
+	if o.OutRequestNo == nil {
+		return nil, fmt.Errorf("field `OutRequestNo` is required and must be specified in DeleteRepresentativeBody")
+	}
+	toSerialize["out_request_no"] = o.OutRequestNo
+
+	if o.DeleteTime == nil {
+		return nil, fmt.Errorf("field `DeleteTime` is required and must be specified in DeleteRepresentativeBody")
+	}
+	toSerialize["delete_time"] = o.DeleteTime
+	return json.Marshal(toSerialize)
+}
+
+func (o DeleteRepresentativeBody) String() string {
+	var ret string
+	ret += fmt.Sprintf("RepresentativeInfoList:%v, ", o.RepresentativeInfoList)
+
+	if o.OutRequestNo == nil {
+		ret += "OutRequestNo:<nil>, "
+	} else {
+		ret += fmt.Sprintf("OutRequestNo:%v, ", *o.OutRequestNo)
+	}
+
+	if o.DeleteTime == nil {
+		ret += "DeleteTime:<nil>"
+	} else {
+		ret += fmt.Sprintf("DeleteTime:%v", *o.DeleteTime)
+	}
+
+	return fmt.Sprintf("DeleteRepresentativeBody{%s}", ret)
+}
+
+func (o DeleteRepresentativeBody) Clone() *DeleteRepresentativeBody {
+	ret := DeleteRepresentativeBody{}
+
+	if o.RepresentativeInfoList != nil {
+		ret.RepresentativeInfoList = make([]RepresentativeInfo, len(o.RepresentativeInfoList))
+		for i, item := range o.RepresentativeInfoList {
+			ret.RepresentativeInfoList[i] = *item.Clone()
+		}
+	}
+
+	if o.OutRequestNo != nil {
+		ret.OutRequestNo = new(string)
+		*ret.OutRequestNo = *o.OutRequestNo
+	}
+
+	if o.DeleteTime != nil {
+		ret.DeleteTime = new(string)
+		*ret.DeleteTime = *o.DeleteTime
 	}
 
 	return &ret
@@ -796,6 +995,77 @@ func (o DeleteRepresentativeRequest) Clone() *DeleteRepresentativeRequest {
 	if o.OutRequestNo != nil {
 		ret.OutRequestNo = new(string)
 		*ret.OutRequestNo = *o.OutRequestNo
+	}
+
+	if o.DeleteTime != nil {
+		ret.DeleteTime = new(string)
+		*ret.DeleteTime = *o.DeleteTime
+	}
+
+	return &ret
+}
+
+// DeleteRepresentativeResponse
+type DeleteRepresentativeResponse struct {
+	// 零售小店活动ID
+	ActivityId *string `json:"activity_id"`
+	// 删除失败业务代理信息列表
+	FailedRepresentativeInfoList []RepresentativeInfo `json:"failed_representative_info_list,omitempty"`
+	// 删除时间
+	DeleteTime *string `json:"delete_time"`
+}
+
+func (o DeleteRepresentativeResponse) MarshalJSON() ([]byte, error) {
+	toSerialize := map[string]interface{}{}
+
+	if o.ActivityId == nil {
+		return nil, fmt.Errorf("field `ActivityId` is required and must be specified in DeleteRepresentativeResponse")
+	}
+	toSerialize["activity_id"] = o.ActivityId
+
+	if o.FailedRepresentativeInfoList != nil {
+		toSerialize["failed_representative_info_list"] = o.FailedRepresentativeInfoList
+	}
+
+	if o.DeleteTime == nil {
+		return nil, fmt.Errorf("field `DeleteTime` is required and must be specified in DeleteRepresentativeResponse")
+	}
+	toSerialize["delete_time"] = o.DeleteTime
+	return json.Marshal(toSerialize)
+}
+
+func (o DeleteRepresentativeResponse) String() string {
+	var ret string
+	if o.ActivityId == nil {
+		ret += "ActivityId:<nil>, "
+	} else {
+		ret += fmt.Sprintf("ActivityId:%v, ", *o.ActivityId)
+	}
+
+	ret += fmt.Sprintf("FailedRepresentativeInfoList:%v, ", o.FailedRepresentativeInfoList)
+
+	if o.DeleteTime == nil {
+		ret += "DeleteTime:<nil>"
+	} else {
+		ret += fmt.Sprintf("DeleteTime:%v", *o.DeleteTime)
+	}
+
+	return fmt.Sprintf("DeleteRepresentativeResponse{%s}", ret)
+}
+
+func (o DeleteRepresentativeResponse) Clone() *DeleteRepresentativeResponse {
+	ret := DeleteRepresentativeResponse{}
+
+	if o.ActivityId != nil {
+		ret.ActivityId = new(string)
+		*ret.ActivityId = *o.ActivityId
+	}
+
+	if o.FailedRepresentativeInfoList != nil {
+		ret.FailedRepresentativeInfoList = make([]RepresentativeInfo, len(o.FailedRepresentativeInfoList))
+		for i, item := range o.FailedRepresentativeInfoList {
+			ret.FailedRepresentativeInfoList[i] = *item.Clone()
+		}
 	}
 
 	if o.DeleteTime != nil {
@@ -1220,6 +1490,94 @@ func (o ListRepresentativeRequest) Clone() *ListRepresentativeRequest {
 	return &ret
 }
 
+// ListRepresentativeResponse
+type ListRepresentativeResponse struct {
+	// 小店活动业代总数
+	TotalCount *int64 `json:"total_count,omitempty"`
+	// 小店活动业代集合
+	Data []RepresentativeInfo `json:"data,omitempty"`
+	// 页码从0开始，默认第0页
+	Offset *int64 `json:"offset"`
+	// 分页大小
+	Limit *int64 `json:"limit"`
+}
+
+func (o ListRepresentativeResponse) MarshalJSON() ([]byte, error) {
+	toSerialize := map[string]interface{}{}
+
+	if o.TotalCount != nil {
+		toSerialize["total_count"] = o.TotalCount
+	}
+
+	if o.Data != nil {
+		toSerialize["data"] = o.Data
+	}
+
+	if o.Offset == nil {
+		return nil, fmt.Errorf("field `Offset` is required and must be specified in ListRepresentativeResponse")
+	}
+	toSerialize["offset"] = o.Offset
+
+	if o.Limit == nil {
+		return nil, fmt.Errorf("field `Limit` is required and must be specified in ListRepresentativeResponse")
+	}
+	toSerialize["limit"] = o.Limit
+	return json.Marshal(toSerialize)
+}
+
+func (o ListRepresentativeResponse) String() string {
+	var ret string
+	if o.TotalCount == nil {
+		ret += "TotalCount:<nil>, "
+	} else {
+		ret += fmt.Sprintf("TotalCount:%v, ", *o.TotalCount)
+	}
+
+	ret += fmt.Sprintf("Data:%v, ", o.Data)
+
+	if o.Offset == nil {
+		ret += "Offset:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Offset:%v, ", *o.Offset)
+	}
+
+	if o.Limit == nil {
+		ret += "Limit:<nil>"
+	} else {
+		ret += fmt.Sprintf("Limit:%v", *o.Limit)
+	}
+
+	return fmt.Sprintf("ListRepresentativeResponse{%s}", ret)
+}
+
+func (o ListRepresentativeResponse) Clone() *ListRepresentativeResponse {
+	ret := ListRepresentativeResponse{}
+
+	if o.TotalCount != nil {
+		ret.TotalCount = new(int64)
+		*ret.TotalCount = *o.TotalCount
+	}
+
+	if o.Data != nil {
+		ret.Data = make([]RepresentativeInfo, len(o.Data))
+		for i, item := range o.Data {
+			ret.Data[i] = *item.Clone()
+		}
+	}
+
+	if o.Offset != nil {
+		ret.Offset = new(int64)
+		*ret.Offset = *o.Offset
+	}
+
+	if o.Limit != nil {
+		ret.Limit = new(int64)
+		*ret.Limit = *o.Limit
+	}
+
+	return &ret
+}
+
 // LockQualificationRequest
 type LockQualificationRequest struct {
 	// 订单信息
@@ -1389,6 +1747,41 @@ func (o MaterialInfo) Clone() *MaterialInfo {
 	return &ret
 }
 
+// Materials
+type Materials struct {
+	// 成功的物料码列表
+	MaterialList []MaterialInfo `json:"material_list,omitempty"`
+}
+
+func (o Materials) MarshalJSON() ([]byte, error) {
+	toSerialize := map[string]interface{}{}
+
+	if o.MaterialList != nil {
+		toSerialize["material_list"] = o.MaterialList
+	}
+	return json.Marshal(toSerialize)
+}
+
+func (o Materials) String() string {
+	var ret string
+	ret += fmt.Sprintf("MaterialList:%v", o.MaterialList)
+
+	return fmt.Sprintf("Materials{%s}", ret)
+}
+
+func (o Materials) Clone() *Materials {
+	ret := Materials{}
+
+	if o.MaterialList != nil {
+		ret.MaterialList = make([]MaterialInfo, len(o.MaterialList))
+		for i, item := range o.MaterialList {
+			ret.MaterialList[i] = *item.Clone()
+		}
+	}
+
+	return &ret
+}
+
 // OrderInfo
 type OrderInfo struct {
 	// 支付订单的微信用户OpenID
@@ -1537,79 +1930,8 @@ func (o RepresentativeInfo) Clone() *RepresentativeInfo {
 	return &ret
 }
 
-// RetailStoreActAddRepresentativeRequest
-type RetailStoreActAddRepresentativeRequest struct {
-	// 业务代理信息列表
-	RepresentativeInfoList []RepresentativeInfo `json:"representative_info_list"`
-	// 商户新增业务代理请求的唯一标识，商户需保证唯一。可包含英文字母，数字，\\|，\\_，\\*，\\-等内容，不允许出现其他不合法符号。
-	OutRequestNo *string `json:"out_request_no"`
-	// 添加时间
-	AddTime *string `json:"add_time,omitempty"`
-}
-
-func (o RetailStoreActAddRepresentativeRequest) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-
-	if o.RepresentativeInfoList == nil {
-		return nil, fmt.Errorf("field `RepresentativeInfoList` is required and must be specified in RetailStoreActAddRepresentativeRequest")
-	}
-	toSerialize["representative_info_list"] = o.RepresentativeInfoList
-
-	if o.OutRequestNo == nil {
-		return nil, fmt.Errorf("field `OutRequestNo` is required and must be specified in RetailStoreActAddRepresentativeRequest")
-	}
-	toSerialize["out_request_no"] = o.OutRequestNo
-
-	if o.AddTime != nil {
-		toSerialize["add_time"] = o.AddTime
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o RetailStoreActAddRepresentativeRequest) String() string {
-	var ret string
-	ret += fmt.Sprintf("RepresentativeInfoList:%v, ", o.RepresentativeInfoList)
-
-	if o.OutRequestNo == nil {
-		ret += "OutRequestNo:<nil>, "
-	} else {
-		ret += fmt.Sprintf("OutRequestNo:%v, ", *o.OutRequestNo)
-	}
-
-	if o.AddTime == nil {
-		ret += "AddTime:<nil>"
-	} else {
-		ret += fmt.Sprintf("AddTime:%v", *o.AddTime)
-	}
-
-	return fmt.Sprintf("RetailStoreActAddRepresentativeRequest{%s}", ret)
-}
-
-func (o RetailStoreActAddRepresentativeRequest) Clone() *RetailStoreActAddRepresentativeRequest {
-	ret := RetailStoreActAddRepresentativeRequest{}
-
-	if o.RepresentativeInfoList != nil {
-		ret.RepresentativeInfoList = make([]RepresentativeInfo, len(o.RepresentativeInfoList))
-		for i, item := range o.RepresentativeInfoList {
-			ret.RepresentativeInfoList[i] = *item.Clone()
-		}
-	}
-
-	if o.OutRequestNo != nil {
-		ret.OutRequestNo = new(string)
-		*ret.OutRequestNo = *o.OutRequestNo
-	}
-
-	if o.AddTime != nil {
-		ret.AddTime = new(string)
-		*ret.AddTime = *o.AddTime
-	}
-
-	return &ret
-}
-
-// RetailStoreActAddRepresentativeResponse
-type RetailStoreActAddRepresentativeResponse struct {
+// Representatives
+type Representatives struct {
 	// 零售小店活动ID
 	ActivityId *string `json:"activity_id"`
 	// 添加失败业务代理信息列表
@@ -1618,11 +1940,11 @@ type RetailStoreActAddRepresentativeResponse struct {
 	AddTime *string `json:"add_time"`
 }
 
-func (o RetailStoreActAddRepresentativeResponse) MarshalJSON() ([]byte, error) {
+func (o Representatives) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 
 	if o.ActivityId == nil {
-		return nil, fmt.Errorf("field `ActivityId` is required and must be specified in RetailStoreActAddRepresentativeResponse")
+		return nil, fmt.Errorf("field `ActivityId` is required and must be specified in Representatives")
 	}
 	toSerialize["activity_id"] = o.ActivityId
 
@@ -1631,13 +1953,13 @@ func (o RetailStoreActAddRepresentativeResponse) MarshalJSON() ([]byte, error) {
 	}
 
 	if o.AddTime == nil {
-		return nil, fmt.Errorf("field `AddTime` is required and must be specified in RetailStoreActAddRepresentativeResponse")
+		return nil, fmt.Errorf("field `AddTime` is required and must be specified in Representatives")
 	}
 	toSerialize["add_time"] = o.AddTime
 	return json.Marshal(toSerialize)
 }
 
-func (o RetailStoreActAddRepresentativeResponse) String() string {
+func (o Representatives) String() string {
 	var ret string
 	if o.ActivityId == nil {
 		ret += "ActivityId:<nil>, "
@@ -1653,11 +1975,11 @@ func (o RetailStoreActAddRepresentativeResponse) String() string {
 		ret += fmt.Sprintf("AddTime:%v", *o.AddTime)
 	}
 
-	return fmt.Sprintf("RetailStoreActAddRepresentativeResponse{%s}", ret)
+	return fmt.Sprintf("Representatives{%s}", ret)
 }
 
-func (o RetailStoreActAddRepresentativeResponse) Clone() *RetailStoreActAddRepresentativeResponse {
-	ret := RetailStoreActAddRepresentativeResponse{}
+func (o Representatives) Clone() *Representatives {
+	ret := Representatives{}
 
 	if o.ActivityId != nil {
 		ret.ActivityId = new(string)
@@ -1674,328 +1996,6 @@ func (o RetailStoreActAddRepresentativeResponse) Clone() *RetailStoreActAddRepre
 	if o.AddTime != nil {
 		ret.AddTime = new(string)
 		*ret.AddTime = *o.AddTime
-	}
-
-	return &ret
-}
-
-// RetailStoreActCreateMaterials
-type RetailStoreActCreateMaterials struct {
-	// 成功的物料码列表
-	MaterialList []MaterialInfo `json:"material_list,omitempty"`
-}
-
-func (o RetailStoreActCreateMaterials) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-
-	if o.MaterialList != nil {
-		toSerialize["material_list"] = o.MaterialList
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o RetailStoreActCreateMaterials) String() string {
-	var ret string
-	ret += fmt.Sprintf("MaterialList:%v", o.MaterialList)
-
-	return fmt.Sprintf("RetailStoreActCreateMaterials{%s}", ret)
-}
-
-func (o RetailStoreActCreateMaterials) Clone() *RetailStoreActCreateMaterials {
-	ret := RetailStoreActCreateMaterials{}
-
-	if o.MaterialList != nil {
-		ret.MaterialList = make([]MaterialInfo, len(o.MaterialList))
-		for i, item := range o.MaterialList {
-			ret.MaterialList[i] = *item.Clone()
-		}
-	}
-
-	return &ret
-}
-
-// RetailStoreActCreateMaterialsRequest
-type RetailStoreActCreateMaterialsRequest struct {
-	// 商户添加业务代理信息凭据号，商户侧需保持唯一性。可包含英文字母，数字，\\\\|，\\\\_，\\\\*，\\\\-等内容，不允许出现其他不合法符号。
-	OutRequestNo *string `json:"out_request_no"`
-	// 生成物料码数量
-	MaterialNum *int64 `json:"material_num"`
-}
-
-func (o RetailStoreActCreateMaterialsRequest) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-
-	if o.OutRequestNo == nil {
-		return nil, fmt.Errorf("field `OutRequestNo` is required and must be specified in RetailStoreActCreateMaterialsRequest")
-	}
-	toSerialize["out_request_no"] = o.OutRequestNo
-
-	if o.MaterialNum == nil {
-		return nil, fmt.Errorf("field `MaterialNum` is required and must be specified in RetailStoreActCreateMaterialsRequest")
-	}
-	toSerialize["material_num"] = o.MaterialNum
-	return json.Marshal(toSerialize)
-}
-
-func (o RetailStoreActCreateMaterialsRequest) String() string {
-	var ret string
-	if o.OutRequestNo == nil {
-		ret += "OutRequestNo:<nil>, "
-	} else {
-		ret += fmt.Sprintf("OutRequestNo:%v, ", *o.OutRequestNo)
-	}
-
-	if o.MaterialNum == nil {
-		ret += "MaterialNum:<nil>"
-	} else {
-		ret += fmt.Sprintf("MaterialNum:%v", *o.MaterialNum)
-	}
-
-	return fmt.Sprintf("RetailStoreActCreateMaterialsRequest{%s}", ret)
-}
-
-func (o RetailStoreActCreateMaterialsRequest) Clone() *RetailStoreActCreateMaterialsRequest {
-	ret := RetailStoreActCreateMaterialsRequest{}
-
-	if o.OutRequestNo != nil {
-		ret.OutRequestNo = new(string)
-		*ret.OutRequestNo = *o.OutRequestNo
-	}
-
-	if o.MaterialNum != nil {
-		ret.MaterialNum = new(int64)
-		*ret.MaterialNum = *o.MaterialNum
-	}
-
-	return &ret
-}
-
-// RetailStoreActDeleteRepresentativeRequest
-type RetailStoreActDeleteRepresentativeRequest struct {
-	// 业务代理信息列表
-	RepresentativeInfoList []RepresentativeInfo `json:"representative_info_list"`
-	// 商户删除业务代理请求的唯一标识，商户需保证唯一。可包含英文字母，数字，\\|，\\_，\\*，\\-等内容，不允许出现其他不合法符号。
-	OutRequestNo *string `json:"out_request_no"`
-	// 删除时间
-	DeleteTime *string `json:"delete_time"`
-}
-
-func (o RetailStoreActDeleteRepresentativeRequest) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-
-	if o.RepresentativeInfoList == nil {
-		return nil, fmt.Errorf("field `RepresentativeInfoList` is required and must be specified in RetailStoreActDeleteRepresentativeRequest")
-	}
-	toSerialize["representative_info_list"] = o.RepresentativeInfoList
-
-	if o.OutRequestNo == nil {
-		return nil, fmt.Errorf("field `OutRequestNo` is required and must be specified in RetailStoreActDeleteRepresentativeRequest")
-	}
-	toSerialize["out_request_no"] = o.OutRequestNo
-
-	if o.DeleteTime == nil {
-		return nil, fmt.Errorf("field `DeleteTime` is required and must be specified in RetailStoreActDeleteRepresentativeRequest")
-	}
-	toSerialize["delete_time"] = o.DeleteTime
-	return json.Marshal(toSerialize)
-}
-
-func (o RetailStoreActDeleteRepresentativeRequest) String() string {
-	var ret string
-	ret += fmt.Sprintf("RepresentativeInfoList:%v, ", o.RepresentativeInfoList)
-
-	if o.OutRequestNo == nil {
-		ret += "OutRequestNo:<nil>, "
-	} else {
-		ret += fmt.Sprintf("OutRequestNo:%v, ", *o.OutRequestNo)
-	}
-
-	if o.DeleteTime == nil {
-		ret += "DeleteTime:<nil>"
-	} else {
-		ret += fmt.Sprintf("DeleteTime:%v", *o.DeleteTime)
-	}
-
-	return fmt.Sprintf("RetailStoreActDeleteRepresentativeRequest{%s}", ret)
-}
-
-func (o RetailStoreActDeleteRepresentativeRequest) Clone() *RetailStoreActDeleteRepresentativeRequest {
-	ret := RetailStoreActDeleteRepresentativeRequest{}
-
-	if o.RepresentativeInfoList != nil {
-		ret.RepresentativeInfoList = make([]RepresentativeInfo, len(o.RepresentativeInfoList))
-		for i, item := range o.RepresentativeInfoList {
-			ret.RepresentativeInfoList[i] = *item.Clone()
-		}
-	}
-
-	if o.OutRequestNo != nil {
-		ret.OutRequestNo = new(string)
-		*ret.OutRequestNo = *o.OutRequestNo
-	}
-
-	if o.DeleteTime != nil {
-		ret.DeleteTime = new(string)
-		*ret.DeleteTime = *o.DeleteTime
-	}
-
-	return &ret
-}
-
-// RetailStoreActDeleteRepresentativeResponse
-type RetailStoreActDeleteRepresentativeResponse struct {
-	// 零售小店活动ID
-	ActivityId *string `json:"activity_id"`
-	// 删除失败业务代理信息列表
-	FailedRepresentativeInfoList []RepresentativeInfo `json:"failed_representative_info_list,omitempty"`
-	// 删除时间
-	DeleteTime *string `json:"delete_time"`
-}
-
-func (o RetailStoreActDeleteRepresentativeResponse) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-
-	if o.ActivityId == nil {
-		return nil, fmt.Errorf("field `ActivityId` is required and must be specified in RetailStoreActDeleteRepresentativeResponse")
-	}
-	toSerialize["activity_id"] = o.ActivityId
-
-	if o.FailedRepresentativeInfoList != nil {
-		toSerialize["failed_representative_info_list"] = o.FailedRepresentativeInfoList
-	}
-
-	if o.DeleteTime == nil {
-		return nil, fmt.Errorf("field `DeleteTime` is required and must be specified in RetailStoreActDeleteRepresentativeResponse")
-	}
-	toSerialize["delete_time"] = o.DeleteTime
-	return json.Marshal(toSerialize)
-}
-
-func (o RetailStoreActDeleteRepresentativeResponse) String() string {
-	var ret string
-	if o.ActivityId == nil {
-		ret += "ActivityId:<nil>, "
-	} else {
-		ret += fmt.Sprintf("ActivityId:%v, ", *o.ActivityId)
-	}
-
-	ret += fmt.Sprintf("FailedRepresentativeInfoList:%v, ", o.FailedRepresentativeInfoList)
-
-	if o.DeleteTime == nil {
-		ret += "DeleteTime:<nil>"
-	} else {
-		ret += fmt.Sprintf("DeleteTime:%v", *o.DeleteTime)
-	}
-
-	return fmt.Sprintf("RetailStoreActDeleteRepresentativeResponse{%s}", ret)
-}
-
-func (o RetailStoreActDeleteRepresentativeResponse) Clone() *RetailStoreActDeleteRepresentativeResponse {
-	ret := RetailStoreActDeleteRepresentativeResponse{}
-
-	if o.ActivityId != nil {
-		ret.ActivityId = new(string)
-		*ret.ActivityId = *o.ActivityId
-	}
-
-	if o.FailedRepresentativeInfoList != nil {
-		ret.FailedRepresentativeInfoList = make([]RepresentativeInfo, len(o.FailedRepresentativeInfoList))
-		for i, item := range o.FailedRepresentativeInfoList {
-			ret.FailedRepresentativeInfoList[i] = *item.Clone()
-		}
-	}
-
-	if o.DeleteTime != nil {
-		ret.DeleteTime = new(string)
-		*ret.DeleteTime = *o.DeleteTime
-	}
-
-	return &ret
-}
-
-// RetailStoreActListRepresentativeResponse
-type RetailStoreActListRepresentativeResponse struct {
-	// 小店活动业代总数
-	TotalCount *int64 `json:"total_count,omitempty"`
-	// 小店活动业代集合
-	Data []RepresentativeInfo `json:"data,omitempty"`
-	// 页码从0开始，默认第0页
-	Offset *int64 `json:"offset"`
-	// 分页大小
-	Limit *int64 `json:"limit"`
-}
-
-func (o RetailStoreActListRepresentativeResponse) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-
-	if o.TotalCount != nil {
-		toSerialize["total_count"] = o.TotalCount
-	}
-
-	if o.Data != nil {
-		toSerialize["data"] = o.Data
-	}
-
-	if o.Offset == nil {
-		return nil, fmt.Errorf("field `Offset` is required and must be specified in RetailStoreActListRepresentativeResponse")
-	}
-	toSerialize["offset"] = o.Offset
-
-	if o.Limit == nil {
-		return nil, fmt.Errorf("field `Limit` is required and must be specified in RetailStoreActListRepresentativeResponse")
-	}
-	toSerialize["limit"] = o.Limit
-	return json.Marshal(toSerialize)
-}
-
-func (o RetailStoreActListRepresentativeResponse) String() string {
-	var ret string
-	if o.TotalCount == nil {
-		ret += "TotalCount:<nil>, "
-	} else {
-		ret += fmt.Sprintf("TotalCount:%v, ", *o.TotalCount)
-	}
-
-	ret += fmt.Sprintf("Data:%v, ", o.Data)
-
-	if o.Offset == nil {
-		ret += "Offset:<nil>, "
-	} else {
-		ret += fmt.Sprintf("Offset:%v, ", *o.Offset)
-	}
-
-	if o.Limit == nil {
-		ret += "Limit:<nil>"
-	} else {
-		ret += fmt.Sprintf("Limit:%v", *o.Limit)
-	}
-
-	return fmt.Sprintf("RetailStoreActListRepresentativeResponse{%s}", ret)
-}
-
-func (o RetailStoreActListRepresentativeResponse) Clone() *RetailStoreActListRepresentativeResponse {
-	ret := RetailStoreActListRepresentativeResponse{}
-
-	if o.TotalCount != nil {
-		ret.TotalCount = new(int64)
-		*ret.TotalCount = *o.TotalCount
-	}
-
-	if o.Data != nil {
-		ret.Data = make([]RepresentativeInfo, len(o.Data))
-		for i, item := range o.Data {
-			ret.Data[i] = *item.Clone()
-		}
-	}
-
-	if o.Offset != nil {
-		ret.Offset = new(int64)
-		*ret.Offset = *o.Offset
-	}
-
-	if o.Limit != nil {
-		ret.Limit = new(int64)
-		*ret.Limit = *o.Limit
 	}
 
 	return &ret
