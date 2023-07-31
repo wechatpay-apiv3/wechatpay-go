@@ -1,12 +1,11 @@
-# Representatives
+# GetStoreRequest
 
 ## 属性列表
 
 名称 | 类型 | 描述 | 补充说明
 ------------ | ------------- | ------------- | -------------
-**ActivityId** | **string** | 零售小店活动ID | 
-**FailedRepresentativeInfoList** | [**[]RepresentativeInfo**](RepresentativeInfo.md) | 添加失败业务代理信息列表 | [可选] 
-**AddTime** | **string** | 添加时间 | 
+**BrandId** | **string** | 品牌ID | 
+**StoreCode** | **string** | 门店编码，可包含英文字母，数字，\\\\|，\\\\_，\\\\*，\\\\-等内容，不允许出现其他不合法符号。 | 
 
 [\[返回类型列表\]](README.md#类型列表)
 [\[返回接口列表\]](README.md#接口列表)
