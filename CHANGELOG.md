@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.18] - 2023-10-11
+
+### Changed
+
++ 更新小店 `retailstore`
++ 更新点金计划 `goldplan`
+
 ## [0.2.17] - 2023-06-29
 
 ### Added
