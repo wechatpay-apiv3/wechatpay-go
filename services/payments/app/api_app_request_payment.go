@@ -14,14 +14,16 @@ import (
 
 // PrepayWithRequestPaymentResponse 预下单ID，并包含了调起支付的请求参数
 type PrepayWithRequestPaymentResponse struct {
+	// 应用ID
+	Appid *string `json:"appid"`
 	// 预支付交易会话标识
-	PrepayId *string `json:"prepayId"` // revive:disable-line:var-naming
+	PrepayId *string `json:"prepayid"` // revive:disable-line:var-naming
 	// 商户号
-	PartnerId *string `json:"partnerId"` // revive:disable-line:var-naming
+	PartnerId *string `json:"partnerid"` // revive:disable-line:var-naming
 	// 时间戳
-	TimeStamp *string `json:"timeStamp"`
+	TimeStamp *string `json:"timestamp"`
 	// 随机字符串
-	NonceStr *string `json:"nonceStr"`
+	NonceStr *string `json:"noncestr"`
 	// 订单详情扩展字符串
 	Package *string `json:"package"`
 	// 签名
@@ -39,6 +41,7 @@ func (a *AppApiService) PrepayWithRequestPayment(
 	}
 
 	resp = new(PrepayWithRequestPaymentResponse)
+	resp.appId = req.Appid
 	resp.PrepayId = prepayResp.PrepayId
 	resp.TimeStamp = core.String(strconv.FormatInt(time.Now().Unix(), 10))
 	nonce, err := utils.GenerateNonce()
