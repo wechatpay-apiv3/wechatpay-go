@@ -41,7 +41,7 @@ func (a *AppApiService) PrepayWithRequestPayment(
 	}
 
 	resp = new(PrepayWithRequestPaymentResponse)
-	resp.appId = req.Appid
+	resp.AppId = req.Appid
 	resp.PrepayId = prepayResp.PrepayId
 	resp.TimeStamp = core.String(strconv.FormatInt(time.Now().Unix(), 10))
 	nonce, err := utils.GenerateNonce()
