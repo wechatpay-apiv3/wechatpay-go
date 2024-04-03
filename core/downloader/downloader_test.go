@@ -15,8 +15,7 @@ import (
 )
 
 func TestNewCertificateDownloaderWithClient(t *testing.T) {
-	patches := mockDownloadServer(t)
-	defer patches.Reset()
+	mockDownloadServer(t)
 
 	ctx := context.Background()
 
@@ -48,8 +47,7 @@ func TestNewCertificateDownloaderWithClient(t *testing.T) {
 }
 
 func TestNewCertificateDownloader(t *testing.T) {
-	patches := mockDownloadServer(t)
-	defer patches.Reset()
+	mockDownloadServer(t)
 
 	privateKey, err := utils.LoadPrivateKey(testingKey(mockMchPrivateKey))
 	require.NoError(t, err)

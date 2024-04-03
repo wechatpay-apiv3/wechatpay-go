@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/agiledragon/gomonkey"
+	"github.com/xhd2015/xgo/runtime/mock"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
@@ -262,10 +262,7 @@ func TestWechatPayResponseValidator_WithoutVerifierShouldFail(t *testing.T) {
 }
 
 func TestWechatPayResponseValidator_ValidateReadBodyErrorShouldFail(t *testing.T) {
-	patches := gomonkey.NewPatches()
-	defer patches.Reset()
-
-	patches.ApplyFunc(ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
+	mock.Patch(ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
 		return nil, fmt.Errorf("read error")
 	})
 
@@ -320,10 +317,7 @@ func TestWechatPayNotifyValidator_Validate(t *testing.T) {
 }
 
 func TestWechatPayNotifyValidator_ValidateReadBodyError(t *testing.T) {
-	patches := gomonkey.NewPatches()
-	defer patches.Reset()
-
-	patches.ApplyFunc(ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
+	mock.Patch(ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
 		return nil, fmt.Errorf("read error")
 	})
 

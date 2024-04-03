@@ -4,7 +4,6 @@ package ciphers
 
 import (
 	"context"
-	"github.com/agiledragon/gomonkey"
 	"reflect"
 	"testing"
 
@@ -13,6 +12,7 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/decryptors"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/cipher/encryptors"
+	"github.com/xhd2015/xgo/runtime/mock"
 )
 
 type Student struct {
@@ -279,10 +279,9 @@ func TestWechatPayCipher_EncryptWithoutCertificate(t *testing.T) {
 }
 
 func TestWechatPayCipher_EncryptWithoutSerial(t *testing.T) {
-	patch := gomonkey.ApplyFunc(getEncryptSerial, func(ctx context.Context) (string, bool) {
+	mock.Patch(getEncryptSerial, func(ctx context.Context) (string, bool) {
 		return "", false
 	})
-	defer patch.Reset()
 	s := Student{
 		Name: "小可",
 		Age:  8,

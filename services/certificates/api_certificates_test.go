@@ -8,13 +8,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/agiledragon/gomonkey"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
@@ -22,6 +20,7 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/certificates"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
+	"github.com/xhd2015/xgo/runtime/mock"
 )
 
 const (
@@ -145,48 +144,44 @@ func init() {
 	}
 }
 
-func mockDownloadServer(t *testing.T) *gomonkey.Patches {
-	patches := gomonkey.NewPatches()
-	patches.ApplyMethod(
-		reflect.TypeOf(&http.Client{}), "Do", func(_ *http.Client, req *http.Request) (*http.Response, error) {
-			resp := http.Response{
-				Status:        "200 OK",
-				StatusCode:    200,
-				Proto:         "HTTP/1.1",
-				ProtoMajor:    1,
-				ProtoMinor:    1,
-				Header:        http.Header{},
-				Body:          ioutil.NopCloser(bytes.NewBufferString(data)),
-				ContentLength: int64(len(data)),
-				Request:       req,
-			}
+func mockDownloadServer(t *testing.T) {
+	mock.Patch((*http.Client).Do, func(_ *http.Client, req *http.Request) (*http.Response, error) {
+		resp := http.Response{
+			Status:        "200 OK",
+			StatusCode:    200,
+			Proto:         "HTTP/1.1",
+			ProtoMajor:    1,
+			ProtoMinor:    1,
+			Header:        http.Header{},
+			Body:          ioutil.NopCloser(bytes.NewBufferString(data)),
+			ContentLength: int64(len(data)),
+			Request:       req,
+		}
 
-			resp.Header.Set(consts.ContentLength, strconv.Itoa(len(data)))
-			resp.Header.Set(consts.ContentType, "application/json; charset=utf-8")
+		resp.Header.Set(consts.ContentLength, strconv.Itoa(len(data)))
+		resp.Header.Set(consts.ContentType, "application/json; charset=utf-8")
 
-			resp.Header.Set(consts.RequestID, "mock-request-id")
-			resp.Header.Set(consts.WechatPaySerial, utils.GetCertificateSerialNumber(*mockWechatPayCertificate))
-			resp.Header.Set(consts.WechatPayNonce, mockNonce)
+		resp.Header.Set(consts.RequestID, "mock-request-id")
+		resp.Header.Set(consts.WechatPaySerial, utils.GetCertificateSerialNumber(*mockWechatPayCertificate))
+		resp.Header.Set(consts.WechatPayNonce, mockNonce)
 
-			timestamp := strconv.FormatInt(time.Now().Unix(), 10)
-			resp.Header.Set(consts.WechatPayTimestamp, timestamp)
+		timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+		resp.Header.Set(consts.WechatPayTimestamp, timestamp)
 
-			signature, err := utils.SignSHA256WithRSA(
-				fmt.Sprintf("%s\n%s\n%s\n", timestamp, mockNonce, data), mockWechatPayPrivateKey,
-			)
-			require.NoError(t, err)
+		signature, err := utils.SignSHA256WithRSA(
+			fmt.Sprintf("%s\n%s\n%s\n", timestamp, mockNonce, data), mockWechatPayPrivateKey,
+		)
+		require.NoError(t, err)
 
-			resp.Header.Set(consts.WechatPaySignature, signature)
+		resp.Header.Set(consts.WechatPaySignature, signature)
 
-			return &resp, nil
-		},
+		return &resp, nil
+	},
 	)
-	return patches
 }
 
 func TestCertificatesApiService_DownloadCertificates_WithoutValidator(t *testing.T) {
-	patches := mockDownloadServer(t)
-	defer patches.Reset()
+	mockDownloadServer(t)
 
 	ctx := context.Background()
 
@@ -223,8 +218,7 @@ func TestCertificatesApiService_DownloadCertificates_WithoutValidator(t *testing
 }
 
 func TestCertificatesApiService_DownloadCertificates_WithValidator(t *testing.T) {
-	patches := mockDownloadServer(t)
-	defer patches.Reset()
+	mockDownloadServer(t)
 
 	ctx := context.Background()
 

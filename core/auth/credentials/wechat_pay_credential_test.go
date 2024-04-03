@@ -5,14 +5,15 @@ package credentials
 import (
 	"context"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 
-	"github.com/agiledragon/gomonkey"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/stretchr/testify/require"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
+	"github.com/xhd2015/xgo/runtime/mock"
 )
 
 type mockSigner struct {
@@ -52,19 +53,13 @@ const (
 )
 
 func TestWechatPayCredentials_GenerateAuthorizationHeader(t *testing.T) {
-	patches := gomonkey.NewPatches()
-	defer patches.Reset()
+	mock.Patch(utils.GenerateNonce, func() (string, error) {
+		return mockNonce, nil
+	})
 
-	patches.ApplyFunc(
-		utils.GenerateNonce, func() (string, error) {
-			return mockNonce, nil
-		},
-	)
-	patches.ApplyFunc(
-		time.Now, func() time.Time {
-			return time.Unix(mockTimestamp, 0)
-		},
-	)
+	mock.Patch(time.Now, func() time.Time {
+		return time.Unix(mockTimestamp, 0)
+	})
 
 	signer := mockSigner{
 		MchID:               testMchID,
@@ -144,16 +139,11 @@ func TestWechatPayCredentials_GenerateAuthorizationHeader(t *testing.T) {
 }
 
 func TestWechatPayCredentials_GenerateAuthorizationHeaderErrorGenerateNonce(t *testing.T) {
-	patches := gomonkey.NewPatches()
-	defer patches.Reset()
-
 	mockGenerateNonceErr := fmt.Errorf("generate nonce error")
 
-	patches.ApplyFunc(
-		utils.GenerateNonce, func() (string, error) {
-			return "", mockGenerateNonceErr
-		},
-	)
+	mock.Patch(utils.GenerateNonce, func() (string, error) {
+		return "", mockGenerateNonceErr
+	})
 
 	signer := mockSigner{
 		MchID:               testMchID,
@@ -167,19 +157,12 @@ func TestWechatPayCredentials_GenerateAuthorizationHeaderErrorGenerateNonce(t *t
 }
 
 func TestWechatPayCredentials_GenerateAuthorizationHeaderErrorSigner(t *testing.T) {
-	patches := gomonkey.NewPatches()
-	defer patches.Reset()
-
-	patches.ApplyFunc(
-		utils.GenerateNonce, func() (string, error) {
-			return mockNonce, nil
-		},
-	)
-	patches.ApplyFunc(
-		time.Now, func() time.Time {
-			return time.Unix(mockTimestamp, 0)
-		},
-	)
+	mock.Patch(utils.GenerateNonce, func() (string, error) {
+		return mockNonce, nil
+	})
+	mock.Patch(time.Now, func() time.Time {
+		return time.Unix(mockTimestamp, 0)
+	})
 
 	signer := mockErrorSigner{}
 	credential := WechatPayCredentials{Signer: &signer}

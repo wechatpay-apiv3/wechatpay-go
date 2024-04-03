@@ -472,16 +472,26 @@ func NewCustomClient(ctx context.Context, mchID string) (*core.Client, error) {
 
 开发者提交的代码，应能通过本 SDK 所有的测试用例。
 
-SDK 在单元测试中使用了 [agiledragon/gomonkey](https://github.com/agiledragon/gomonkey) 和 [stretchr/testify](https://github.com/stretchr/testify)，测试前请确认相关的依赖。使用以下命令获取所有的依赖。
+SDK 在单元测试中使用了 [xhd2015/xgo](https://github.com/xhd2015/xgo) 和 [stretchr/testify](https://github.com/stretchr/testify)，测试前请确认相关的依赖。
 
+运行`xgo`之前, 需要执行安装流程:
+```bash
+# macOS and Linux (and WSL)
+curl -fsSL https://github.com/xhd2015/xgo/raw/master/install.sh | bash
+
+# Windows
+powershell -c "irm github.com/xhd2015/xgo/raw/master/install.ps1|iex"
+```
+
+使用以下命令获取所有的依赖:
 ```bash
 go get -t -v
 ```
 
-由于 `gomonkey` 的原因，在执行测试用例时需要携带参数 `-gcflags=all=-l`。使用以下命令发起测试。
+然后使用`xgo`发起测试:
 
 ```bash
-go test -gcflags=all=-l ./...
+xgo test ./...
 ```
 
 ## 联系微信支付

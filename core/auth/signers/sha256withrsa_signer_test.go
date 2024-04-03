@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/agiledragon/gomonkey"
+	"github.com/xhd2015/xgo/runtime/mock"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -138,10 +138,7 @@ func TestSha256WithRSASigner_Sign(t *testing.T) {
 }
 
 func TestSha256WithRSASigner_SignErrorSignSHA256WithRSA(t *testing.T) {
-	patches := gomonkey.NewPatches()
-	defer patches.Reset()
-
-	patches.ApplyFunc(
+	mock.Patch(
 		utils.SignSHA256WithRSA, func(source string, privateKey *rsa.PrivateKey) (signature string, err error) {
 			return "", fmt.Errorf("sign error")
 		},

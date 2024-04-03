@@ -16,8 +16,7 @@ import (
 )
 
 func TestAutoCertificateDownloader(t *testing.T) {
-	patches := mockDownloadServer(t)
-	defer patches.Reset()
+	mockDownloadServer(t)
 
 	ctx := context.Background()
 

@@ -16,14 +16,13 @@ import (
 	"time"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
+	"github.com/xhd2015/xgo/runtime/mock"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
-
-	"github.com/agiledragon/gomonkey"
 )
 
 func Test_getRequestBody(t *testing.T) {
@@ -49,12 +48,11 @@ func Test_getRequestBody(t *testing.T) {
 }
 
 func Test_getRequestBodyReadAllError(t *testing.T) {
-	patch := gomonkey.ApplyFunc(
+	mock.Patch(
 		ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
 			return nil, fmt.Errorf("read buf error")
 		},
 	)
-	defer patch.Reset()
 
 	body := "fake req body"
 	bodyBuf := &bytes.Buffer{}
@@ -104,12 +102,11 @@ func (o contentType) String() string {
 }
 
 func TestHandler_ParseNotifyRequest(t *testing.T) {
-	patch := gomonkey.ApplyFunc(
+	mock.Patch(
 		time.Now, func() time.Time {
 			return time.Unix(1624523846, 0)
 		},
 	)
-	defer patch.Reset()
 
 	const (
 		mchAPIv3Key          = "testMchAPIv3Key0"
@@ -209,13 +206,12 @@ cTJOU9TxuGvNASMtjj7pYIerTx+xgZDXEVBWFW9PjJ0TV06tCRsgSHItgg==
 }
 
 func TestHandler_ParseNotifyRequestValidateError(t *testing.T) {
-	patch := gomonkey.ApplyFunc(
+	mock.Patch(
 		(*validators.WechatPayNotifyValidator).Validate,
 		func(v *validators.WechatPayNotifyValidator, ctx context.Context, request *http.Request) error {
 			return fmt.Errorf("validate error")
 		},
 	)
-	defer patch.Reset()
 
 	handler, _ := NewRSANotifyHandler(
 		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
@@ -232,16 +228,14 @@ func TestHandler_ParseNotifyRequestValidateError(t *testing.T) {
 }
 
 func TestHandler_ParseNotifyRequest_getRequestBodyError(t *testing.T) {
-	patches := gomonkey.NewPatches()
-	defer patches.Reset()
-	patches.ApplyFunc(
+	mock.Patch(
 		(*validators.WechatPayNotifyValidator).Validate,
 		func(v *validators.WechatPayNotifyValidator, ctx context.Context, request *http.Request) error {
 			return nil
 		},
 	)
 
-	patches.ApplyFunc(
+	mock.Patch(
 		getRequestBody, func(request *http.Request) ([]byte, error) {
 			return nil, fmt.Errorf("getRequestBody error")
 		},
@@ -261,16 +255,12 @@ func TestHandler_ParseNotifyRequest_getRequestBodyError(t *testing.T) {
 }
 
 func TestHandler_ParseNotifyRequest_UnmarshalRequestError(t *testing.T) {
-	patches := gomonkey.NewPatches()
-	defer patches.Reset()
-	patches.ApplyFunc(
-		(*validators.WechatPayNotifyValidator).Validate,
+	mock.Patch((*validators.WechatPayNotifyValidator).Validate,
 		func(v *validators.WechatPayNotifyValidator, ctx context.Context, request *http.Request) error {
 			return nil
 		},
 	)
-
-	patches.ApplyFunc(
+	mock.Patch(
 		getRequestBody, func(request *http.Request) ([]byte, error) {
 			return []byte("invalid json"), nil
 		},
@@ -291,22 +281,20 @@ func TestHandler_ParseNotifyRequest_UnmarshalRequestError(t *testing.T) {
 }
 
 func TestHandler_ParseNotifyRequest_DecryptError(t *testing.T) {
-	patches := gomonkey.NewPatches()
-	defer patches.Reset()
-	patches.ApplyFunc(
+	mock.Patch(
 		(*validators.WechatPayNotifyValidator).Validate,
 		func(v *validators.WechatPayNotifyValidator, ctx context.Context, request *http.Request) error {
 			return nil
 		},
 	)
 
-	patches.ApplyFunc(
+	mock.Patch(
 		getRequestBody, func(request *http.Request) ([]byte, error) {
 			return []byte(`{"resource":{"algorithm":"AEAD_AES_256_GCM"}}`), nil
 		},
 	)
 
-	patches.ApplyFunc(
+	mock.Patch(
 		doAEADOpen, func(c cipher.AEAD, nonce, ciphertext, additionalData string) (plaintext string, err error) {
 			return "", fmt.Errorf("decrypt error")
 		},
@@ -326,22 +314,20 @@ func TestHandler_ParseNotifyRequest_DecryptError(t *testing.T) {
 }
 
 func TestHandler_ParseNotifyRequest_UnmarshalContentError(t *testing.T) {
-	patches := gomonkey.NewPatches()
-	defer patches.Reset()
-	patches.ApplyFunc(
+	mock.Patch(
 		(*validators.WechatPayNotifyValidator).Validate,
 		func(v *validators.WechatPayNotifyValidator, ctx context.Context, request *http.Request) error {
 			return nil
 		},
 	)
 
-	patches.ApplyFunc(
+	mock.Patch(
 		getRequestBody, func(request *http.Request) ([]byte, error) {
 			return []byte(`{"resource":{"algorithm":"AEAD_AES_256_GCM"}}`), nil
 		},
 	)
 
-	patches.ApplyFunc(
+	mock.Patch(
 		doAEADOpen, func(c cipher.AEAD, nonce, ciphertext, additionalData string) (plaintext string, err error) {
 			return "invalid content", nil
 		},

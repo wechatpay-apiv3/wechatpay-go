@@ -9,16 +9,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/agiledragon/gomonkey"
 	"github.com/stretchr/testify/require"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
+	"github.com/xhd2015/xgo/runtime/mock"
 )
 
 const (
@@ -140,10 +139,9 @@ func init() {
 	}
 }
 
-func mockDownloadServer(t *testing.T) *gomonkey.Patches {
-	patches := gomonkey.NewPatches()
-	patches.ApplyMethod(
-		reflect.TypeOf(&http.Client{}), "Do", func(_ *http.Client, req *http.Request) (*http.Response, error) {
+func mockDownloadServer(t *testing.T) {
+	mock.Patch((*http.Client).Do,
+		func(_ *http.Client, req *http.Request) (*http.Response, error) {
 			resp := http.Response{
 				Status:        "200 OK",
 				StatusCode:    200,
@@ -176,7 +174,6 @@ func mockDownloadServer(t *testing.T) *gomonkey.Patches {
 			return &resp, nil
 		},
 	)
-	return patches
 }
 
 func testingKey(s string) string { return strings.ReplaceAll(s, "TESTING KEY", "PRIVATE KEY") }
