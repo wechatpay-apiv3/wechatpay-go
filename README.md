@@ -1,6 +1,6 @@
 # 微信支付 API v3 Go SDK
+
 [![GoDoc](http://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/wechatpay-apiv3/wechatpay-go)
-[![huntr](https://cdn.huntr.dev/huntr_security_badge_mono.svg)](https://huntr.dev)
 [![licence](https://badgen.net/github/license/wechatpay-apiv3/wechatpay-go)](https://github.com/wechatpay-apiv3/wechatpay-go/blob/main/LICENSE)
 
 [微信支付 APIv3](https://wechatpay-api.gitbook.io/wechatpay-api-v3/) 官方Go语言客户端代码库。
@@ -28,10 +28,12 @@
 go mod init
 ```
 
-#### 2、无需 clone 仓库中的代码，直接在项目目录中执行： 
+#### 2、无需 clone 仓库中的代码，直接在项目目录中执行
+
 ```shell
 go get -u github.com/wechatpay-apiv3/wechatpay-go
 ```
+
 来添加依赖，完成 `go.mod` 修改与 SDK 下载。
 
 ### 发送请求
@@ -89,8 +91,11 @@ func main() {
 #### 名词解释
 
 + **商户 API 证书**，是用来证实商户身份的。证书中包含商户号、证书序列号、证书有效期等信息，由证书授权机构（Certificate Authority ，简称 CA）签发，以防证书被伪造或篡改。如何获取请见 [商户 API 证书](https://wechatpay-api.gitbook.io/wechatpay-api-v3/ren-zheng/zheng-shu#shang-hu-api-zheng-shu) 。
+
 + **商户 API 私钥**。商户申请商户 API 证书时，会生成商户私钥，并保存在本地证书文件夹的文件 apiclient_key.pem 中。
+
 > :warning: 不要把私钥文件暴露在公共场合，如上传到 Github，写在客户端代码等。
+
 + **微信支付平台证书**。微信支付平台证书是指由微信支付负责申请的，包含微信支付平台标识、公钥信息的证书。商户使用微信支付平台证书中的公钥验证应答签名。获取微信支付平台证书需通过 [获取平台证书列表](https://wechatpay-api.gitbook.io/wechatpay-api-v3/ren-zheng/zheng-shu#ping-tai-zheng-shu) 接口下载。
 + **证书序列号**。每个证书都有一个由 CA 颁发的唯一编号，即证书序列号。扩展阅读 [如何查看证书序列号](https://wechatpay-api.gitbook.io/wechatpay-api-v3/chang-jian-wen-ti/zheng-shu-xiang-guan#ru-he-cha-kan-zheng-shu-xu-lie-hao) 。
 + **微信支付 APIv3 密钥**，是在回调通知和微信支付平台证书下载接口中，为加强数据安全，对关键信息 `AES-256-GCM` 加密时使用的对称加密密钥。
@@ -156,7 +161,8 @@ if err == nil {
 
 ```
 
-### 以 [图片上传API](https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter2_1_1.shtml) 为例：
+### 以 [图片上传API](https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter2_1_1.shtml) 为例
+
 ```go
 import (
 	"os"
@@ -199,10 +205,10 @@ result, err := client.Get(ctx, "https://api.mch.weixin.qq.com/v3/certificates")
 
 以下情况，SDK 发送请求会返回 `error`：
 
-- HTTP 网络错误，如应答接收超时或网络连接失败
-- 客户端失败，如生成签名失败
-- 服务器端返回了**非** `2xx` HTTP 状态码
-- 应答签名验证失败
++ HTTP 网络错误，如应答接收超时或网络连接失败
++ 客户端失败，如生成签名失败
++ 服务器端返回了**非** `2xx` HTTP 状态码
++ 应答签名验证失败
 
 为了方便使用，SDK 将服务器返回的 `4xx` 和 `5xx` 错误，转换成了 `APIError`。
 
@@ -223,6 +229,7 @@ if err != nil {
 2. 调用 `handler.ParseNotifyRequest` 验签，并解密报文。
 
 ### 初始化
+
 + 方法一（大多数场景）：先手动注册下载器，再获取微信平台证书访问器。
 
 适用场景： 仅需要对回调通知验证签名并解密的场景。例如，基础支付的回调通知。
@@ -290,7 +297,6 @@ fmt.Println(transaction.TransactionId)
 ```
 
 将 SDK 未支持的回调消息体，解析至 `map[string]interface{}`。
-
 
 ```go
 content := make(map[string]interface{})
@@ -453,6 +459,35 @@ func NewCustomClient(ctx context.Context, mchID string) (*core.Client, error) {
 }
 ```
 
+### 使用公钥验证微信支付签名
+
+如果你的商户是全新入驻，且仅可使用微信支付的公钥验证应答和回调的签名，请使用微信支付公钥和公钥 ID 初始化。
+
+```go
+var (
+	wechatpayPublicKeyID       string = "00000000000000000000000000000000"          // 微信支付公钥ID
+)
+
+wechatpayPublicKey, err = utils.LoadPublicKeyWithPath("/path/to/wechatpay/pub_key.pem")
+if err != nil {
+	panic(fmt.Errorf("load wechatpay public key err:%s", err.Error()))
+}
+    
+// 初始化 Client
+opts := []core.ClientOption{
+	option.WithWechatPayPublicKeyAuthCipher(
+		mchID,
+		mchCertificateSerialNumber, mchPrivateKey,
+		wechatpayPublicKeyID, wechatpayPublicKey),
+}
+client, err := core.NewClient(ctx, opts...)
+
+// 初始化 notify.Handler
+handler := notify.NewNotifyHandler(
+	mchAPIv3Key, 
+	verifiers.NewSHA256WithRSAPubkeyVerifier(wechatpayPublicKeyID, *wechatPayPublicKey))
+```
+
 ## 常见问题
 
 常见问题请见 [FAQ.md](FAQ.md)。
@@ -461,10 +496,10 @@ func NewCustomClient(ctx context.Context, mchID string) (*core.Client, error) {
 
 微信支付欢迎来自社区的开发者贡献你们的想法和代码。请你在提交 PR 之前，先提一个对应的 issue 说明以下内容：
 
-- 背景（如，遇到的问题）和目的
-- **着重**说明你的想法
-- 通过代码或者其他方式，简要的说明是如何实现的，或者它会是如何使用
-- 是否影响现有的接口
++ 背景（如，遇到的问题）和目的
++ **着重**说明你的想法
++ 通过代码或者其他方式，简要的说明是如何实现的，或者它会是如何使用
++ 是否影响现有的接口
 
 [#35](https://github.com/wechatpay-apiv3/wechatpay-go/issues/35) 是一个很好的参考。
 
@@ -485,6 +520,7 @@ go test -gcflags=all=-l ./...
 ```
 
 ## 联系微信支付
+
 如果你发现了 BUG，或者需要的功能还未支持，或者有任何疑问、建议，欢迎通过 [issue](https://github.com/wechatpay-apiv3/wechatpay-go/issues) 反馈。
 
 也欢迎访问微信支付的 [开发者社区](https://developers.weixin.qq.com/community/pay)。
