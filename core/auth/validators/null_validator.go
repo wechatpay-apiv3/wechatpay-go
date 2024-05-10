@@ -5,6 +5,7 @@ package validators
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 )
 
@@ -14,6 +15,10 @@ type NullValidator struct {
 }
 
 // Validate 跳过报文签名验证
-func (validator *NullValidator) Validate(context.Context, *http.Response) error {
+func (v *NullValidator) Validate(context.Context, *http.Response) error {
 	return nil
+}
+
+func (v *NullValidator) GetAcceptSerial(ctx context.Context) (serial string, err error) {
+	return "", fmt.Errorf("NullValidator has no serial")
 }

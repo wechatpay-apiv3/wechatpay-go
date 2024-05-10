@@ -39,6 +39,11 @@ func (v *SHA256WithRSAPubkeyVerifier) Verify(ctx context.Context, serialNumber, 
 	return nil
 }
 
+// GetSerial 获取可验签的公钥序列号
+func (v *SHA256WithRSAPubkeyVerifier) GetSerial(ctx context.Context) (string, error) {
+	return v.keyID, nil
+}
+
 // NewSHA256WithRSAPubkeyVerifier 使用 rsa.PublicKey 初始化验签器
 func NewSHA256WithRSAPubkeyVerifier(keyID string, publicKey rsa.PublicKey) *SHA256WithRSAPubkeyVerifier {
 	return &SHA256WithRSAPubkeyVerifier{keyID: keyID, publicKey: publicKey}

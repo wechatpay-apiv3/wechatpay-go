@@ -488,6 +488,18 @@ handler := notify.NewNotifyHandler(
 	verifiers.NewSHA256WithRSAPubkeyVerifier(wechatpayPublicKeyID, *wechatPayPublicKey))
 ```
 
+如果你既有微信支付平台证书，又有公钥。那么，你可以在商户平台自助地从微信支付平台证书切换到公私钥，或者反过来。
+在切换期间，回调要同时支持使用平台证书和公钥的验签。 
+
+请参考下文，使用微信平台证书访问器和公钥一起初始化 `NotifyHandler`。
+
+```go
+// 初始化 notify.Handler
+handler := notify.NewNotifyHandler(
+	mchAPIv3Key,
+	verifiers.NewSHA256WithRSADuoVerifier(certificateVisitor, wechatpayPublicKeyID, *wechatPayPublicKey))
+```
+
 ## 常见问题
 
 常见问题请见 [FAQ.md](FAQ.md)。

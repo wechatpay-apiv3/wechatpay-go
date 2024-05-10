@@ -22,6 +22,10 @@ import (
 type mockVerifier struct {
 }
 
+func (v *mockVerifier) GetSerial(ctx context.Context) (serial string, err error) {
+	return "SERIAL1234567890", nil
+}
+
 func (v *mockVerifier) Verify(ctx context.Context, serialNumber string, message string, signature string) error {
 	if "["+serialNumber+"-"+message+"]" == signature {
 		return nil
