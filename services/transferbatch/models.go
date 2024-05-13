@@ -410,6 +410,8 @@ type InitiateBatchTransferRequest struct {
 	TransferDetailList []TransferDetailInput `json:"transfer_detail_list"`
 	// 该批次转账使用的转账场景，如不填写则使用商家的默认场景，如无默认场景可为空，可前往“商家转账到零钱-前往功能”中申请。 如：1001-现金营销
 	TransferSceneId *string `json:"transfer_scene_id,omitempty"`
+	// 商户接收批次结果通知的URL，必须支持https，且只能是直接可访问的URL，不允许携带查询参数
+	NotifyUrl *string `json:"notify_url,omitempty"`
 }
 
 func (o InitiateBatchTransferRequest) MarshalJSON() ([]byte, error) {
@@ -452,6 +454,9 @@ func (o InitiateBatchTransferRequest) MarshalJSON() ([]byte, error) {
 
 	if o.TransferSceneId != nil {
 		toSerialize["transfer_scene_id"] = o.TransferSceneId
+	}
+	if o.NotifyUrl != nil {
+		toSerialize["notify_url"] = o.NotifyUrl
 	}
 	return json.Marshal(toSerialize)
 }
@@ -502,6 +507,12 @@ func (o InitiateBatchTransferRequest) String() string {
 		ret += fmt.Sprintf("TransferSceneId:%v", *o.TransferSceneId)
 	}
 
+	if o.NotifyUrl == nil {
+		ret += "NotifyUrl:<nil>"
+	} else {
+		ret += fmt.Sprintf("NotifyUrl:%v", *o.NotifyUrl)
+	}
+
 	return fmt.Sprintf("InitiateBatchTransferRequest{%s}", ret)
 }
 
@@ -550,6 +561,10 @@ func (o InitiateBatchTransferRequest) Clone() *InitiateBatchTransferRequest {
 		*ret.TransferSceneId = *o.TransferSceneId
 	}
 
+	if o.NotifyUrl != nil {
+		ret.NotifyUrl = new(string)
+		*ret.NotifyUrl = *o.NotifyUrl
+	}
 	return &ret
 }
 
