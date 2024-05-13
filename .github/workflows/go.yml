@@ -13,18 +13,18 @@ jobs:
     strategy:
       matrix:
         go:
+        - "1.22"
+        - "1.21"
+        - "1.20"
         - "1.19"
         - "1.18"
         - "1.17"
         - "1.16"
-        - "1.15"
-        - "1.14"
-        - "1.13"
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go }}
 
@@ -35,14 +35,14 @@ jobs:
     name: "Static check"
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
-        go-version: "1.16"
+        go-version: "1.19"
     - name: staticcheck
       run: |
-        go get -u honnef.co/go/tools/cmd/staticcheck@v0.2.2 &&
+        go install honnef.co/go/tools/cmd/staticcheck@latest &&
         $HOME/go/bin/staticcheck ./...
     - name: Revive Action
       uses: morphy2k/revive-action@v2.1.1
@@ -54,13 +54,13 @@ jobs:
     strategy:
       matrix:
         go:
+          - "1.22"
+          - "1.21"
+          - "1.20"
           - "1.19"
           - "1.18"
           - "1.17"
           - "1.16"
-          - "1.15"
-          - "1.14"
-          - "1.13"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Go
