@@ -497,7 +497,7 @@ handler := notify.NewNotifyHandler(
 // 初始化 notify.Handler
 handler := notify.NewNotifyHandler(
 	mchAPIv3Key,
-	verifiers.NewSHA256WithRSADuoVerifier(certificateVisitor, wechatpayPublicKeyID, *wechatPayPublicKey))
+	verifiers.NewSHA256WithRSACombinedVerifier(certificateVisitor, wechatpayPublicKeyID, *wechatPayPublicKey))
 ```
 
 ## 常见问题
