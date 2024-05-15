@@ -273,6 +273,7 @@ func TestRequest(t *testing.T) {
 			schema, params := parseAuthorization(t, r.Header.Get("Authorization"))
 			body, _ := ioutil.ReadAll(r.Body)
 			assertAuthorization(t, schema, r.Method, r.RequestURI, params, body)
+			assert.Equal(t, "9F2A649600414C1485E8A643CB103593", r.Header.Get("Wechatpay-Serial"))
 
 			if test.body != nil {
 				assert.Equal(t, "application/json", r.Header.Get("Content-Type"))

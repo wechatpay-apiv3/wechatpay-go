@@ -3,8 +3,8 @@
 // Package core 微信支付 API v3 Go SDK HTTPClient 基础库，你可以使用它来创建一个 Client，并向微信支付发送 HTTP 请求
 //
 // 初始化 Client 时，你需要指定以下参数：
-//  - Credential 用于生成 HTTP Header 中的 Authorization 信息，微信支付 API v3依赖该值来保证请求的真实性和数据的完整性
-//  - Validator 用于对微信支付的应答进行校验，避免被恶意攻击
+//   - Credential 用于生成 HTTP Header 中的 Authorization 信息，微信支付 API v3依赖该值来保证请求的真实性和数据的完整性
+//   - Validator 用于对微信支付的应答进行校验，避免被恶意攻击
 package core
 
 import (
@@ -227,6 +227,11 @@ func (client *Client) doRequest(
 	}
 	request.Header.Set(consts.Authorization, authorization)
 
+	// indicate Wechatpay-Serial that client can verify
+	if serial, err := client.validator.GetAcceptSerial(ctx); err == nil {
+		request.Header.Set(consts.WechatPaySerial, serial)
+	}
+
 	// Send HTTP Request
 	result, err := client.doHTTP(request)
 	if err != nil {
@@ -369,12 +374,14 @@ func UnMarshalResponse(httpResp *http.Response, resp interface{}) error {
 // CreateFormField 设置form-data 中的普通属性
 //
 // 示例内容
+//
 //	Content-Disposition: form-data; name="meta";
 //	Content-Type: application/json
 //
 //	{ "filename": "file_test.mp4", "sha256": " hjkahkjsjkfsjk78687dhjahdajhk " }
 //
 // 如果要设置上述内容
+//
 //	CreateFormField(w, "meta", "application/json", meta)
 func CreateFormField(w *multipart.Writer, fieldName, contentType string, fieldValue []byte) error {
 	h := make(textproto.MIMEHeader)
@@ -391,6 +398,7 @@ func CreateFormField(w *multipart.Writer, fieldName, contentType string, fieldVa
 // CreateFormFile 设置form-data中的文件
 //
 // 示例内容：
+//
 //	Content-Disposition: form-data; name="file"; filename="file_test.mp4";
 //	Content-Type: video/mp4
 //
@@ -409,8 +417,9 @@ func CreateFormFile(w *multipart.Writer, filename, contentType string, file []by
 	return err
 }
 
-//revive:disable-next-line:cyclomatic 本函数实现需要考虑多种情况，但理解起来并不复杂，进行圈复杂度豁免
 // setBody Set Request body from an interface
+//
+//revive:disable-next-line:cyclomatic 本函数实现需要考虑多种情况，但理解起来并不复杂，进行圈复杂度豁免
 func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err error) {
 	bodyBuf = &bytes.Buffer{}
 

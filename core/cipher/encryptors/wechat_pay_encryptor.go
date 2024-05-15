@@ -10,7 +10,7 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
-// WechatPayEncryptor 微信支付字符串加密器
+// WechatPayEncryptor 微信支付字符串加密器，使用微信支付平台证书
 type WechatPayEncryptor struct {
 	// 微信支付平台证书提供器
 	certGetter core.CertificateGetter
@@ -34,7 +34,8 @@ func (e *WechatPayEncryptor) SelectCertificate(ctx context.Context) (serial stri
 }
 
 // Encrypt 对字符串加密
-func (e *WechatPayEncryptor) Encrypt(ctx context.Context, serial, plaintext string) (ciphertext string, err error) {
+func (e *WechatPayEncryptor) Encrypt(
+	ctx context.Context, serial, plaintext string) (ciphertext string, err error) {
 	cert, ok := e.certGetter.Get(ctx, serial)
 
 	if !ok {

@@ -8,4 +8,5 @@ import "context"
 // Verifier 数字签名验证器
 type Verifier interface {
 	Verify(ctx context.Context, serial, message, signature string) error // 对签名信息进行验证
+	GetSerial(ctx context.Context) (serial string, err error)            // 获取可验签的平台证书或公钥序列号
 }

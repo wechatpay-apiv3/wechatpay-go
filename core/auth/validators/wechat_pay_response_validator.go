@@ -29,6 +29,11 @@ func (v *WechatPayResponseValidator) Validate(ctx context.Context, response *htt
 	return v.validateHTTPMessage(ctx, response.Header, body)
 }
 
+// GetAcceptSerial 客户端可以处理的证书或者公钥序列号
+func (v *WechatPayResponseValidator) GetAcceptSerial(ctx context.Context) (string, error) {
+	return v.getAcceptSerial(ctx)
+}
+
 // NewWechatPayResponseValidator 使用 auth.Verifier 初始化一个 WechatPayResponseValidator
 func NewWechatPayResponseValidator(verifier auth.Verifier) *WechatPayResponseValidator {
 	return &WechatPayResponseValidator{

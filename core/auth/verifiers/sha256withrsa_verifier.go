@@ -46,6 +46,11 @@ func (verifier *SHA256WithRSAVerifier) Verify(ctx context.Context, serialNumber,
 	return nil
 }
 
+// GetSerial 获取可验签的平台证书序列号
+func (verifier *SHA256WithRSAVerifier) GetSerial(ctx context.Context) (string, error) {
+	return verifier.certGetter.GetNewestSerial(ctx), nil
+}
+
 func checkParameter(ctx context.Context, serialNumber, message, signature string) error {
 	if ctx == nil {
 		return fmt.Errorf("context is nil, verifier need input context.Context")
