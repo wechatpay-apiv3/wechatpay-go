@@ -28,6 +28,7 @@ func (w withAuthCipherOption) Apply(o *core.DialSettings) error {
 }
 
 // WithWechatPayAuthCipher 一键初始化 Client，使其具备「签名/验签/敏感字段加解密」能力
+// Deprecated: 使用 WithWechatPayAutoAuthCipher 或 WithWechatPayPublicKeyAuthCipher 代替
 func WithWechatPayAuthCipher(
 	mchID string, certificateSerialNo string, privateKey *rsa.PrivateKey, certificateList []*x509.Certificate,
 ) core.ClientOption {
@@ -86,6 +87,31 @@ func WithWechatPayAutoAuthCipherUsingDownloaderMgr(
 			Validator: validators.NewWechatPayResponseValidator(verifiers.NewSHA256WithRSAVerifier(certVisitor)),
 			Cipher: ciphers.NewWechatPayCipher(
 				encryptors.NewWechatPayEncryptor(certVisitor),
+				decryptors.NewWechatPayDecryptor(privateKey),
+			),
+		},
+	}
+}
+
+// WithWechatPayPublicKeyAuthCipher 一键初始化 Client，使其具备「签名/验签/敏感字段加解密」能力。
+// 使用微信支付提供的公钥验签
+func WithWechatPayPublicKeyAuthCipher(
+	mchID, certificateSerialNo string, privateKey *rsa.PrivateKey, publicKeyID string, publicKey *rsa.PublicKey,
+) core.ClientOption {
+	return withAuthCipherOption{
+		settings: core.DialSettings{
+			Signer: &signers.SHA256WithRSASigner{
+				MchID:               mchID,
+				CertificateSerialNo: certificateSerialNo,
+				PrivateKey:          privateKey,
+			},
+			Validator: validators.NewWechatPayResponseValidator(
+				verifiers.NewSHA256WithRSAPubkeyVerifier(
+					publicKeyID,
+					*publicKey,
+				)),
+			Cipher: ciphers.NewWechatPayCipher(
+				encryptors.NewWechatPayPubKeyEncryptor(publicKeyID, *publicKey),
 				decryptors.NewWechatPayDecryptor(privateKey),
 			),
 		},

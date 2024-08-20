@@ -88,6 +88,16 @@ jWNRBmvvftZhY59PILHO2X5vO4FXh7suEjy6VIh0gsnK36mmRboYIBGsNuDHjXLe
 BDa+8mDLkWu5nHEhOxy2JJZl
 -----END TESTING KEY-----`
 
+const publicKeyStr = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2VCTd91fnUn73Xy9DLvt
+/V62TVxRTEEstVdeRaZ3B3leO0pldE806mXO4RwdHXagHQ4vGeZN0yqm++rDsGK+
+U3AH7kejyD2pXshNP9Cq5YwbptiLGtjcquw4HNxJQUOmDeJf2vg6byms9RUipiq4
+SzbJKqJFlUpbuIPDpSpWz10PYmyCNeDGUUK65E5h2B834uxl1zNLYQCrkdBzb8oU
+xwYeP5a2DNxmjL5lsJML7DGr5znsevnoqGRwTm9fxCGfy8wus7hwKz6clt3Whmmd
+a7UAdb1c08hEQFVRbF14AR73xbnd8N0obCWJPCbzMCtkaSef4FdEEgEXJiw0VAJT
+8wIDAQAB
+-----END PUBLIC KEY-----`
+
 func testingKey(s string) string { return strings.ReplaceAll(s, "TESTING KEY", "PRIVATE KEY") }
 
 func initWechatPayEncryptor() (*WechatPayEncryptor, error) {
@@ -103,7 +113,7 @@ func initWechatPayEncryptor() (*WechatPayEncryptor, error) {
 	return NewWechatPayEncryptor(core.NewCertificateMapWithList(l)), nil
 }
 
-func TestWechatPayEncryptor_SelectCertificate(t *testing.T) {
+func TestWechatPayEncryptorSelectCertificate(t *testing.T) {
 	e, err := initWechatPayEncryptor()
 	require.NoError(t, err)
 
@@ -112,7 +122,7 @@ func TestWechatPayEncryptor_SelectCertificate(t *testing.T) {
 	assert.Equal(t, "D7CE59D1F522D701", serial)
 }
 
-func TestWechatPayEncryptor_Encrypt(t *testing.T) {
+func TestWechatPayEncryptorEncrypt(t *testing.T) {
 	e, err := initWechatPayEncryptor()
 	require.NoError(t, err)
 
@@ -130,7 +140,7 @@ func TestWechatPayEncryptor_Encrypt(t *testing.T) {
 	assert.Equal(t, newPlainText, plaintext)
 }
 
-func TestWechatPayEncryptor_EncryptEmpty(t *testing.T) {
+func TestWechatPayEncryptorEncryptEmpty(t *testing.T) {
 	e, err := initWechatPayEncryptor()
 	require.NoError(t, err)
 
@@ -142,7 +152,7 @@ func TestWechatPayEncryptor_EncryptEmpty(t *testing.T) {
 	assert.Equal(t, "", ciphertext)
 }
 
-func TestWechatPayEncryptor_EncryptWithWrongSerial(t *testing.T) {
+func TestWechatPayEncryptorEncryptWithWrongSerial(t *testing.T) {
 	e, err := initWechatPayEncryptor()
 	require.NoError(t, err)
 
@@ -153,7 +163,7 @@ func TestWechatPayEncryptor_EncryptWithWrongSerial(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestMockEncryptor_Encrypt(t *testing.T) {
+func TestMockEncryptorEncrypt(t *testing.T) {
 	e := MockEncryptor{Serial: "F5765756002FDD77"}
 
 	cipertext, err := e.Encrypt(context.Background(), "F5765756002FDD77", "hehe")
@@ -161,9 +171,23 @@ func TestMockEncryptor_Encrypt(t *testing.T) {
 	assert.Equal(t, "Encryptedhehe", cipertext)
 }
 
-func TestMockEncryptor_EncryptWithWrontSerial(t *testing.T) {
+func TestMockEncryptorEncryptWithWrontSerial(t *testing.T) {
 	e := MockEncryptor{Serial: "F5765756002FDD77"}
 
 	_, err := e.Encrypt(context.Background(), "wrong serial", "hehe")
 	require.Error(t, err)
+}
+
+func TestPublicEncryptorEncrypt(t *testing.T) {
+	publicKey, _ := utils.LoadPublicKey(publicKeyStr)
+	e := NewWechatPayPubKeyEncryptor("F5765756002FDD77", *publicKey)
+
+	plaintext := "hehe"
+	ciphertext, err := e.Encrypt(context.Background(), "F5765756002FDD77", plaintext)
+	require.NoError(t, err)
+
+	privateKey, _ := utils.LoadPrivateKey(testingKey(privateKeyStr))
+	newPlainText, err := utils.DecryptOAEP(ciphertext, privateKey)
+	require.NoError(t, err)
+	assert.Equal(t, newPlainText, plaintext)
 }
