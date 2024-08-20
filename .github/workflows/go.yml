@@ -42,7 +42,7 @@ jobs:
         go-version: "1.19"
     - name: staticcheck
       run: |
-        go install honnef.co/go/tools/cmd/staticcheck@latest &&
+        go install honnef.co/go/tools/cmd/staticcheck@v0.4.7 &&
         $HOME/go/bin/staticcheck ./...
     - name: Revive Action
       uses: morphy2k/revive-action@v2.1.1
