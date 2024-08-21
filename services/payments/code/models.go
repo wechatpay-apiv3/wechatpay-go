@@ -83,9 +83,8 @@ func (o AuthPayer) String() string {
 		ret += "auth_code:<nil>"
 	} else {
 		ret += fmt.Sprintf("auth_code:%v", *o.AuthCode)
-
-		return fmt.Sprintf("Payer{%s}", ret)
 	}
+	return fmt.Sprintf("Payer{%s}", ret)
 }
 
 func (o AuthPayer) Clone() *AuthPayer {
@@ -104,6 +103,8 @@ type CloseOrderRequest struct {
 	OutTradeNo *string `json:"out_trade_no"`
 	// 直连商户号
 	Mchid *string `json:"mchid"`
+	//应用appid
+	Appid *string `json:"appid"`
 }
 
 func (o CloseOrderRequest) MarshalJSON() ([]byte, error) {
@@ -118,11 +119,17 @@ func (o CloseOrderRequest) MarshalJSON() ([]byte, error) {
 		return nil, fmt.Errorf("field `Mchid` is required and must be specified in CloseOrderRequest")
 	}
 	toSerialize["mchid"] = o.Mchid
+	if o.Appid == nil {
+		return nil, fmt.Errorf("field `Appid` is required and must be specified in CloseOrderRequest")
+	}
+	toSerialize["appid"] = o.Appid
+
 	return json.Marshal(toSerialize)
 }
 
 func (o CloseOrderRequest) String() string {
 	var ret string
+
 	if o.OutTradeNo == nil {
 		ret += "OutTradeNo:<nil>, "
 	} else {
@@ -134,7 +141,11 @@ func (o CloseOrderRequest) String() string {
 	} else {
 		ret += fmt.Sprintf("Mchid:%v", *o.Mchid)
 	}
-
+	if o.Appid == nil {
+		ret += "Appid:<nil>"
+	} else {
+		ret += fmt.Sprintf("Appid:%v", *o.Appid)
+	}
 	return fmt.Sprintf("CloseOrderRequest{%s}", ret)
 }
 
@@ -150,7 +161,10 @@ func (o CloseOrderRequest) Clone() *CloseOrderRequest {
 		ret.Mchid = new(string)
 		*ret.Mchid = *o.Mchid
 	}
-
+	if o.Appid != nil {
+		ret.Appid = new(string)
+		*ret.Appid = *o.Appid
+	}
 	return &ret
 }
 
@@ -158,6 +172,8 @@ func (o CloseOrderRequest) Clone() *CloseOrderRequest {
 type CloseRequest struct {
 	// 直连商户号
 	Mchid *string `json:"mchid"`
+	//应用AppID。
+	Appid *string `json:"appid"`
 }
 
 func (o CloseRequest) MarshalJSON() ([]byte, error) {
@@ -167,6 +183,10 @@ func (o CloseRequest) MarshalJSON() ([]byte, error) {
 		return nil, fmt.Errorf("field `Mchid` is required and must be specified in CloseRequest")
 	}
 	toSerialize["mchid"] = o.Mchid
+	if o.Appid == nil {
+		return nil, fmt.Errorf("field `Appid` is required and must be specified in CloseRequest")
+	}
+	toSerialize["appid"] = o.Appid
 	return json.Marshal(toSerialize)
 }
 
@@ -177,7 +197,11 @@ func (o CloseRequest) String() string {
 	} else {
 		ret += fmt.Sprintf("Mchid:%v", *o.Mchid)
 	}
-
+	if o.Appid == nil {
+		ret += "Appid:<nil>, "
+	} else {
+		ret += fmt.Sprintf("Appid:%v, ", *o.Appid)
+	}
 	return fmt.Sprintf("CloseRequest{%s}", ret)
 }
 
@@ -188,7 +212,10 @@ func (o CloseRequest) Clone() *CloseRequest {
 		ret.Mchid = new(string)
 		*ret.Mchid = *o.Mchid
 	}
-
+	if o.Appid != nil {
+		ret.Appid = new(string)
+		*ret.Appid = *o.Appid
+	}
 	return &ret
 }
 
