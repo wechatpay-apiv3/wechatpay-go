@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.21] - 2025-07-04
+
+### Changed
+
++ Fixes [#240](https://github.com/wechatpay-apiv3/wechatpay-go/issues/240)
+
 ## [0.2.20] - 2024-08-20
 
 ### Added
