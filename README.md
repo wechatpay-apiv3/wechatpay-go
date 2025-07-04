@@ -40,6 +40,62 @@ go get -u github.com/wechatpay-apiv3/wechatpay-go
 
 先初始化一个 `core.Client` 实例，再向微信支付发送请求。
 
+#### 使用微信支付公钥
+如果你的商户是全新入驻，且仅可使用微信支付的公钥验证应答和回调的签名，请使用微信支付公钥和公钥 ID 初始化。
+
+```go
+package main
+
+import (
+	"context"
+	"log"
+
+	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
+	"github.com/wechatpay-apiv3/wechatpay-go/services/certificates"
+	"github.com/wechatpay-apiv3/wechatpay-go/utils"
+)
+
+func main() {
+	var (
+		mchID                      string = "190000****"                                // 商户号
+		mchCertificateSerialNumber string = "3775B6A45ACD588826D15E583A95F5DD********"  // 商户证书序列号
+		wechatpayPublicKeyID       string = "00000000000000000000000000000000"          // 微信支付公钥ID
+	)
+
+	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
+	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/path/to/merchant/apiclient_key.pem")
+	if err != nil {
+		log.Fatal("load merchant private key error")
+	}
+
+	// 使用 utils 提供的函数从本地文件中加载微信支付公钥，微信支付公钥私钥用来验证应答签名
+	wechatpayPublicKey, err := utils.LoadPublicKeyWithPath("/path/to/wechatpay/pub_key.pem")
+	if err != nil {
+		log.Fatalf("load wechatpay public key err:%s", err.Error())
+	}
+
+	ctx := context.Background()
+	// 使用商户私钥等初始化 client，并使它具有自动定时获取微信支付平台证书的能力
+	opts := []core.ClientOption{
+		option.WithWechatPayPublicKeyAuthCipher(
+			mchID,
+			mchCertificateSerialNumber, mchPrivateKey,
+			wechatpayPublicKeyID, wechatpayPublicKey),
+	}
+	client, err := core.NewClient(ctx, opts...)
+	if err != nil {
+		log.Fatalf("new wechat pay client err:%s", err)
+	}
+	
+	// 使用 client 发送请求
+}
+```
+
+#### 使用微信支付平台证书
+
+如果你的商户已经入驻，持有微信支付平台证书，你可以使用微信支付平台证书验证应答和回调的签名。使用如下代码会自动下载平台证书用于验签。
+
 ```go
 package main
 
@@ -96,6 +152,7 @@ func main() {
 
 > :warning: 不要把私钥文件暴露在公共场合，如上传到 Github，写在客户端代码等。
 
++ **微信支付公钥**。微信支付公钥由微信支付提供，商户在收到微信支付的应答报文或回调后，可使用微信支付公钥验证签名。具体可查阅[微信支付公钥简介(商户平台)](https://pay.weixin.qq.com/doc/v3/merchant/4012153196)或[微信支付公钥简介(合作伙伴平台)](https://pay.weixin.qq.com/doc/v3/partner/4012925323)。
 + **微信支付平台证书**。微信支付平台证书是指由微信支付负责申请的，包含微信支付平台标识、公钥信息的证书。商户使用微信支付平台证书中的公钥验证应答签名。获取微信支付平台证书需通过 [获取平台证书列表](https://wechatpay-api.gitbook.io/wechatpay-api-v3/ren-zheng/zheng-shu#ping-tai-zheng-shu) 接口下载。
 + **证书序列号**。每个证书都有一个由 CA 颁发的唯一编号，即证书序列号。扩展阅读 [如何查看证书序列号](https://wechatpay-api.gitbook.io/wechatpay-api-v3/chang-jian-wen-ti/zheng-shu-xiang-guan#ru-he-cha-kan-zheng-shu-xu-lie-hao) 。
 + **微信支付 APIv3 密钥**，是在回调通知和微信支付平台证书下载接口中，为加强数据安全，对关键信息 `AES-256-GCM` 加密时使用的对称加密密钥。
@@ -225,10 +282,27 @@ if err != nil {
 
 ## 回调通知的验签与解密
 
-1. 使用微信支付平台证书（验签）和商户 APIv3 密钥（解密）初始化 `notify.Handler`
+1. 使用微信支付公钥或平台证书（验签）+商户 APIv3 密钥（解密）初始化 `notify.Handler`
 2. 调用 `handler.ParseNotifyRequest` 验签，并解密报文。
 
 ### 初始化
+
+#### 使用微信支付公钥验签
+
+```go
+// 1. 初始化商户API v3 Key、微信支付公钥ID及微信支付公钥
+mchAPIv3Key := "<your apiv3 key>"
+wechatPayPubKeyId := "<your wechat pay pubkey id>"
+wechatPayPubKey, err := utils.LoadPublicKey("<your wechat pay pubkey>")
+// 2. 使用本地保存的微信支付公钥初始化签名验证器
+pubkeyVerifier := core.NewSHA256WithRSAPubkeyVerifier(wechatPayPubKeyId, wechatPayPubKey)
+// 3. 使用apiv3 key、签名验证器初始化 `notify.Handler`
+handler := notify.NewNotifyHandler(mchAPIv3Key, pubkeyVerifier)
+
+```
+
+
+#### 使用微信支付平台证书验签
 
 + 方法一（大多数场景）：先手动注册下载器，再获取微信平台证书访问器。
 
@@ -329,6 +403,16 @@ fmt.Println(content)
 
 使用敏感信息加解密器，只需通过 `option.WithWechatPayCipher` 为 `core.Client` 添加加解密器：
 
+#### 使用微信支付公钥加密
+```go
+client, err := core.NewClient(
+    context.Background(),
+// 一次性设置 签名/验签/敏感字段加解密，并注册 平台证书下载器，自动定时获取最新的平台证书
+    option.WithWechatPayPublicKeyAuthCipher(mchID, mchCertificateSerialNumber, mchPrivateKey, wechatpayPublicKeyID, wechatpayPublicKey),
+)
+```
+
+#### 使用微信支付平台证书加密
 ```go
 client, err := core.NewClient(
     context.Background(),
@@ -343,9 +427,11 @@ client, err := core.NewClient(
 
 ### 使用加解密算法工具包
 
-#### 步骤一：获取微信支付平台证书
+#### 步骤一：获取微信支付公钥或微信支付平台证书
 
-请求的敏感信息，使用微信支付平台证书中的公钥加密。推荐 [使用平台证书下载管理器](FAQ.md#如何使用平台证书下载管理器) 获取微信支付平台证书，或者 [下载平台证书](FAQ.md#如何下载微信支付平台证书)。
+**获取微信支付公钥**：请参考[微信支付公钥简介(商户平台)](https://pay.weixin.qq.com/doc/v3/merchant/4012153196)或[微信支付公钥简介(合作伙伴平台)](https://pay.weixin.qq.com/doc/v3/partner/4012925323)
+
+**获取微信支付平台证书**：请求的敏感信息，使用微信支付平台证书中的公钥加密。推荐 [使用平台证书下载管理器](FAQ.md#如何使用平台证书下载管理器) 获取微信支付平台证书，或者 [下载平台证书](FAQ.md#如何下载微信支付平台证书)。
 
 #### 步骤二：加解密
 
@@ -386,7 +472,7 @@ func (client *Client) Request(
 ) (result *APIResult, err error)
 
 // 示例代码
-// 微信支付平台证书序列号，对应加密使用的私钥
+// 微信支付私钥ID 或 微信支付平台证书序列号，对应加密使用的私钥
 header.Add("Wechatpay-Serial", "5157F09EFDC096DE15EBE81A47057A72*******")
 result, err := client.Request(
 	ctx,
@@ -459,34 +545,7 @@ func NewCustomClient(ctx context.Context, mchID string) (*core.Client, error) {
 }
 ```
 
-### 使用公钥验证微信支付签名
-
-如果你的商户是全新入驻，且仅可使用微信支付的公钥验证应答和回调的签名，请使用微信支付公钥和公钥 ID 初始化。
-
-```go
-var (
-	wechatpayPublicKeyID       string = "00000000000000000000000000000000"          // 微信支付公钥ID
-)
-
-wechatpayPublicKey, err = utils.LoadPublicKeyWithPath("/path/to/wechatpay/pub_key.pem")
-if err != nil {
-	panic(fmt.Errorf("load wechatpay public key err:%s", err.Error()))
-}
-    
-// 初始化 Client
-opts := []core.ClientOption{
-	option.WithWechatPayPublicKeyAuthCipher(
-		mchID,
-		mchCertificateSerialNumber, mchPrivateKey,
-		wechatpayPublicKeyID, wechatpayPublicKey),
-}
-client, err := core.NewClient(ctx, opts...)
-
-// 初始化 notify.Handler
-handler := notify.NewNotifyHandler(
-	mchAPIv3Key, 
-	verifiers.NewSHA256WithRSAPubkeyVerifier(wechatpayPublicKeyID, *wechatPayPublicKey))
-```
+### 微信支付平台证书与微信支付公钥切换
 
 如果你既有微信支付平台证书，又有公钥。那么，你可以在商户平台自助地从微信支付平台证书切换到公私钥，或者反过来。
 在切换期间，回调要同时支持使用平台证书和公钥的验签。 
