@@ -769,7 +769,7 @@ type CouponEntity struct {
 	// 券被核销的时间（如券已被核销，将返回此字段）
 	UseTime *time.Time `json:"use_time,omitempty"`
 	// 若商家券操作过关联商户订单信息，则该字段返回商家券已关联的商户订单号。
-	AssociateOutTradeNo *time.Time `json:"associate_out_trade_no,omitempty"`
+	AssociateOutTradeNo *string `json:"associate_out_trade_no,omitempty"`
 	// 回退时传入的唯一凭证（如券发生了退回，将返回此字段）
 	ReturnRequestNo *string `json:"return_request_no,omitempty"`
 	// 券被回退的时间（如券发生了退回，将返回此字段）
@@ -867,7 +867,7 @@ func (o CouponEntity) MarshalJSON() ([]byte, error) {
 	}
 
 	if o.AssociateOutTradeNo != nil {
-		toSerialize["associate_out_trade_no"] = o.AssociateOutTradeNo.Format(time.RFC3339)
+		toSerialize["associate_out_trade_no"] = o.AssociateOutTradeNo
 	}
 
 	if o.ReturnRequestNo != nil {
@@ -1131,7 +1131,7 @@ func (o CouponEntity) Clone() *CouponEntity {
 	}
 
 	if o.AssociateOutTradeNo != nil {
-		ret.AssociateOutTradeNo = new(time.Time)
+		ret.AssociateOutTradeNo = new(string)
 		*ret.AssociateOutTradeNo = *o.AssociateOutTradeNo
 	}
 
