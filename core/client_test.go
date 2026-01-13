@@ -13,7 +13,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"mime/multipart"
 	"net/http"
@@ -158,7 +157,7 @@ func TestGet(t *testing.T) {
 
 	result, err := client.Get(ctx, ts.URL+testRequestUri)
 	assert.NoError(t, err)
-	body, err := ioutil.ReadAll(result.Response.Body)
+	body, err := io.ReadAll(result.Response.Body)
 	assert.NoError(t, err)
 	assert.Equal(t, string(body), responseBody)
 }
@@ -189,7 +188,7 @@ func TestPost(t *testing.T) {
 		assert.Equal(t, r.RequestURI, testRequestUri)
 
 		schema, params := parseAuthorization(t, r.Header.Get("Authorization"))
-		body, _ := ioutil.ReadAll(r.Body)
+		body, _ := io.ReadAll(r.Body)
 		assertAuthorization(t, schema, r.Method, r.RequestURI, params, body)
 
 		writeResponse(w)
@@ -198,7 +197,7 @@ func TestPost(t *testing.T) {
 
 	result, err := client.Post(ctx, ts.URL+testRequestUri, data)
 	assert.NoError(t, err)
-	body, err := ioutil.ReadAll(result.Response.Body)
+	body, err := io.ReadAll(result.Response.Body)
 	assert.NoError(t, err)
 	assert.Equal(t, string(body), responseBody)
 }
@@ -271,7 +270,7 @@ func TestRequest(t *testing.T) {
 			}
 
 			schema, params := parseAuthorization(t, r.Header.Get("Authorization"))
-			body, _ := ioutil.ReadAll(r.Body)
+			body, _ := io.ReadAll(r.Body)
 			assertAuthorization(t, schema, r.Method, r.RequestURI, params, body)
 			assert.Equal(t, "9F2A649600414C1485E8A643CB103593", r.Header.Get("Wechatpay-Serial"))
 
@@ -300,7 +299,7 @@ func TestRequest(t *testing.T) {
 			test.contentType,
 		)
 		assert.NoError(t, err)
-		body, err := ioutil.ReadAll(result.Response.Body)
+		body, err := io.ReadAll(result.Response.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, result.Response.StatusCode)
 		assert.Equal(t, responseBody, string(body))
@@ -415,10 +414,10 @@ func TestClient_Upload(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			if p.FormName() == "meta" {
-				body, _ = ioutil.ReadAll(p)
+				body, _ = io.ReadAll(p)
 				assert.Equal(t, metaByte, body)
 			} else if p.FormName() == "file" {
-				slurp, _ := ioutil.ReadAll(p)
+				slurp, _ := io.ReadAll(p)
 				assert.Equal(t, pictureBytes, slurp)
 			}
 		}
@@ -440,7 +439,7 @@ func TestClient_Upload(t *testing.T) {
 	if result.Response.Body != nil {
 		defer result.Response.Body.Close()
 	}
-	body, err := ioutil.ReadAll(result.Response.Body)
+	body, err := io.ReadAll(result.Response.Body)
 	assert.NoError(t, err)
 	t.Log(string(body))
 	assert.Equal(t, string(body), responseBody)

@@ -9,7 +9,6 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -50,7 +49,7 @@ func Test_getRequestBody(t *testing.T) {
 
 func Test_getRequestBodyReadAllError(t *testing.T) {
 	patch := gomonkey.ApplyFunc(
-		ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
+		io.ReadAll, func(r io.Reader) ([]byte, error) {
 			return nil, fmt.Errorf("read buf error")
 		},
 	)
@@ -222,7 +221,7 @@ func TestHandler_ParseNotifyRequestValidateError(t *testing.T) {
 	)
 
 	req := httptest.NewRequest(
-		http.MethodGet, "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
+		http.MethodGet, "http://127.0.0.1", io.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
 	)
 
 	content := make(map[string]interface{})
@@ -251,7 +250,7 @@ func TestHandler_ParseNotifyRequest_getRequestBodyError(t *testing.T) {
 		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
 	)
 	req := httptest.NewRequest(
-		http.MethodGet, "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
+		http.MethodGet, "http://127.0.0.1", io.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
 	)
 
 	content := make(map[string]interface{})
@@ -281,7 +280,7 @@ func TestHandler_ParseNotifyRequest_UnmarshalRequestError(t *testing.T) {
 		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
 	)
 	req := httptest.NewRequest(
-		http.MethodGet, "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
+		http.MethodGet, "http://127.0.0.1", io.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
 	)
 
 	content := make(map[string]interface{})
@@ -316,7 +315,7 @@ func TestHandler_ParseNotifyRequest_DecryptError(t *testing.T) {
 		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
 	)
 	req := httptest.NewRequest(
-		http.MethodGet, "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
+		http.MethodGet, "http://127.0.0.1", io.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
 	)
 
 	content := make(map[string]interface{})
@@ -352,7 +351,7 @@ func TestHandler_ParseNotifyRequest_UnmarshalContentError(t *testing.T) {
 		"testMchAPIv3Key0", verifiers.NewSHA256WithRSAVerifier(core.NewCertificateMapWithList(nil)),
 	)
 	req := httptest.NewRequest(
-		http.MethodGet, "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
+		http.MethodGet, "http://127.0.0.1", io.NopCloser(bytes.NewBuffer([]byte("fake req body"))),
 	)
 
 	content := make(map[string]interface{})

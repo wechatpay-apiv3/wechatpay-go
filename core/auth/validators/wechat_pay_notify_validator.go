@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth"
@@ -19,13 +19,13 @@ type WechatPayNotifyValidator struct {
 
 // Validate 对接收到的微信支付 API v3 通知请求报文进行验证
 func (v *WechatPayNotifyValidator) Validate(ctx context.Context, request *http.Request) error {
-	body, err := ioutil.ReadAll(request.Body)
+	body, err := io.ReadAll(request.Body)
 	if err != nil {
 		return fmt.Errorf("read request body err: %v", err)
 	}
 
 	_ = request.Body.Close()
-	request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	return v.validateHTTPMessage(ctx, request.Header, body)
 }

@@ -14,7 +14,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -336,13 +335,13 @@ func CheckResponse(resp *http.Response) error {
 	if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
 		return nil
 	}
-	slurp, err := ioutil.ReadAll(resp.Body)
+	slurp, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("invalid response, read body error: %w", err)
 	}
 	_ = resp.Body.Close()
 
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(slurp))
+	resp.Body = io.NopCloser(bytes.NewBuffer(slurp))
 	apiError := &APIError{
 		StatusCode: resp.StatusCode,
 		Header:     resp.Header,
@@ -355,14 +354,14 @@ func CheckResponse(resp *http.Response) error {
 
 // UnMarshalResponse 将回包组织成结构化数据
 func UnMarshalResponse(httpResp *http.Response, resp interface{}) error {
-	body, err := ioutil.ReadAll(httpResp.Body)
+	body, err := io.ReadAll(httpResp.Body)
 	_ = httpResp.Body.Close()
 
 	if err != nil {
 		return err
 	}
 
-	httpResp.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	httpResp.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	err = json.Unmarshal(body, resp)
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"time"
 )
 
@@ -70,7 +70,7 @@ func LoadPublicKey(publicKeyStr string) (publicKey *rsa.PublicKey, err error) {
 
 // LoadCertificateWithPath  通过证书的文件路径加载证书
 func LoadCertificateWithPath(path string) (certificate *x509.Certificate, err error) {
-	certificateBytes, err := ioutil.ReadFile(path)
+	certificateBytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read certificate pem file err:%s", err.Error())
 	}
@@ -79,7 +79,7 @@ func LoadCertificateWithPath(path string) (certificate *x509.Certificate, err er
 
 // LoadPrivateKeyWithPath 通过私钥的文件路径内容加载私钥
 func LoadPrivateKeyWithPath(path string) (privateKey *rsa.PrivateKey, err error) {
-	privateKeyBytes, err := ioutil.ReadFile(path)
+	privateKeyBytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read private pem file err:%s", err.Error())
 	}
@@ -88,7 +88,7 @@ func LoadPrivateKeyWithPath(path string) (privateKey *rsa.PrivateKey, err error)
 
 // LoadPublicKeyWithPath 通过公钥的文件路径加载公钥
 func LoadPublicKeyWithPath(path string) (publicKey *rsa.PublicKey, err error) {
-	publicKeyBytes, err := ioutil.ReadFile(path)
+	publicKeyBytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read certificate pem file err:%s", err.Error())
 	}
