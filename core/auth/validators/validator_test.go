@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -63,7 +62,7 @@ func TestWechatPayResponseValidator_Validate_Success(t *testing.T) {
 						consts.WechatPayNonce:     {"NONCE1234567890"},
 						consts.RequestID:          {"any-request-id"},
 					},
-					Body: ioutil.NopCloser(bytes.NewBuffer([]byte("BODY"))),
+					Body: io.NopCloser(bytes.NewBuffer([]byte("BODY"))),
 				},
 			},
 			wantErr: false,
@@ -82,7 +81,7 @@ func TestWechatPayResponseValidator_Validate_Success(t *testing.T) {
 						consts.WechatPayNonce:     {"NONCE1234567890"},
 						consts.RequestID:          {"any-request-id"},
 					},
-					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+					Body: io.NopCloser(bytes.NewBuffer([]byte(""))),
 				},
 			},
 			wantErr: false,
@@ -100,7 +99,7 @@ func TestWechatPayResponseValidator_Validate_Success(t *testing.T) {
 						consts.WechatPayTimestamp: {mockTimestampStr},
 						consts.WechatPayNonce:     {"NONCE1234567890"},
 					},
-					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+					Body: io.NopCloser(bytes.NewBuffer([]byte(""))),
 				},
 			},
 			wantErr: false,
@@ -144,7 +143,7 @@ func TestWechatPayResponseValidator_Validate_Failure(t *testing.T) {
 						consts.WechatPayNonce:     {"NONCE1234567890"},
 						consts.RequestID:          {"any-request-id"},
 					},
-					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+					Body: io.NopCloser(bytes.NewBuffer([]byte(""))),
 				},
 			},
 			wantErr: true,
@@ -160,7 +159,7 @@ func TestWechatPayResponseValidator_Validate_Failure(t *testing.T) {
 						consts.WechatPayNonce:     {"NONCE1234567890"},
 						consts.RequestID:          {"any-request-id"},
 					},
-					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+					Body: io.NopCloser(bytes.NewBuffer([]byte(""))),
 				},
 			},
 			wantErr: true,
@@ -176,7 +175,7 @@ func TestWechatPayResponseValidator_Validate_Failure(t *testing.T) {
 						consts.WechatPayNonce:     {"NONCE1234567890"},
 						consts.RequestID:          {"any-request-id"},
 					},
-					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+					Body: io.NopCloser(bytes.NewBuffer([]byte(""))),
 				},
 			},
 			wantErr: true,
@@ -192,7 +191,7 @@ func TestWechatPayResponseValidator_Validate_Failure(t *testing.T) {
 						consts.WechatPayNonce:     {"NONCE1234567890"},
 						consts.RequestID:          {"any-request-id"},
 					},
-					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+					Body: io.NopCloser(bytes.NewBuffer([]byte(""))),
 				},
 			},
 			wantErr: true,
@@ -209,7 +208,7 @@ func TestWechatPayResponseValidator_Validate_Failure(t *testing.T) {
 						consts.WechatPayNonce:     {"NONCE1234567890"},
 						consts.RequestID:          {"any-request-id"},
 					},
-					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+					Body: io.NopCloser(bytes.NewBuffer([]byte(""))),
 				},
 			},
 			wantErr: true,
@@ -225,7 +224,7 @@ func TestWechatPayResponseValidator_Validate_Failure(t *testing.T) {
 						consts.WechatPayTimestamp: {mockTimestampStr},
 						consts.RequestID:          {"any-request-id"},
 					},
-					Body: ioutil.NopCloser(bytes.NewBuffer([]byte(""))),
+					Body: io.NopCloser(bytes.NewBuffer([]byte(""))),
 				},
 			},
 			wantErr: true,
@@ -258,7 +257,7 @@ func TestWechatPayResponseValidator_WithoutVerifierShouldFail(t *testing.T) {
 			consts.WechatPayNonce:     {"NONCE1234567890"},
 			consts.RequestID:          {"any-request-id"},
 		},
-		Body: ioutil.NopCloser(bytes.NewBuffer([]byte("BODY"))),
+		Body: io.NopCloser(bytes.NewBuffer([]byte("BODY"))),
 	}
 
 	err := invalidValidator.Validate(context.Background(), response)
@@ -269,7 +268,7 @@ func TestWechatPayResponseValidator_ValidateReadBodyErrorShouldFail(t *testing.T
 	patches := gomonkey.NewPatches()
 	defer patches.Reset()
 
-	patches.ApplyFunc(ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
+	patches.ApplyFunc(io.ReadAll, func(r io.Reader) ([]byte, error) {
 		return nil, fmt.Errorf("read error")
 	})
 
@@ -288,7 +287,7 @@ func TestWechatPayResponseValidator_ValidateReadBodyErrorShouldFail(t *testing.T
 			consts.WechatPayNonce:     {"NONCE1234567890"},
 			consts.RequestID:          {"any-request-id"},
 		},
-		Body: ioutil.NopCloser(bytes.NewBuffer([]byte("BODY"))),
+		Body: io.NopCloser(bytes.NewBuffer([]byte("BODY"))),
 	}
 
 	err := validator.Validate(context.Background(), response)
@@ -308,7 +307,7 @@ func TestWechatPayNotifyValidator_Validate(t *testing.T) {
 
 	validator := NewWechatPayNotifyValidator(&mockVerifier{})
 
-	request := httptest.NewRequest("Post", "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("BODY"))))
+	request := httptest.NewRequest("Post", "http://127.0.0.1", io.NopCloser(bytes.NewBuffer([]byte("BODY"))))
 	request.Header = http.Header{
 		consts.WechatPaySignature: {
 			"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\nBODY\n]",
@@ -327,7 +326,7 @@ func TestWechatPayNotifyValidator_ValidateReadBodyError(t *testing.T) {
 	patches := gomonkey.NewPatches()
 	defer patches.Reset()
 
-	patches.ApplyFunc(ioutil.ReadAll, func(r io.Reader) ([]byte, error) {
+	patches.ApplyFunc(io.ReadAll, func(r io.Reader) ([]byte, error) {
 		return nil, fmt.Errorf("read error")
 	})
 
@@ -336,7 +335,7 @@ func TestWechatPayNotifyValidator_ValidateReadBodyError(t *testing.T) {
 
 	validator := NewWechatPayNotifyValidator(&mockVerifier{})
 
-	request := httptest.NewRequest("Post", "http://127.0.0.1", ioutil.NopCloser(bytes.NewBuffer([]byte("BODY"))))
+	request := httptest.NewRequest("Post", "http://127.0.0.1", io.NopCloser(bytes.NewBuffer([]byte("BODY"))))
 	request.Header = http.Header{
 		consts.WechatPaySignature: {
 			"[SERIAL1234567890-" + mockTimestampStr + "\nNONCE1234567890\nBODY\n]",

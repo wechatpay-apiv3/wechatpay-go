@@ -8,7 +8,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
@@ -28,7 +27,7 @@ func (s *baseFileUploader) upload(
 ) (*core.APIResult, error) {
 	urlpath = consts.WechatPayAPIServer + urlpath
 
-	content, err := ioutil.ReadAll(fileReader)
+	content, err := io.ReadAll(fileReader)
 	if err != nil {
 		return nil, err
 	}
